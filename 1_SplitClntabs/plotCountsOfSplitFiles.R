@@ -1,27 +1,27 @@
+library(tidyverse)
 library(RColorBrewer)
-setwd('/Users/SKeller/Documents/Sequencing/Runs/k9MultiLoci3-73454401/Clntab_2018-04-25/Results')
+
+
+setwd('/Users/SKeller/Documents/Projects/feTR_HTS/Normal/Bioinformatics/Analysis_Nikos/Clntab_2015/Results')
+
+#****** 'uniread' file has leading zeros -> adjust script or remove manually (import fails)****
 
 for (type in c('reads','unireads')){
-  #t<-read.table('clntab_ALL-unireads.txt', sep = " ", header=T, check.names = FALSE)
-  t<-read.table(paste0('clntab_ALL-',type,'.txt'), sep = " ", header=T, check.names = FALSE)
-  
-  #subset samples by project
-  t<-t[c(5,6,1,2,3,4),]   #Wylde Blue
-#  t<-t[c(7:24),]          #Ultra II kit vs HB
+  t<-read_delim(paste0('clntab-',type,'.txt'), delim = " ", col_names = F)
+  colnames(t)<-c('count','filename')
   
   #shorten file name
-  t$id<-sub(".*Data/.*/", "",t$sample)
-  t$id<-sub("_.*", "",t$id)
+  t$id<-sub(".*Data/", "",t$filename)
+  t$id<-sub("/Cat.*", "",t$id)
   
-  #subset IGH,TRB,TRD,TRG
-  l<-t[,c(1,3,4,5)]
+  t$organ<-rep(NA,nrow(t))
+  t$organ[grepl('Ln',t$filename)]<-'LymphNode'
+  t$organ[grepl('Th',t$filename)]<-'Thymus'
+  t$organ[grepl('Sp',t$filename)]<-'Spleen'
+  t$organ<-as.factor(t$organ)
   
-  #pdf("IGH-TRB-TRD-TRG-ratio_unireads.pdf")
-  #png("IGH-TRB-TRD-TRG-ratio_unireads.png")
-  pdf(paste0("IGH-TRB-TRD-TRG-ratio_",type,".pdf"))
-#  png(paste0("IGH-TRB-TRD-TRG-ratio_",type,".png"))
-  barplot(t(as.matrix(l)),names.arg=t$id,las=2,col=brewer.pal(ncol(l),"Set3"),main=paste0(type,' per locus'))
-  legend("topleft",legend=colnames(l),fill=brewer.pal(ncol(l),"Set3"),cex=0.8)
+  pdf(paste0('Plots/',type,'.pdf'))
+  ggplot(t,aes(id,count,fill=organ))+geom_col()+coord_flip()+scale_fill_brewer(palette = "Dark2")
   dev.off()
 }
 

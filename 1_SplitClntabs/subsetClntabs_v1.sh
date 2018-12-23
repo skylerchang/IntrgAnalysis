@@ -5,9 +5,10 @@
 #v6: grep strategy changed to eliminate nojus in TR groups
 #
 
-#Usage: ./subsetClntabs_TRs_v5.sh <ClntabFolder>
+#Usage: ./subsetClntabs_v1.sh <ClntabFolder>
 
 #Expected data file structure for clntab analysis:
+# !!! Folder & clntab name must be identical !!!
 #Clntab_yyyy-mm-dd/
 #	Data/
 #		Sample1/
@@ -47,7 +48,23 @@ sed '1q;d' $f1 > $1/Results/Summaries/clntab_header.txt
 sed '1q;d' $f1 | tr '\t' $'\n' > $1/Results/Summaries/clntab_header_transposed.txt
 
 
-#************* IGH/TRA/TRB/TRD/TRG/noju ***************
+#========= check numbers in original clntab file =================
+echo "producing stats ..."
+
+#get counts for original clntab file
+touch $1/Results/clntab-unireads.txt
+touch $1/Results/clntab-reads.txt
+echo "Counting lines in original clntab files ..."
+for dir in $1/Data/*
+do
+	echo "dir: "$dir
+	fname=`basename $dir`; echo $fname; 
+	wc -l $dir/${fname}.clntab >> $1/Results/clntab-unireads.txt; 
+	awk -F'\t' -v c1=$colSize '{total = total + $c1}END{print total, FILENAME}' $dir/${fname}.clntab >> $1/Results/clntab-reads.txt; 
+done
+
+
+#========= split clntab into IGH/TRA/TRB/TRD/TRG/noju =================
 #split clntab file based on J gene usage
 loci="IGH TRA TRB TRD TRG noju"		#TRD TRG noju
 echo "splitting into IGH/TRA/TRB/TRD/TRG/noju based on J gene ..."
@@ -71,28 +88,12 @@ do
 done
 
 
-
-
-#numbers check - count lines in each file
-echo "producing stats ..."
-
-#get counts for original clntab file
-touch $1/Results/clntab-unireads.txt
-touch $1/Results/clntab-reads.txt
-echo "Counting lines in original clntab files ..."
-for dir in $1/Data/*
-do
-	echo "dir: "$dir
-	fname=`basename $dir`; echo $fname; 
-	wc -l $dir/${fname}.clntab >> $1/Results/clntab-unireads.txt; 
-	awk -F'\t' -v c1=$colSize '{total = total + $c1}END{print total, FILENAME}' $dir/${fname}.clntab >> $1/Results/clntab-reads.txt; 
-done
-
-
+#======== check numbers in files split by locus =================
+loci="IGH TRA TRB TRD TRG noju"		#TRD TRG noju
 for dir in $1/Data/*
 do
 	echo "dir: "$dir							#format: 'Clntab_test//Data/sample1'
-	fname=`basename $dir`; echo $fname; 		#format: 'sample1'
+	fname=`basename $dir`; echo "fname: "$fname; 		#format: 'sample1'
 	for locus in $loci 
 	do 
 		#print header
@@ -112,6 +113,7 @@ echo "IGH TRA TRB TRD TRG noju sum all sumMinusAll sample" > $1/Results/clntab_A
 paste $1/Results/clntab_IGH-unireads.txt $1/Results/clntab_TRA-unireads.txt $1/Results/clntab_TRB-unireads.txt $1/Results/clntab_TRD-unireads.txt $1/Results/clntab_TRG-unireads.txt $1/Results/clntab_noju-unireads.txt $1/Results/clntab-unireads.txt | awk '{print $1,$3,$5,$7,$9,$11, ($1+$3+$5+$7+$9+$11), ($13-1), ($1+$3+$5+$7+$9+$11-$13+1), $14}' 
 paste $1/Results/clntab_IGH-unireads.txt $1/Results/clntab_TRA-unireads.txt $1/Results/clntab_TRB-unireads.txt $1/Results/clntab_TRD-unireads.txt $1/Results/clntab_TRG-unireads.txt $1/Results/clntab_noju-unireads.txt $1/Results/clntab-unireads.txt | awk '{print $1,$3,$5,$7,$9,$11, ($1+$3+$5+$7+$9+$11), ($13-1), ($1+$3+$5+$7+$9-$11-$13+1), $14}' >> $1/Results/clntab_ALL-unireads.txt
 
+#summarize read counts
 echo "Reads cross-check: cols: IGH TRA TRB TRD TRG noju sum all sum-all; col9 should equal 0"
 echo "IGH TRA TRB TRD TRG noju sum all sumMinusAll sample" > $1/Results/clntab_ALL-reads.txt;
 paste $1/Results/clntab_IGH-reads.txt $1/Results/clntab_TRA-reads.txt $1/Results/clntab_TRB-reads.txt $1/Results/clntab_TRD-reads.txt $1/Results/clntab_TRG-reads.txt $1/Results/clntab_noju-reads.txt $1/Results/clntab-reads.txt | awk '{print $1,$3,$5,$7,$9,$11, ($1+$3+$5+$7+$9+$11), ($11), ($1+$3+$5+$7+$9+$11-$13), $14}' 
