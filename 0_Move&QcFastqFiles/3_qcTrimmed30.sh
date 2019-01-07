@@ -1,6 +1,6 @@
 #qc
 
-targetDir="FASTQ_Generation_2018-12-19_19_32_44Z-144643634"
+targetDir="../../Data"
 
 mkdir $targetDir"/Trimmed30QC/"
 
