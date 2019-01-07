@@ -1,12 +1,11 @@
-targetFolder="FASTQ_Generation_2018-12-19_19_32_44Z-144643634"
+
+targetFolder="../../Data/"
+mkdir $targetFolder"Original"
 
 
-mkdir "Original"
 
 
-
-
-for d in $targetFolder/* 
+for d in $targetFolder/"Basespace"/* 
 do 
 	echo "d: "$d
 	
@@ -15,7 +14,7 @@ do
 	echo "dirname: "$dirname
 	part1=$(echo $dirname | perl -lne 'print $1 if /(.*)_L001/')
 	echo "part1: "$part1
-	mkdir "Original/"$part1
+	mkdir $targetFolder"Original/"$part1
 	
  	for f in $d/*
  	do
@@ -24,9 +23,9 @@ do
  		part2=$(echo $filename | perl -lne 'print $1 if /(_L001.*)/')
 		echo "part2: "$part2
 		echo "finalFileName: "$part1$part2
-		mv $f "Original/"$part1"/"$part1$part2
+		mv $f $targetFolder"/Original/"$part1"/"$part1$part2
  	done
  	rmdir $d
 done
 
-mv Original/ $targetFolder"/Original/"
+rmdir $targetFolder/"Basespace"
