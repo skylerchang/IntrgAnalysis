@@ -21,7 +21,7 @@
 
 echo "Target folder: '$1'"
 
-mkdir $1/Results/Summaries
+mkdir -p $1/Results/Summaries
 
 
 #get columns for functionality and productivity from header of first file and store for later use
