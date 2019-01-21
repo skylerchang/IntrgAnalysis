@@ -10,11 +10,11 @@ touch $targetFolder"/Counts/after-count.txt"
 
 for d in $targetFolder/"Original/"* 
 do 
-	echo "d: "$d
-	echo $d >> $targetFolder"/Counts/before-names.txt"
+#	echo "d: "$d
 	for f in $d/*
 	do
 		echo "f: "$f
+		echo $f >> $targetFolder"/Counts/before-names.txt"
 		zgrep -Ec "$" $f >> $targetFolder"/Counts/before-count.txt"
 	done 
 done
