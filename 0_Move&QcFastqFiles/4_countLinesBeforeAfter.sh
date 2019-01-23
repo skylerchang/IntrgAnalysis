@@ -10,7 +10,6 @@ touch $targetFolder"/Counts/after-count.txt"
 
 for d in $targetFolder/"Original/"* 
 do 
-#	echo "d: "$d
 	for f in $d/*
 	do
 		echo "f: "$f
