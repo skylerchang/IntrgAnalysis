@@ -1,0 +1,4 @@
+../../Data/OriginalQC/16-091599-1D1P1C1P1C1_L001_R1_001_fastqc/16-091599-1D1P1C1P1C1_L001_R1_001_fastqc/Images/per_base_quality.png
+../../Data/OriginalQC/16-091599-1D1P1C1P1C1_L001_R2_001_fastqc/16-091599-1D1P1C1P1C1_L001_R2_001_fastqc/Images/per_base_quality.png
+../../Data/OriginalQC/16-091599-1D1P2C1P1C1_L001_R1_001_fastqc/16-091599-1D1P2C1P1C1_L001_R1_001_fastqc/Images/per_base_quality.png
+../../Data/OriginalQC/16-091599-1D1P2C1P1C1_L001_R2_001_fastqc/16-091599-1D1P2C1P1C1_L001_R2_001_fastqc/Images/per_base_quality.png

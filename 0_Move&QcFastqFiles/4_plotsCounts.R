@@ -3,6 +3,7 @@ library(here)
 library(gsubfn)
 
 targetfolder<-"../../Data/Counts/"
+outfolder<-"../../Data/CountPlots"
 
 beforeName<-read_table(paste0(targetfolder,"before-names.txt"),col_names=F)
 beforeNameShort<-as.tibble(unlist(strapply(beforeName$X1,"^.*/(.+)$")))
@@ -29,7 +30,13 @@ diff$count<-as.numeric(diff$count)
 diff$type<-as.factor(diff$type)
 
 all<-as_tibble(rbind(after,diff))
+all$type<-factor(all$type,levels=c('before','after'))
 
+dir.create(here(outfolder))
+
+
+pdf(here(outfolder,"pairedReads.pdf"), width = 15, height = 25)
 ggplot(all,aes(file,count,fill=type))+geom_col()+coord_flip()+scale_fill_manual(values=c('darkgrey','royalblue3'))
+dev.off()
 
 total<-sum(before$count)
