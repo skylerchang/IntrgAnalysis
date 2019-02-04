@@ -4,13 +4,9 @@ targetDir="../../Data"
 
 mkdir $targetDir"/OriginalQC/"
 
-for d in $targetDir"/Original/*"
+for f in $targetDir"/Original/*"
 do 
-	echo $d
-	for f in $d/*
-	do
-		fastqc $f --outdir=$targetDir"/OriginalQC/"
-	done
+	fastqc $f --outdir=$targetDir"/OriginalQC/"
 done
 
 echo "Running MultiQC ..."
