@@ -8,8 +8,8 @@ outFolder<-"../../Data/CountPlots/"
 
 datalist<-list()
 
-files<-list.files(targetFolder)
-files_short<-sub("_L001_R1_001.fastq.processed.junctioned.profiled.clntab","",files)
+files<-list.files(targetFolder,pattern ="*.clntab",recursive = T)
+files_short<-basename(sub("_L001_R1_001.fastq.processed.junctioned.profiled.clntab","",files))
 
 seqs<-tibble(aaSeq=character(),file=character())
 
@@ -18,7 +18,7 @@ for (i in 1:length(files)){
   t<-read_tsv(paste0(targetFolder,files[i]))
   tt<-subset(t, select=c("sequence.5-GENE","sequence.3-GENE","sequence.JUNCTION.aa seq","sequence.JUNCTION.aa seq.len","sequence.chain"))
   colnames(tt)<-c("v","j","aaSeq","aaLength","chain")
-  conditionOne<-grepl("^C.{4,34}W$",tt$aaSeq)
+  conditionOne<-grepl("^C.{4,34}[WF]$",tt$aaSeq)
   conditionTwo<-!grepl("[\\*#]",tt$aaSeq)
   tt$validCdr<-ifelse(conditionOne & conditionTwo,TRUE,FALSE)
   tt$chain<-factor(tt$chain,levels=c('A','B','D','G','H','K','NA')) 

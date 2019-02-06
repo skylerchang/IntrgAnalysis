@@ -7,6 +7,8 @@ targetfolder<-"../../Data/Counts/"
 outfolder<-"../../Data/CountPlots/"
 outTables<-"../../Data/Tables/"
 
+dir.create(outfolder)
+
 #parse 'before' names & truncate path
 name<-read_table(paste0(targetfolder,"beforeQC-names.txt"),col_names=F)
 #parse 'before' counts 
@@ -29,6 +31,7 @@ dd$sample<-sub("D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$","",dd$file)
 dd$fraction<-ifelse(grepl("1$",dd$sample),'pellet','supernatant')
 dd$submission<-sub("-[0-9]+[A-Z]*$","",dd$sample)
 colnames(dd)<-c('file','type','count','rep')
+dd<-as_tibble(dd)
 
 #bargraph before/after - by file
 pdf(paste0(outfolder,"preClntab_beforeAfterQc_bar_byFile.pdf"))

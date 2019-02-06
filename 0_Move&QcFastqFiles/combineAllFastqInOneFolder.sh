@@ -2,6 +2,7 @@
 
 dir1="/Users/SKeller/Downloads/all/"
 dir1="FASTQ_Generation_2018-08-10_18_02_24Z-114998115"
+dir1="../../Data/Original/"
 destinationFolder='CombinedFastqFiles'
 
 subs=`ls $dir1`
