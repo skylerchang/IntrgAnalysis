@@ -1,7 +1,0 @@
-magick montage -tile 2x2 -geometry +4+4 -label %t qc.png qc.png qc.png test.png
-magick montage -tile 2x2 -geometry +4+4 -label %t qc.png qc.png qc.png show:
-
-montage -tile 2x2 -geometry +4+4 -label %t qc.png qc.png qc.png show:
-montage -tile 2x2 -geometry +4+4 -label %t qc.png qc.png qc.png test.png
-montage -tile 4x8 -page letter -geometry +4+4 -pointsize 20 -label %t qc.png qc.png qc.png qc.png qc.png qc.png qc.png test.pdf
-
