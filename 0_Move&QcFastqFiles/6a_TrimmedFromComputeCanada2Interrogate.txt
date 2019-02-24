@@ -1,0 +1,11 @@
+#login & cd to pertinent folder
+ssh keeper@s0.arrest.tools
+password: b@tk33p3r
+cd /intrg_storage/users/smkeller/analyses/
+
+#create new 'analysis' folder; will show up in 'processing' tab in Interrogate; cd in new folder
+mkdir -p <RunID>_Q30L50/data/
+cd <RunID>_Q30L50/data/
+
+#transfer fastq.gz files from computeCanada to arrest server (from arrest server)
+rsync -ave ssh smkeller@orca.computecanada.ca:/work/def-smkeller/Shared/SequencingData/Run02_feTR_normal/Data/Trimmed30/Paired/Cat1-1S_S10_L001_R1_001.fastq.gz ./
