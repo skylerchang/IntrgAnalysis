@@ -29,7 +29,7 @@ do
  	do
  		echo $f
  		filename="${f##*/}"
- 		part2=$(echo $filename | perl -lne 'print $1 if /^(.*)_001.fastq.gz/')
+ 		part2=$(echo $filename | perl -lne 'print $1 if /^(.*)_L001_R[12]_001.fastq.gz/')
 		echo "part2: "$part2
 		echo "finalFileName: "$part1$part2
 		mv $f $targetFolder"/Original/"$part1$part2/
