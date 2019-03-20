@@ -30,8 +30,12 @@ do
  		echo $f
  		filename="${f##*/}"
  		part2=$(echo $filename | perl -lne 'print $1 if /^(.*)_L001_R[12]_001.fastq.gz/')
+		part3=$(echo $filename | perl -lne 'print $1 if /^.*(_L001_R[12]_001.fastq.gz)/')
 		echo "part2: "$part2
-		echo "finalFileName: "$part1$part2
-		mv $f $targetFolder"/Original/"$part1$part2/
- 	done
+		echo "part3: "$part3
+		echo "finalFolderName: "$part1$part2
+		echo "finalFileName: "$part1$part2$part3
+		mkdir $targetFolder"/Original/"$part1$part2
+		cp $f $targetFolder"/Original/"$part1$part2"/"$part1$part2$part3
+	done
 done

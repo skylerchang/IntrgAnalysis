@@ -6,21 +6,21 @@
 #I don't know if this is open to other users and if computecanada remembers for next time.
 
 #once installed, go from here
-targetDir="../../Data"
+targetDir="../../"
 
-mkdir $targetDir"/OriginalQC/"
+mkdir $targetDir"Results/OriginalQC/"
 
-for d in $targetDir"/Original/*"
+for d in $targetDir"Data/Original/*"
 do 
 	echo $d
 	for f in $d/*
 	do
 		echo "fastqc-ing "$f" ..."
-		fastqc $f --outdir=$targetDir"/OriginalQC/"
+		fastqc $f --outdir=$targetDir"Results/OriginalQC/"
 	done
 done
 
 echo "Running MultiQC ..."
-multiqc $targetDir"/OriginalQC/"
-mkdir $targetDir"/OriginalQCMulti/"
-mv multi* $targetDir"/OriginalQCMulti/"
+multiqc $targetDir"Results/OriginalQC/"
+mkdir $targetDir"Results/OriginalQCMulti/"
+mv multi* $targetDir"Results/OriginalQCMulti/"
