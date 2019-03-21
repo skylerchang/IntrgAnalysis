@@ -1,36 +1,86 @@
 library(tidyverse)
-library(here)
-library(seqinr)
-library(RColorBrewer)
+library(gridExtra)
 
-targetFolder<-"../../Data/Clntab/"
-outFolder<-"../../Data/CountPlots/"
 
-datalist<-list()
+t<-read_rds('../../Data/clntab.rds')
+datalist<-t[[1]]
+files_short<-t[[2]]
 
-files<-list.files(targetFolder,pattern ="*.clntab",recursive = T)
-files_short<-basename(sub("_L001_R1_001.fastq.processed.junctioned.profiled.clntab","",files))
+outpath<-'../../Results/Histograms/'
 
-seqs<-tibble(aaSeq=character(),file=character())
+plotlist_histogramFacet<-list()
+plotlist_density<-list()
 
-for (i in 1:length(files)){
-  print(files[i])
-  t<-read_tsv(paste0(targetFolder,files[i]))
-  tt<-subset(t, select=c("sequence.5-GENE","sequence.3-GENE","sequence.JUNCTION.aa seq","sequence.JUNCTION.aa seq.len","sequence.chain"))
-  colnames(tt)<-c("v","j","aaSeq","aaLength","chain")
-  conditionOne<-grepl("^C.{4,34}[WF]$",tt$aaSeq)
-  conditionTwo<-!grepl("[\\*#]",tt$aaSeq)
-  tt$validCdr<-ifelse(conditionOne & conditionTwo,TRUE,FALSE)
-  tt$chain<-factor(tt$chain,levels=c('A','B','D','G','H','K','NA')) 
+for (i in 1:length(datalist)){
+  s<-datalist[[i]]
   
-  #bind valid cdrs to 'seqs'
-  temp2<-tt[tt$validCdr==TRUE,"aaSeq"]
-  temp1<-tibble(file=rep(files_short[i],nrow(temp2)))
-  temp<-cbind(temp1,temp2)
+  loci<-c("TRA","TRB","TRD","TRG")
+  
+  #eliminate reads with too long aaSeq
+  s<-s[s$aaLength<=40,]
+  #eliminate NA reads
+  s<-s[rowSums(is.na(s))==0,]
 
-  seqs<-rbind(seqs,temp)
-  datalist[[i]]<-tt
+  p<-ggplot(s,aes(aaLength,fill=vAndJchainSimplified))+geom_bar()+facet_wrap(~vAndJchainSimplified)+ggtitle(files_short[i])+theme(plot.title=element_text(hjust=0.5))+guides(fill=F)
+  plotlist_histogramFacet[[i]]<-ggplotGrob(p)
+  
+#  p<-ggplot(s,aes(aaLength,fill=vAndJchainSimplified))+geom_density(alpha = 0.5, position = "stack",adjust=3)
+#  plotlist_density[[i]]<-ggplotGrob(p)
+
 }
+
+pdf(paste0(outpath,'cdr3Length_histogram_all.pdf'))
+marrangeGrob(plotlist_histogramFacet,nrow=1,ncol=1)
+dev.off()
+
+pdf(paste0(outpath,'cdr3Length_histogram_allOnOnePage.pdf'))
+marrangeGrob(plotlist_histogramFacet,nrow=4,ncol=3)
+dev.off()
+
+pdf(paste0(outpath,'cdr3Length_density_all.pdf'))
+marrangeGrob(plotlist_density,nrow=4,ncol=3)
+dev.off()
+
+#below is garbage
+
+t<-datalist[[1]]
+
+t.trg<-t[t$vAndJchainSimplified=='TRG',]
+
+ggplot(t.trg,aes(aaLength,size))+geom_col()+facet_wrap(vGene~jGene)
+
+
+
+t <- read.table("1A_S23/1A_S23_TRB_col15-21-23-27.clntab",header=F,fill = TRUE)
+colnames(t)<-c("aaSeq","length","functionality","size")
+
+t$aaSeq <- reorder(t$aaSeq, t$size)
+t<-head(t, n=100)
+
+reds<-c(hsv(.01,.9,.9),hsv(.01,.9,.85),hsv(.01,.9,.8),hsv(.01,.9,.75),hsv(.01,.9,.7))
+greens<-c(hsv(.4,.9,.9),hsv(.4,.9,.85),hsv(.4,.9,.8),hsv(.4,.9,.75),hsv(.4,.9,.7))
+t$color <- ifelse(t$functionality == "productive", sample(greens), sample(reds))
+
+ggplot(data = t, aes(x = length, y = size, fill = aaSeq)) + 
+  geom_bar(stat = "identity") + scale_fill_manual(values=t$color, guide = guide_legend(reverse=TRUE, limits='CSVLLCQLPGGR#YERYF')) 
+
+
+
+ggplot(data = t, aes(x = length, y = size, fill = aaSeq)) + 
+  geom_bar(stat = "identity") + scale_fill_brewer(palette="Dark2", guide = guide_legend(reverse=TRUE))
+
+ggplot(data = t, aes(x = length, y = size, fill = aaSeq)) + 
+  geom_bar(stat = "identity") + scale_fill_manual(values=t$color, guide = guide_legend(reverse=TRUE)) 
+
+
+
+
+
+
+
+
+
+
 
 seqs<-as_tibble(seqs)
 require(plyr)
