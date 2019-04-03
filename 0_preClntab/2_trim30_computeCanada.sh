@@ -1,6 +1,12 @@
 #On compute Canada: java -jar $EBROOTTRIMMOMATIC/trimmomatic-0.36.jar
 #On Stefan's laptop: java -jar $TRIMMOMATIC_JAR
 
+
+module load trimmomatic
+mkdir ../../Data/Trimmed30 
+
+
+
 targetFolder="../../Data"
 destination=$targetFolder"/Trimmed30"
 
@@ -8,8 +14,8 @@ mkdir -p $destination"/Paired/"
 mkdir -p $destination"/Unpaired/"
 #mkdir -p $destination"/Logfiles/"
 
-export SOFT_DIR=/usr/local/
-export TRIMMOMATIC_JAR=$SOFT_DIR/Trimmomatic-0.38/trimmomatic-0.38.jar
+#export SOFT_DIR=/usr/local/
+#export TRIMMOMATIC_JAR=$SOFT_DIR/Trimmomatic-0.38/trimmomatic-0.38.jar
 
 
 for f in $targetFolder/"Original/"* 
