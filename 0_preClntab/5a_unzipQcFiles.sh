@@ -1,12 +1,11 @@
 #unzip & move qc results
 
 
-targetFolder="../../Data/OriginalQC/*.zip"
-targetFolder="../../Data/Trimmed30QC/*.zip"
+targetFolder1="../../Results/OriginalQC/*.zip"
+targetFolder2="../../Results/Trimmed30QC/*.zip"
 
 
-
-for zip in $targetFolder
+for zip in $targetFolder{1,2}
 do
   dirname=`echo $zip | sed 's/\.zip$//'`
   if mkdir "$dirname"
