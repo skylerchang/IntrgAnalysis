@@ -25,58 +25,42 @@ library(plyr)
 
 
 
-files<-list.files("../Parse_results")
-names<-sub(".txt","",files)
+for (i in 1:length(datalist)){
+  t<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
 
-for (i in 1:length(files)){
-  t<-read_delim(paste0("../Parse_results/",files[i]),delim='\t',col_names = F)
-  colnames(t)<-c("read.id","v","j","length","productive","ntSeq","aaSeq")
-  t$size<-1
-  t<-t[t$productive==1,]
-  
   nrow(t)
   #================ aaLength vs. aaSeq =================================
   #collapse reads with identical aaSeq
   library(plyr)
-  tt<-as_tibble(ddply(t[,c("aaSeq","size")],"aaSeq",numcolwise(sum)))
-  #add sequence length & filter
-  tt$length<-nchar(tt$aaSeq)
-  tt<-tt[tt$length<20,]
-  
-  #sort according to frequency of clone
-  tt<-tt[order(-tt$size),]
-  tt$aaSeq<-factor(tt$aaSeq,levels=tt$aaSeq)
-  
-  #clonotype color - 16 most common
-  b<-c(brewer.pal(8,"Accent"),brewer.pal(8,"Set3"))
-  tt$color<-c(b,rep('grey',nrow(tt)-16))
-  
-  #clonotype color - all colored
-  b<-c(rep(brewer.pal(8,"Accent"),100))
-  tt$color<-b[1:nrow(tt)]
-  
-  #clonotype color - all grey
-  tt$color<-rep('grey',nrow(tt))
-  
-  #plot
-  pdf(paste0(outpath,"/cdrAaSeqByAaLength_",names[i],"_size25_unicolor.pdf"))
-  ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = TRUE))+guides(fill=F)+scale_fill_manual(values=tt$color)+scale_x_discrete(name="CDR3 amino acid length",limits=(8:17))+scale_y_continuous(name="Sequence reads")+labs(title=names[i])+theme_bw(base_size = 25)
-  dev.off()
-  
-  #plot
-  pdf(paste0(outpath,"/cdrAaSeqByAaLength_",names[i],"_size25_unicolor.pdf"))
-  ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = TRUE))+guides(fill=F)+scale_fill_manual(values=tt$color)+scale_x_discrete(name="CDR3 amino acid length",limits=(8:17))+scale_y_continuous(name="Sequence reads")+labs(title=names[i])+theme_bw(base_size = 25)
-  dev.off()
-  
-  #write aaSeq as fasta file for web logo
-  for (j in 11:14){
-    logo<-tt$aaSeq[tt$length==j]
-    write.fasta(as.list(logo),rep('aaSeq',nrow(tt)),paste0("cdrAaSeq_",j,"aa.fasta"))
+  for (j in 1:length(loci)){
+    #subset for locus
+    tt<-t[t$vAndJchainSimplified==loci[j],c("aaSeq","size")]
+    tt<-tt[!is.na(tt$aaSeq),]
+    #collapse lines with identical 'aaSeq' and sum up 'size'
+    tt<-as_tibble(ddply(tt,"aaSeq",numcolwise(sum)))
+    #sort in descending order of 'size'
+    tt<-tt[order(-tt$size),]
+    #convert the aaSeqs for all clones less abundant than 'n' into generic sequences
+    n<-80
+    tt$genericAaSeq<-as.vector(mapply(paste,mapply(rep,'x',nchar(tt$aaSeq)),collapse=''))
+    #re-assign original aaSeq for first n clonotypes
+    tt$aaSeq[(n+1):nrow(tt)]<-tt$genericAaSeq[(n+1):nrow(tt)]
+    ttt<-ddply(tt,"aaSeq",numcolwise(sum))
+    #assign color
+    ttt$color<-"grey"
+    b<-rep(brewer.pal(8,"Accent"),10)
+    ttt$color[1:n]<-b[1:n]
+    ttt$length<-nchar(ttt$aaSeq)
+    
+    #plot
+    pdf(paste0(outpath,"/cdrAaSeqByAaLength_",names[i],"_size25_unicolor.pdf"))
+    ggplot(ttt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = TRUE))+guides(fill=F)+scale_fill_manual(values=ttt$color)+labs(title=loci[j])+theme_bw(base_size = 25)
+    dev.off()
   }
   
   #================ vGene usage =================================
   t
-  tt<-as_tibble(ddply(t[,c("v","size")],"v",numcolwise(sum)))         
+  tt<-as_tibble(ddply(t[,c("vGene","size")],"vGene",numcolwise(sum)))         
   tt<-tt[order(-tt$size),]
   tt$v<-factor(tt$v,levels=tt$v)
   
