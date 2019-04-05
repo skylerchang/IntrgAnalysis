@@ -1,11 +1,16 @@
 #analyzes Interrogate run report
 #expects run report in 'Data/InterrogateRunReport/' with original name
+#sample IDs should have the following format:
+#<SequenceId>_<OwnerLast-Patient>_<optionalGroupingVariable>
+#-> only one underline; hyphens can occur more frequently -> don't use for regex search 
+#18-010899-1D1P2_Piach-Mowgli_WGA+"
 
 library(tidyverse)
 library(here)
 library(RColorBrewer)
 library(gridExtra)
 library(reshape2)
+library(gsubfn)
 
 targetDir<-'../../Data/InterrogateRunReport/'
 
@@ -14,6 +19,17 @@ files<-list.files(targetDir,pattern = '.basic--run_report.xlsx')
 
 for (j in 1:length(files)){
   t<-readxl::read_excel(paste0(targetDir,files[j]))
+  
+  #*********** Run 26 specific code *************
+  #remove Conner's IGL samples
+  t<-t[!grepl("IGL",t$sample),]
+  
+  #simplify sample names
+  t$sample<-strapplyc(t$sample,"^(.*?_.*?)_",simplify = T)
+  t$sample<-sub("-WGA_","_",t$sample)
+  t$sample<-sub("-WGA","_WGA",t$sample)
+  
+  #***********************************************
   
   #clean up col names; remove white space and special characters
   colnames(t)<-gsub(" ","_",colnames(t))
@@ -53,13 +69,9 @@ for (j in 1:length(files)){
   t$w_H_chain.count<-as.numeric(t$w_H_chain.count)
   t$w_K_chain.count<-as.numeric(t$w_K_chain.count)
   
-  
-  
-  
   #define additional columns
-  t$sample<-gsub("_S[0-9]*_L001_R1_001","",t$sample)
-  t$owner.patient<-gsub("^.*_","",t$sample)
-  t$submission<-gsub("_.*$","",t$sample)
+  t$owner.patient<-strapply(t$sample, "^.*?_(.*)",simplify=T,perl=T)
+  t$submission<-strapply(t$sample, "^(.*?)_",simplify=T,perl=T)
   
   t$sampleType<-ifelse(grepl("-1D[0-9]+P[0-9]+C[0-9]+L[0-9]+P[0-9]+",t$submission),'pellet','supernatant')
   t$sampleType[grepl("k9",t$submission)]<-'control'
