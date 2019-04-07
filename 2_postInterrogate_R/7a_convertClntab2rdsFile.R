@@ -43,12 +43,14 @@ for (i in 1:length(files)){
   colnames(d)<-c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq")
   
   d$vChain<-NA
+  d$vChain[grepl("IGH",d$vGene)]<-'IGH'
   d$vChain[grepl("TRA",d$vGene)]<-'TRA'
   d$vChain[grepl("TRB",d$vGene)]<-'TRB'
   d$vChain[grepl("TRD",d$vGene)]<-'TRD'
   d$vChain[grepl("TRG",d$vGene)]<-'TRG'
   
   d$jChain<-NA
+  d$jChain[grepl("IGH",d$jGene)]<-'IGH'
   d$jChain[grepl("TRA",d$jGene)]<-'TRA'
   d$jChain[grepl("TRB",d$jGene)]<-'TRB'
   d$jChain[grepl("TRD",d$jGene)]<-'TRD'
@@ -63,6 +65,7 @@ for (i in 1:length(files)){
   d$vAndJchain<-paste(d$vChain,d$jChain,sep='-')
   
   d$vAndJchainSimplified<-NA
+  d$vAndJchainSimplified[grepl('IGH',d$vAndJchain)]<-'IGH'
   d$vAndJchainSimplified[d$vAndJchain=='NA-NA' | d$vAndJchain=='TRD-TRA']<-'Other'
   d$vAndJchainSimplified[grepl('TRA',d$vAndJchain)]<-'TRA'
   d$vAndJchainSimplified[grepl('TRB',d$vAndJchain)]<-'TRB'
@@ -72,9 +75,9 @@ for (i in 1:length(files)){
   d$junction<-factor(d$junction,levels=c('vAndJ','jOnly','neitherVnorJ'))
   
   #reduce number of lines to speed up plotting
-  dd<-d[sample(nrow(d),1000),]
+  #dd<-d[sample(nrow(d),1000),]
   
-  p<-ggplot(dd,aes(junction,size,fill=vAndJchainSimplified))+geom_col()+scale_fill_brewer(palette='Set3')+theme(legend.position="top",legend.title=element_blank(),plot.title = element_text(hjust=0.5))+ggtitle(files_short[[i]])
+  p<-ggplot(d,aes(junction,size,fill=vAndJchainSimplified))+geom_col()+scale_fill_brewer(palette='Set3')+theme(legend.position="top",legend.title=element_blank(),plot.title = element_text(hjust=0.5))+ggtitle(files_short[[i]])
   
   plotlist[[i]]<-ggplotGrob(p)
   
