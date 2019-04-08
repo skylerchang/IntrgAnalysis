@@ -20,13 +20,13 @@ library(gridExtra)
 
 #*************************** adjust settings ************************
 #Is SampleNo coding? values: T/F; (e.g. MRD - yes: jake-01.1 (pbmcs), jake-01.2 (plasma); Histiocytoma - no)
-sampleNoCoding<-0
+sampleNoCoding<-1
 
 #********************************************************************
 
 targetDir<-'../../Results/InterrogateRunReport/'
 
-files<-list.files(targetDir,pattern = '.basic--run_report.xlsx')
+files<-list.files(targetDir)
 j<-1
 
 for (j in 1:length(files)){
@@ -38,7 +38,11 @@ for (j in 1:length(files)){
   #************** Run 19 - Histiocytoma ***************
   t$sample<-sub("D16-07","pc-control",t$sample)
   t$sample<-sub("NTC-can","nt-control",t$sample)
-  
+  #************** Run 26 - CSF ***************
+  #remove controls - quick & dirty fix until run has been re-processed with new sample sheet
+  t<-t[!grepl("k9",t$sample),]
+  t<-t[!grepl("IGL",t$sample),]
+  t$wga<-ifelse(grepl("WGA",t$sample),T,F)
   
   #************** create additional sample designations ***************
   #simplify sample name -> omit '_S62_L001_R1_001'
@@ -48,7 +52,7 @@ for (j in 1:length(files)){
   #create sampleId
   t$sampleId<-unlist(strapply(t$pcrId,"(.*)D[0-9]+P[0-9]+$"))
   #create submissionId, format: "15-013425", controls: "D16-07", "NTC-can"
-  t$submissionId<-unlist(strapply(t$pcrId,"^(.*)-.*?$"))
+  t$submissionId<-unlist(strapply(t$sampleId,"^(.*)-.*?$"))
   t$owner.patient<-unlist(strapply(t$sample,"^.*?_(.*)$"))
   #create sample fraction (MRD study: fraction1: PBMCs, fraction2: plasma; CSF study ...)
   if (sampleNoCoding){
@@ -83,6 +87,7 @@ for (j in 1:length(files)){
   
   
   #remove '%' from col values
+  t$raw.percent<-as.numeric(as.character(gsub("%","",t$raw.percent)))
   t$w_junction.percent<-as.numeric(as.character(gsub("%","",t$w_junction.percent)))
   t$Five_primed_in_R1.percent<-as.numeric(as.character(gsub("%","",t$Five_primed_in_R1.percent)))
   t$Five_primed_in_R2.percent<-as.numeric(as.character(gsub("%","",t$Five_primed_in_R2.percent)))
@@ -114,19 +119,23 @@ for (j in 1:length(files)){
   t$diversity_normed.count<-as.numeric(t$diversity_normed.count)
   t$alpha_diversity.count<-as.numeric(t$alpha_diversity.count)
   t$effective_species.count<-as.numeric(t$effective_species.count)
+  t$joined_loosely.count<-as.numeric(t$joined_loosely.count)
+  t$saved_from_unjoined.count<-as.numeric(t$saved_from_unjoined.count)
+  t$raw.percent<-as.numeric(t$raw.percent)
+  colnames(t)
 
   #============= plot read numbers =============
   plotlist<-list()
   x<-c('raw.count','raw.percent','w_junction.percent', 'w_junction.count')
   for (i in 1:length(x)){
-    p<-ggplot(t,aes_string("sample",x[i]))+geom_boxplot()+coord_flip()
+    p<-ggplot(t,aes_string("sampleId",x[i]))+geom_boxplot(aes(fill=wga))+coord_flip()
     plotlist[[i]]<-ggplotGrob(p)
   }
   pdf(paste0(targetDir,'RunReportPlots_readNos.pdf'))
   marrangeGrob(plotlist,nrow=2,ncol=2)
   dev.off()
   
-  #============= plot diversity =============
+  #============= plot diversity - by sampleId =============
   t$sampleId<-as.factor(t$sampleId)
   plotlist<-list()
   x<-c('diversity_normed.count','alpha_diversity.count','effective_species.count')
@@ -137,7 +146,20 @@ for (j in 1:length(files)){
     plotlist[[i]] <- ggplotGrob(p)
     #dev.off()
   }
-  pdf(paste0(targetDir,'RunReportPlots_diversity.pdf'))
+  pdf(paste0(targetDir,'RunReportPlots_diversity-bySampleId.pdf'))
+  marrangeGrob(plotlist,nrow=2,ncol=2)
+  dev.off()
+  
+  #============= plot diversity - by WGA =============
+  plotlist<-list()
+  x<-c('diversity_normed.count','alpha_diversity.count','effective_species.count')
+  titles<-c('diversity_normed.count','alpha_diversity.count','effective_species.count')
+  for (i in 1:length(x)){
+    p<-ggplot(t[t$sampleFraction!='control',],aes_string(x="wga",y=x[i],fill="sampleFraction"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
+    p<-p+ylim(0,40)+ggtitle(titles[i])+xlab('WGA')+ylab('% reads')+theme(plot.title = element_text(hjust = 0.5))
+    plotlist[[i]] <- ggplotGrob(p)
+  }
+  pdf(paste0(targetDir,'RunReportPlots_diversity-byWGA.pdf'))
   marrangeGrob(plotlist,nrow=2,ncol=2)
   dev.off()
   
@@ -149,7 +171,7 @@ for (j in 1:length(files)){
        'Three_primed_in_R2.percent')
   titles<-c("5\' primed in R1","5\' primed in R2","3\' primed in R1","3\' primed in R2")
   for (i in 1:length(x)){
-    p<-ggplot(t[t$sampleType!='control',],aes_string(x="wga",y=x[i],fill="sampleType"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
+    p<-ggplot(t[t$sampleFraction!='control',],aes_string(x="wga",y=x[i],fill="sampleFraction"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
     p<-p+ylim(0,40)+ggtitle(titles[i])+xlab('WGA')+ylab('% reads')+theme(plot.title = element_text(hjust = 0.5))
     plotlist[[i]] <- ggplotGrob(p)
   }
@@ -162,7 +184,7 @@ for (j in 1:length(files)){
   x<-c('w_primerdimers_in_R1.percent','w_primerdimers_in_R2.percent','w_primerdimers_in_R1.count','w_primerdimers_in_R2.count')
   titles<-c("Primer dimers in R1 - percent","Primer dimers in R2 - percent","Primer dimers in R1 - count","Primer dimers in R2 - count")
   for (i in 1:length(x)){
-    p<-ggplot(t[t$sampleType!='control',],aes_string(x="wga",y=x[i],fill="sampleType"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
+    p<-ggplot(t[t$sampleFraction!='control',],aes_string(x="wga",y=x[i],fill="sampleFraction"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
     p<-p+ggtitle(titles[i])+xlab('WGA')+theme(plot.title = element_text(hjust = 0.5))
     plotlist[[i]] <- ggplotGrob(p)
   }
@@ -177,7 +199,7 @@ for (j in 1:length(files)){
         "total_joined.count","total_joined.percent",      
         "saved_from_unjoined.count","saved_from_unjoined.percent")
   for (i in 1:length(x)){
-    p<-ggplot(t[t$sampleType!='control',],aes_string(x="wga",y=x[i],fill="sampleType"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
+    p<-ggplot(t[t$sampleFraction!='control',],aes_string(x="wga",y=x[i],fill="sampleFraction"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
     p<-p+ggtitle(x[i])+xlab('WGA')+theme(plot.title = element_text(hjust = 0.5))
     plotlist[[i]] <- ggplotGrob(p)
   }
@@ -185,6 +207,7 @@ for (j in 1:length(files)){
   marrangeGrob(plotlist,nrow=2,ncol=2)
   dev.off()
   
+  #=============== by locus - count =========================
   #boxplot chains
   plotlist<-list()
   x<-c("annotated.count","annotated.percent",            
@@ -197,14 +220,14 @@ for (j in 1:length(files)){
        "w_H_chain.count","w_H_chain.percent",
        "w_K_chain.count","w_K_chain.percent")
   for (i in 1:length(x)){
-    p<-ggplot(t[t$sampleType!='control',],aes_string(x="wga",y=x[i],fill="sampleType"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
+    p<-ggplot(t[t$sampleFraction!='control',],aes_string(x="wga",y=x[i],fill="sampleFraction"))+geom_boxplot(outlier.size = 0)+geom_point(pch = 21,position = position_jitterdodge(jitter.width = 0.2))+scale_fill_manual(values=c('gray80','dodgerblue3'))
     p<-p+ggtitle(x[i])+xlab('WGA')+theme(plot.title = element_text(hjust = 0.5))
     plotlist[[i]] <- ggplotGrob(p)
   }
   pdf(paste0(targetDir,'RunReportPlots_chains.pdf'))
   marrangeGrob(plotlist,nrow=2,ncol=2)
   dev.off()
-  #=============== by locus =========================
+  #=============== by locus - percent =========================
   #create subset that includes percentage
   s<-c("sample","submission","sampleType","wga",
   "w_A_chain.percent",         
@@ -214,7 +237,7 @@ for (j in 1:length(files)){
   "w_H_chain.percent",
   "w_K_chain.percent")
   t.lociPercent<-t[,s]
-  t.lociPercent<-melt(t.lociPercent[t.loci$sampleType!="control",],id.vars =c("sample","submission","sampleType","wga"),variable.name = "locus",value.name = 'percentage')
+  t.lociPercent<-melt(t.lociPercent[t.loci$sampleFraction!="control",],id.vars =c("sample","submission","sampleType","wga"),variable.name = "locus",value.name = 'percentage')
   
   #create subset that includes count
   s<-c("sample","submission","sampleType","wga",
