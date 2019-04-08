@@ -23,10 +23,12 @@ library(gridExtra)
 sampleNoCoding<-1
 
 #********************************************************************
+setwd(here())
+getwd()
 
-targetDir<-'../../Results/InterrogateRunReport/'
+targetDir<-'../Results/InterrogateRunReport/'
 
-files<-list.files(targetDir)
+files<-list.files(targetDir,pattern = ".xlsx")
 j<-1
 
 for (j in 1:length(files)){
