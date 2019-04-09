@@ -102,6 +102,9 @@ for (i in 1:length(datalist_vAndJ)){
   ggplot(t.neitherVnorJ,aes(totalLength))+geom_bar()
 }
 
+dir.create(outFolderDataFasta)
+dir.create(outFolderDataRds)
+
 
 #print rds files
 saveRDS(list(datalist_vAndJ,files_short),paste0(outFolderDataRds,'clntab_vAndJ.rds'))
@@ -109,7 +112,6 @@ saveRDS(list(datalist_jOnly,files_short),paste0(outFolderDataRds,'clntab_jOnly.r
 saveRDS(list(datalist_neitherVnorJ,files_short),paste0(outFolderDataRds,'clntab_neitherVnorJ.rds'))
 
 #print fasta files - vAndJ
-dir.create(outFolderDataFasta)
 dir.create(paste0(outFolderDataFasta,'/vAndJ'))
 for (i in 1:length(datalist_vAndJ)){
   header<-paste(datalist_vAndJ[[i]]$vGene,datalist_vAndJ[[i]]$jGene,sep='_')
