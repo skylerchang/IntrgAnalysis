@@ -8,9 +8,9 @@ library(openxlsx)
 library(RColorBrewer)
 
 #========== adjust the following variables ================
-t<-read_rds('../../Data/clntab_RDS/clntab_vAndJ.rds')
+t<-read_rds('../../Data/Clntab_RDS/clntab_vAndJ.rds')
 outpath<-'../../Results/Plots/cdrAaLengthVsAaSeq'
-loci<-c("TRA","TRB","TRD","TRG")
+loci<-c("TRA","TRB","TRD","TRG","IGH")
 #Top n clones that are being displayed in separate colors (all other clones are grey)
 n<-80
 
@@ -39,8 +39,8 @@ for (i in 1:length(datalist)){
     #sort in descending order of 'size'
     tt<-tt[order(-tt$size),]
     #assign color - create color vector
-    b<-rep(brewer.pal(8,"Accent"),ceiling(nrow(tt)/8))
-    tt$color<-b[1:nrow(tt)]
+    #b<-rep(brewer.pal(8,"Accent"),ceiling(nrow(tt)/8))
+    #tt$color<-b[1:nrow(tt)]
     
     #if there are greater than n sequences, collapse sequences of identical length
     if (nrow(tt)>n){
@@ -49,18 +49,27 @@ for (i in 1:length(datalist)){
       #collapse aaSeq
       tt<-as_tibble(ddply(tt,"aaSeq",numcolwise(sum)))
       #assign color
+      b<-rep(brewer.pal(8,"Accent"),ceiling(nrow(tt)/8))
+      tt$color<-b[1:nrow(tt)]
       tt$color[(n+1):nrow(tt)]<-"grey"
+    } else if (nrow(tt)>0 && nrow(tt)<n) {
+            b<-rep(brewer.pal(8,"Accent"),ceiling(nrow(tt)/8))
+            tt$color<-b[1:nrow(tt)]
+    } else if (nrow(tt)==0) {
+            next
     }
     
     #create length column
     tt$length<-nchar(tt$aaSeq)
-    
     #plot
-    p<-ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = TRUE))+guides(fill=F)+scale_fill_manual(values=tt$color)+xlim(5,30)
+    plotname=paste(paste0(loci[j]),"Aa's length vs. size")
+    p<-ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = TRUE))+guides(fill=F)+scale_fill_manual(values=tt$color)+xlim(1,35)+ggtitle(plotname)
     plotlist[[j]]<-ggplotGrob(p)
   }
   pdf(paste0(outpath,"/cdrAaSeqByAaLength_",files_short[i],"_size25_unicolor.pdf"))
-  marrangeGrob(plotlist,nrow=2,ncol=2)
+  plotlist_new<-compact(plotlist) 
+  do.call("grid.arrange",c(plotlist_new,ncol=2,top=files_short[i]))
+  #marrangeGrob(plotlist,nrow=2,ncol=2)
   dev.off()
 }
 
