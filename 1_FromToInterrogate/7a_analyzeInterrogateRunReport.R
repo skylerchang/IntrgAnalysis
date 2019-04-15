@@ -29,6 +29,10 @@ getwd()
 targetDir<-'../Results/InterrogateRunReport/'
 
 files<-list.files(targetDir,pattern = "^Run.*xlsx")
+#pick which file to use
+# 1 = csf run 2 = seq run 24 
+# 2 = csf run 3 = seq run 26 
+# 3 = excel file with both csf run 2 and 3 combined 
 j<-1
 
 for (j in 1:length(files)){
@@ -308,10 +312,10 @@ plot(tcor)
 #raw counts vs effective species
 #overall
 cor.test(t$raw.count,t$effective_species.count)
-plot(t$raw.count,effective_species.count)
+plot(t$raw.count,t$effective_species.count)
 
 pdf(paste0(outputPath,'raw counts vs effective species'))
-plot(t$raw.count,effective_species.count, pch= c(22,21) ,col= c("10","4") ,main="raw counts vs effective species",xlab="read counts",ylab="effective species count")
+plot(t$raw.count,t$effective_species.count, pch= c(22,21) ,col= c("10","4") ,main="raw counts vs effective species",xlab="read counts",ylab="effective species count")
 legend ("topleft",inset=0.02,cex=0.7,title="Sample type",pch =c(22,21),col=c("10","4"),c("WGA","non-WGA"))
 linewga <- lm(T.wga$effective_species.count~ T.wga$raw.count)
 linenonwga <- lm(F.wga$effective_species.count~ F.wga$raw.count)
@@ -336,11 +340,11 @@ anova(line)
 
 #====
 #usable counts vs effective species 
-cor.test(t$usable.count,effective_species.count)
-plot(t$usable.count,effective_species.count)
+cor.test(t$usable.count,t$effective_species.count)
+plot(t$usable.count,t$effective_species.count)
 
 pdf(paste0(outputPath,'usable counts vs effective species'))
-plot(t$usable.count,effective_species.count, pch= c(22,21) ,col= c("10","4") ,main="usable counts vs effective species",xlab="read counts",ylab="effective species count")
+plot(t$usable.count,t$effective_species.count, pch= c(22,21) ,col= c("10","4") ,main="usable counts vs effective species",xlab="read counts",ylab="effective species count")
 legend ("topleft",inset=0.02,cex=0.7,title="Sample type",pch =c(22,21),col=c("10","4"),c("WGA","non-WGA"))
 linewga <- lm(T.wga$effective_species.count~ T.wga$usable.count)
 linenonwga <- lm(F.wga$effective_species.count~ F.wga$usable.count)
@@ -365,11 +369,11 @@ anova(line)
 
 #===
 #percent of usable reads and effective species 
-cor.test(t$usable.percent,effective_species.count)
-plot(t$usable.percent,effective_species.count)
+cor.test(t$usable.percent,t$effective_species.count)
+plot(t$usable.percent,t$effective_species.count)
 
 pdf(paste0(outputPath,'usable seq percent vs effective species'))
-plot(t$usable.percent,effective_species.count, pch= c(22,21) ,col= c("10","4") ,main="usable seq vs effective species",xlab="percent of usable seq",ylab="effective species count")
+plot(t$usable.percent,t$effective_species.count, pch= c(22,21) ,col= c("10","4") ,main="usable seq vs effective species",xlab="percent of usable seq",ylab="effective species count")
 legend ("topleft",inset=0.02,cex=0.7,title="Sample type",pch =c(22,21),col=c("10","4"),c("WGA","non-WGA"))
 linewga <- lm(T.wga$effective_species.count~ T.wga$usable.percent)
 linenonwga <- lm(F.wga$effective_species.count~ F.wga$usable.percent)
@@ -405,7 +409,6 @@ linenonwga <- lm(F.wga$cln.count~ F.wga$usable.percent)
 abline(line)
 abline(linewga, col=c(10))
 abline(linenonwga, col=c(4))
-dev.off()
 anova(line)
 
 #just WGA 
@@ -498,7 +501,7 @@ t.test(T.wga$diversity_normed.count,F.wga$diversity_normed.count)
 boxplot(T.wga$diversity_normed.count, F.wga$diversity_normed.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="diversity",ylab="diversity_normed.count",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 
-boxplot(T.wga.ca$diversity_normed.count, T.wga.cf$diversity_normed.count,F.wga.ca$diversity_normed.count, F.wga.ca$diversity_normed.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" diversity_normed.count",ylab="diversity_normed.count",xlab="Sample fraction",varwidth=TRUE)
+boxplot(T.wga.ca$diversity_normed.count, T.wga.cf$diversity_normed.count,F.wga.ca$diversity_normed.count, F.wga.cf$diversity_normed.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" diversity_normed.count",ylab="diversity_normed.count",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
 
 #T-TEST wga ca fraction vs non-wga cf fraction 
@@ -578,7 +581,7 @@ boxplot(T.wga$w_most_pop_clns.percent, F.wga$w_most_pop_clns.percent,col=c("10",
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 
 #box plot for all fractions 
-boxplot(T.wga.ca$w_most_pop_clns.percent, T.wga.cf$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent, F.wga.ca$w_most_pop_clns.percent,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" percent of the most popular clonotype",ylab="percent of total seq",xlab="Sample fraction",varwidth=TRUE)
+boxplot(T.wga.ca$w_most_pop_clns.percent, T.wga.cf$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent, F.wga.cf$w_most_pop_clns.percent,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" percent of the most popular clonotype",ylab="percent of total seq",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
 
 #T-TEST wga ca fraction vs non-wga cf fraction 
