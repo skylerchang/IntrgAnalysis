@@ -294,11 +294,12 @@ F.wga <-t[!t$wga,]
 #=============correlation overall / correlation matrix
 # removing columns not of intrest to this intial data analysis 
 #allows for the creation of a correlation matrix 
-#to gwt this to work you have to remove all % signs from the varibales 
-tcor<-t[,-c(1:6,8,11,12,14,20:83,85:90)]
-plot(tcor)
+#to get this to work you have to remove all % signs from the varibales 
+#tcor<-t[,-c(1:6,8,11,12,14,20:83,85:90)]
+#plot(tcor)
 #cor(tcor) 
     #something is numeric = not working 
+    #above code only works for run 26 (run 24 has extra columns)
 
 ##subset for wga corelation -> just looking at the above variables 
 #T.wga <-tcor[tcor$wga,]
@@ -592,4 +593,7 @@ t.test (T.wga.cf$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
 t.test (T.wga.ca$w_most_pop_clns.percent,T.wga.cf$w_most_pop_clns.percent)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
-#======================ca vs cf data analysis (inculding wga vs non-wga)=====
+
+
+#======================comparision between seq runs=====
+# only for when using the combined excel file 
