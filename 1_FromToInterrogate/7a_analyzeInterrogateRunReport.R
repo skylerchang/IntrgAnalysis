@@ -620,6 +620,10 @@ plot(F.wga$uniq_usable_seq.count,F.wga$lym.percent)
 line<-lm(F.wga$lym.percent~F.wga$uniq_usable_seq.count)
 abline(line)
 anova(line)
+
+# bar graph 
+ggplot(t,aes(pcrId,uniq_usable_seq.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
 #=========================================================================
 #========================= cln- count== ========================
 #=========================================================================
@@ -641,6 +645,9 @@ t.test (T.wga.cf$cln.count,F.wga.cf$cln.count)
 t.test (T.wga.ca$cln.count,T.wga.cf$cln.count)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$cln.count,F.wga.cf$cln.count)
+
+# bar graph 
+ggplot(t,aes(pcrId,cln.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
 #=========================================================================
 #========================= most popular cln- count== ========================
@@ -745,28 +752,8 @@ t.test (T.wga.ca$diversity_normed.count,T.wga.cf$diversity_normed.count)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$diversity_normed.count,F.wga.cf$diversity_normed.count)
 
-
-#=========================================================================
-#================== most popular clonotype percent =======================
-#=========================================================================
-
-t.test(T.wga$w_most_pop_clns.percent,F.wga$w_most_pop_clns.percent)
-
-boxplot(T.wga$w_most_pop_clns.percent, F.wga$w_most_pop_clns.percent,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="percent of the most popular clonotype",ylab="percent of total seq",xlab="Method",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
-
-#box plot for all fractions 
-boxplot(T.wga.ca$w_most_pop_clns.percent, T.wga.cf$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent, F.wga.cf$w_most_pop_clns.percent,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" percent of the most popular clonotype",ylab="percent of total seq",xlab="Sample fraction",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
-
-#T-TEST wga ca fraction vs non-wga cf fraction 
-t.test (T.wga.ca$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent)
-#T-TEST wga cf fraction vs non-wga cf fraction 
-t.test (T.wga.cf$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
-#T-TEST wga ca fraction vs wga cf fraction 
-t.test (T.wga.ca$w_most_pop_clns.percent,T.wga.cf$w_most_pop_clns.percent)
-#T-TEST non-wga ca fraction vs non-wga ca fraction 
-t.test (F.wga.ca$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
+# bar graph 
+ggplot(t,aes(pcrId,diversity_normed.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
 
 
