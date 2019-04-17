@@ -291,10 +291,6 @@ colnames(t)
 #to compare the correlations of variable and significance (t-test) data subsets will be made for WGA 
 # always double check on which file "seq run" j is 
 
-# creating subset -> variable wga was already created above 
-T.wga <-t[t$wga,]
-F.wga <-t[!t$wga,]
-
 #========= subsets for ca and cf fractions for wga and non-wga 
 #to trun fraction in to a numeric value -> fraction1 to 1 
 #create sample fraction (MRD study: fraction1: PBMCs, fraction2: plasma; CSF study ...)
@@ -305,11 +301,15 @@ if (sampleNoCoding){
   t$sampleFraction<-'1'
 }
 
-#wga
+# creating subset -> variable wga was already created above 
+T.wga <-t[t$wga,]
+F.wga <-t[!t$wga,]
+
+#csf fraction for wga
 T.wga.ca<- subset(T.wga,sampleFraction==1)
 T.wga.cf <-subset(T.wga,sampleFraction==2)
 
-#non-wga
+#csf fraction for non-wga
 F.wga.ca<- subset(F.wga,sampleFraction==1)
 F.wga.cf <-subset(F.wga,sampleFraction==2)
 
@@ -363,6 +363,7 @@ line<-lm(F.wga$effective_species.count~F.wga$raw.count)
 abline(line)
 anova(line)
 
+#raw read boxplot
 t.test(T.wga$raw.count,F.wga$raw.count)
 
 pdf(paste0(outputPath,'raw reads.pdf'))
