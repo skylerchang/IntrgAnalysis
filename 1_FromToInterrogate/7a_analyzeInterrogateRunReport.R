@@ -291,10 +291,6 @@ colnames(t)
 #to compare the correlations of variable and significance (t-test) data subsets will be made for WGA 
 # always double check on which file "seq run" j is 
 
-# creating subset -> variable wga was already created above 
-T.wga <-t[t$wga,]
-F.wga <-t[!t$wga,]
-
 #========= subsets for ca and cf fractions for wga and non-wga 
 #to trun fraction in to a numeric value -> fraction1 to 1 
 #create sample fraction (MRD study: fraction1: PBMCs, fraction2: plasma; CSF study ...)
@@ -305,11 +301,15 @@ if (sampleNoCoding){
   t$sampleFraction<-'1'
 }
 
-#wga
+# creating subset -> variable wga was already created above 
+T.wga <-t[t$wga,]
+F.wga <-t[!t$wga,]
+
+#csf fraction for wga
 T.wga.ca<- subset(T.wga,sampleFraction==1)
 T.wga.cf <-subset(T.wga,sampleFraction==2)
 
-#non-wga
+#csf fraction for non-wga
 F.wga.ca<- subset(F.wga,sampleFraction==1)
 F.wga.cf <-subset(F.wga,sampleFraction==2)
 
@@ -363,6 +363,7 @@ line<-lm(F.wga$effective_species.count~F.wga$raw.count)
 abline(line)
 anova(line)
 
+#raw read boxplot
 t.test(T.wga$raw.count,F.wga$raw.count)
 
 pdf(paste0(outputPath,'raw reads.pdf'))
@@ -381,6 +382,9 @@ t.test (T.wga.cf$raw.count,F.wga.cf$raw.count)
 t.test (T.wga.ca$raw.count,T.wga.cf$raw.count)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$raw.count,F.wga.cf$raw.count)
+
+#bargraph 
+ggplot(t,aes(pcrId,raw.count,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #=========================================================================
 #======================== usable reads - count ===========================
@@ -458,13 +462,34 @@ line<-lm(F.wga$lym.percent~F.wga$usable.count)
 abline(line)
 anova(line)
 
+#bargraph 
+ggplot(t,aes(pcrId,usable.count,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
 
 #=========================================================================
 #========================= usable reads - percent ========================
 #=========================================================================
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 ggplot(t,aes(sampleId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(t,aes(sampleId,usable.percent,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(t,aes(wga,usable.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(~submissionId)
+ggplot(t,aes(wga,usable.percent))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(sampleFraction~submissionId)
+=======
+ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+>>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
 
+t[t$sampleId=="18-062164-1",c("sampleId","usable.percent","wga")]
+=======
+ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+>>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
+=======
+ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+>>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
+
+t$sampleId
 
 #percent of usable reads and effective species 
 cor.test(t$usable.percent,t$effective_species.count)
@@ -524,7 +549,7 @@ line<-lm(F.wga$cln.count~F.wga$usable.percent)
 abline(line)
 anova(line)
 
-
+#boxplots 
 t.test(T.wga$usable.percent,F.wga$usable.percent)
 
 pdf(paste0(outputPath,'usable seq.pdf'))
@@ -544,10 +569,131 @@ t.test (T.wga.ca$usable.percent,T.wga.cf$usable.percent)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$usable.percent,F.wga.cf$usable.percent)
 
+#DNA yields 
+cor.test(F.wga$usable.percent,F.wga$dna)
+plot(F.wga$usable.percent,F.wga$dna)
+line<-lm(F.wga$dna~F.wga$usable.percent)
+lineca<-lm(F.wga.ca$dna~F.wga.ca$usable.percent)
+abline(line)
+abline(lineca)
+anova(lineca)
+anova(line)
+#=====lymphocyte count 
+cor.test(F.wga$usable.percent,F.wga$lym.count)
+plot(F.wga$usable.percent,F.wga$lym.count)
+line<-lm(F.wga$lym.count~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#====lymphocyte percentage
+cor.test(F.wga$usable.percent,F.wga$lym.percent)
+plot(F.wga$usable.percent,F.wga$lym.percent)
+line<-lm(F.wga$lym.percent~F.wga$usable.percent)
+abline(line)
+anova(line)
+
 #=========================================================================
-#========================= most popular - count== ========================
+#========================= uniq usable seq.count== ========================
 #=========================================================================
-ggplot(t,aes(sampleId,w_most_pop_clns.percent,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#=====uniq usable seq.count
+t.test(T.wga$uniq_usable_seq.count,F.wga$uniq_usable_seq.count)
+
+pdf(paste0(outputPath,'usable seq.pdf'))
+boxplot(T.wga$uniq_usable_seq.count, F.wga$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable seq count",xlab="Method",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+#box plot for all fractions 
+boxplot(T.wga.ca$uniq_usable_seq.count, T.wga.cf$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count, F.wga.cf$uniq_usable_seq.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.seq count",ylab="percent",xlab="Sample fraction",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+
+#T-TEST wga ca fraction vs non-wga cf fraction 
+t.test (T.wga.ca$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count)
+#T-TEST wga cf fraction vs non-wga cf fraction 
+t.test (T.wga.cf$uniq_usable_seq.count,F.wga.cf$uniq_usable_seq.count)
+#T-TEST wga ca fraction vs wga cf fraction 
+t.test (T.wga.ca$uniq_usable_seq.count,T.wga.cf$uniq_usable_seq.count)
+#T-TEST non-wga ca fraction vs non-wga ca fraction 
+t.test (F.wga.ca$uniq_usable_seq.count,F.wga.cf$uniq_usable_seq.count)
+
+#looking at correlations with usable reads (just non WGA samples )
+#===== DNA yields 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$dna)
+plot(F.wga$uniq_usable_seq.count,F.wga$dna)
+line<-lm(F.wga$dna~F.wga$uniq_usable_seq.count)
+lineca<-lm(F.wga.ca$dna~F.wga.ca$uniq_usable_seq.count)
+abline(line)
+abline(lineca)
+anova(lineca)
+anova(line)
+#=====lymphocyte count 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.count)
+plot(F.wga$uniq_usable_seq.count,F.wga$lym.count)
+line<-lm(F.wga$lym.count~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#====lymphocyte percentage
+cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.percent)
+plot(F.wga$uniq_usable_seq.count,F.wga$lym.percent)
+line<-lm(F.wga$lym.percent~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+# bar graph 
+ggplot(t,aes(pcrId,uniq_usable_seq.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#=========================================================================
+#========================= cln- count== ========================
+#=========================================================================
+#====clonotype count 
+t.test(T.wga$cln.count,F.wga$cln.count)
+
+boxplot(T.wga$cln.count, F.wga$cln.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="clonotype count",ylab="cln.count",xlab="Method",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+
+#box plot for all fractions 
+boxplot(T.wga.ca$cln.count, T.wga.cf$cln.count,F.wga.ca$cln.count, F.wga.cf$cln.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" clonotype count",ylab="cln.count",xlab="Sample fraction",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+
+#T-TEST wga ca fraction vs non-wga cf fraction 
+t.test (T.wga.ca$cln.count,F.wga.ca$cln.count)
+#T-TEST wga cf fraction vs non-wga cf fraction 
+t.test (T.wga.cf$cln.count,F.wga.cf$cln.count)
+#T-TEST wga ca fraction vs wga cf fraction 
+t.test (T.wga.ca$cln.count,T.wga.cf$cln.count)
+#T-TEST non-wga ca fraction vs non-wga ca fraction 
+t.test (F.wga.ca$cln.count,F.wga.cf$cln.count)
+
+# bar graph 
+ggplot(t,aes(pcrId,cln.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#=========================================================================
+#========================= most popular cln- count== ========================
+#=========================================================================
+ggplot(t,aes(pcrId,w_most_pop_clns.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#=========================================================================
+#========================= most popular cln- count percent== ========================
+#=========================================================================
+ggplot(t,aes(pcrId,w_most_pop_clns.percent,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+t.test(T.wga$w_most_pop_clns.percent,F.wga$w_most_pop_clns.percent)
+
+boxplot(T.wga$w_most_pop_clns.percent, F.wga$w_most_pop_clns.percent,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="percent of the most popular clonotype",ylab="percent of total seq",xlab="Method",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+
+#box plot for all fractions 
+boxplot(T.wga.ca$w_most_pop_clns.percent, T.wga.cf$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent, F.wga.cf$w_most_pop_clns.percent,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" percent of the most popular clonotype",ylab="percent of total seq",xlab="Sample fraction",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+
+#T-TEST wga ca fraction vs non-wga cf fraction 
+t.test (T.wga.ca$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent)
+#T-TEST wga cf fraction vs non-wga cf fraction 
+t.test (T.wga.cf$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
+#T-TEST wga ca fraction vs wga cf fraction 
+t.test (T.wga.ca$w_most_pop_clns.percent,T.wga.cf$w_most_pop_clns.percent)
+#T-TEST non-wga ca fraction vs non-wga ca fraction 
+t.test (F.wga.ca$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
 
 #=========================================================================
 #==================== effective species - count ==========================
@@ -624,91 +770,8 @@ t.test (T.wga.ca$diversity_normed.count,T.wga.cf$diversity_normed.count)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$diversity_normed.count,F.wga.cf$diversity_normed.count)
 
-
-#=====uniq usable seq.count
-t.test(T.wga$uniq_usable_seq.count,F.wga$uniq_usable_seq.count)
-
-pdf(paste0(outputPath,'usable seq.pdf'))
-boxplot(T.wga$uniq_usable_seq.count, F.wga$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable seq count",xlab="Method",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
-dev.off()
-#box plot for all fractions 
-boxplot(T.wga.ca$uniq_usable_seq.count, T.wga.cf$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count, F.wga.cf$uniq_usable_seq.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.seq count",ylab="percent",xlab="Sample fraction",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
-
-#T-TEST wga ca fraction vs non-wga cf fraction 
-t.test (T.wga.ca$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count)
-#T-TEST wga cf fraction vs non-wga cf fraction 
-t.test (T.wga.cf$uniq_usable_seq.count,F.wga.cf$uniq_usable_seq.count)
-#T-TEST wga ca fraction vs wga cf fraction 
-t.test (T.wga.ca$uniq_usable_seq.count,T.wga.cf$uniq_usable_seq.count)
-#T-TEST non-wga ca fraction vs non-wga ca fraction 
-t.test (F.wga.ca$uniq_usable_seq.count,F.wga.cf$uniq_usable_seq.count)
-
-#looking at correlations with usable reads (just non WGA samples )
-#===== DNA yields 
-cor.test(F.wga$uniq_usable_seq.count,F.wga$dna)
-plot(F.wga$uniq_usable_seq.count,F.wga$dna)
-line<-lm(F.wga$dna~F.wga$uniq_usable_seq.count)
-lineca<-lm(F.wga.ca$dna~F.wga.ca$uniq_usable_seq.count)
-abline(line)
-abline(lineca)
-anova(lineca)
-anova(line)
-#=====lymphocyte count 
-cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.count)
-plot(F.wga$uniq_usable_seq.count,F.wga$lym.count)
-line<-lm(F.wga$lym.count~F.wga$uniq_usable_seq.count)
-abline(line)
-anova(line)
-
-#====lymphocyte percentage
-cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.percent)
-plot(F.wga$uniq_usable_seq.count,F.wga$lym.percent)
-line<-lm(F.wga$lym.percent~F.wga$uniq_usable_seq.count)
-abline(line)
-anova(line)
-
-#====clonotype count 
-t.test(T.wga$cln.count,F.wga$cln.count)
-
-boxplot(T.wga$cln.count, F.wga$cln.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="clonotype count",ylab="cln.count",xlab="Method",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
-
-#box plot for all fractions 
-boxplot(T.wga.ca$cln.count, T.wga.cf$cln.count,F.wga.ca$cln.count, F.wga.cf$cln.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" clonotype count",ylab="cln.count",xlab="Sample fraction",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
-
-#T-TEST wga ca fraction vs non-wga cf fraction 
-t.test (T.wga.ca$cln.count,F.wga.ca$cln.count)
-#T-TEST wga cf fraction vs non-wga cf fraction 
-t.test (T.wga.cf$cln.count,F.wga.cf$cln.count)
-#T-TEST wga ca fraction vs wga cf fraction 
-t.test (T.wga.ca$cln.count,T.wga.cf$cln.count)
-#T-TEST non-wga ca fraction vs non-wga ca fraction 
-t.test (F.wga.ca$cln.count,F.wga.cf$cln.count)
-
-#=========================================================================
-#================== most popular clonotype percent =======================
-#=========================================================================
-
-t.test(T.wga$w_most_pop_clns.percent,F.wga$w_most_pop_clns.percent)
-
-boxplot(T.wga$w_most_pop_clns.percent, F.wga$w_most_pop_clns.percent,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="percent of the most popular clonotype",ylab="percent of total seq",xlab="Method",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
-
-#box plot for all fractions 
-boxplot(T.wga.ca$w_most_pop_clns.percent, T.wga.cf$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent, F.wga.cf$w_most_pop_clns.percent,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" percent of the most popular clonotype",ylab="percent of total seq",xlab="Sample fraction",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
-
-#T-TEST wga ca fraction vs non-wga cf fraction 
-t.test (T.wga.ca$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent)
-#T-TEST wga cf fraction vs non-wga cf fraction 
-t.test (T.wga.cf$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
-#T-TEST wga ca fraction vs wga cf fraction 
-t.test (T.wga.ca$w_most_pop_clns.percent,T.wga.cf$w_most_pop_clns.percent)
-#T-TEST non-wga ca fraction vs non-wga ca fraction 
-t.test (F.wga.ca$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
+# bar graph 
+ggplot(t,aes(pcrId,diversity_normed.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
 
 
