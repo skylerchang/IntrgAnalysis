@@ -535,8 +535,51 @@ t.test (T.wga.ca$raw.count,T.wga.cf$raw.count)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$raw.count,F.wga.cf$raw.count)
 
+#==== usable reads 
+t.test(T.wga$usable.count,F.wga$usable.count)
 
-#====usable seq====
+pdf(paste0(outputPath,'usable seq.pdf'))
+boxplot(T.wga$usable.count, F.wga$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable reads (%)",xlab="Method",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+#box plot for all fractions 
+boxplot(T.wga.ca$usable.count, T.wga.cf$usable.count,F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.percent",ylab="percent",xlab="Sample fraction",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+
+#T-TEST wga ca fraction vs non-wga cf fraction 
+t.test (T.wga.ca$usable.count,F.wga.ca$usable.count)
+#T-TEST wga cf fraction vs non-wga cf fraction 
+t.test (T.wga.cf$usable.count,F.wga.cf$usable.count)
+#T-TEST wga ca fraction vs wga cf fraction 
+t.test (T.wga.ca$usable.count,T.wga.cf$usable.count)
+#T-TEST non-wga ca fraction vs non-wga ca fraction 
+t.test (F.wga.ca$usable.count,F.wga.cf$usable.count)
+
+  #looking at correlations with usable reads (just non WGA samples )
+  #===== DNA yields 
+cor.test(F.wga$usable.count,F.wga$dna)
+plot(F.wga$usable.count,F.wga$dna)
+line<-lm(F.wga$dna~F.wga$usable.count)
+lineca<-lm(F.wga.ca$dna~F.wga.ca$usable.count)
+abline(line)
+abline(lineca)
+anova(lineca)
+anova(line)
+  #=====lymphocyte count 
+cor.test(F.wga$usable.count,F.wga$lym.count)
+plot(F.wga$usable.count,F.wga$lym.count)
+line<-lm(F.wga$lym.count~F.wga$usable.count)
+abline(line)
+anova(line)
+
+  #====lymphocyte percentage
+cor.test(F.wga$usable.count,F.wga$lym.percent)
+plot(F.wga$usable.count,F.wga$lym.percent)
+line<-lm(F.wga$lym.percent~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#====usable reads with junction====
 t.test(T.wga$usable.percent,F.wga$usable.percent)
 
 pdf(paste0(outputPath,'usable seq.pdf'))
@@ -555,6 +598,50 @@ t.test (T.wga.cf$usable.percent,F.wga.cf$usable.percent)
 t.test (T.wga.ca$usable.percent,T.wga.cf$usable.percent)
 #T-TEST non-wga ca fraction vs non-wga ca fraction 
 t.test (F.wga.ca$usable.percent,F.wga.cf$usable.percent)
+  
+#=====uniq usable seq.count
+t.test(T.wga$uniq_usable_seq.count,F.wga$uniq_usable_seq.count)
+
+pdf(paste0(outputPath,'usable seq.pdf'))
+boxplot(T.wga$uniq_usable_seq.count, F.wga$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable seq count",xlab="Method",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+#box plot for all fractions 
+boxplot(T.wga.ca$uniq_usable_seq.count, T.wga.cf$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count, F.wga.cf$uniq_usable_seq.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.seq count",ylab="percent",xlab="Sample fraction",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+
+#T-TEST wga ca fraction vs non-wga cf fraction 
+t.test (T.wga.ca$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count)
+#T-TEST wga cf fraction vs non-wga cf fraction 
+t.test (T.wga.cf$uniq_usable_seq.count,F.wga.cf$uniq_usable_seq.count)
+#T-TEST wga ca fraction vs wga cf fraction 
+t.test (T.wga.ca$uniq_usable_seq.count,T.wga.cf$uniq_usable_seq.count)
+#T-TEST non-wga ca fraction vs non-wga ca fraction 
+t.test (F.wga.ca$uniq_usable_seq.count,F.wga.cf$uniq_usable_seq.count)
+
+#looking at correlations with usable reads (just non WGA samples )
+#===== DNA yields 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$dna)
+plot(F.wga$uniq_usable_seq.count,F.wga$dna)
+line<-lm(F.wga$dna~F.wga$uniq_usable_seq.count)
+lineca<-lm(F.wga.ca$dna~F.wga.ca$uniq_usable_seq.count)
+abline(line)
+abline(lineca)
+anova(lineca)
+anova(line)
+#=====lymphocyte count 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.count)
+plot(F.wga$uniq_usable_seq.count,F.wga$lym.count)
+line<-lm(F.wga$lym.count~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#====lymphocyte percentage
+cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.percent)
+plot(F.wga$uniq_usable_seq.count,F.wga$lym.percent)
+line<-lm(F.wga$lym.percent~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
 
 #====clonotype count 
 t.test(T.wga$cln.count,F.wga$cln.count)
@@ -597,3 +684,5 @@ t.test (F.wga.ca$w_most_pop_clns.percent,F.wga.cf$w_most_pop_clns.percent)
 
 #======================comparision between seq runs=====
 # only for when using the combined excel file 
+#checking for a batch effect 
+
