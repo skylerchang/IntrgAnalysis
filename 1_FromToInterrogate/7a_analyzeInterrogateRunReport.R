@@ -470,8 +470,36 @@ ggplot(t,aes(pcrId,usable.count,fill=wga))+geom_bar(position = "dodge", stat="id
 #========================= usable reads - percent ========================
 #=========================================================================
 
+<<<<<<< HEAD
 ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+ggplot(t,aes(sampleId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(t,aes(sampleId,usable.percent,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(t,aes(wga,usable.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(~submissionId)
+ggplot(t,aes(wga,usable.percent))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(sampleFraction~submissionId)
+=======
+ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+>>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
+
+t[t$sampleId=="18-062164-1",c("sampleId","usable.percent","wga")]
+=======
+ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+>>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
+=======
+ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+>>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
+
+t$sampleId
+=======
+ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+>>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
+>>>>>>> 647dac8733903225681c4600bc04c1019284de86
 
 #percent of usable reads and effective species 
 cor.test(t$usable.percent,t$effective_species.count)
