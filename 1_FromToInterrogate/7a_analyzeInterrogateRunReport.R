@@ -447,13 +447,13 @@ anova(line)
 t.test(T.wga$usable.count,F.wga$usable.count)
 
 #wga vs nonwga overall
-pdf(paste0(targetDir2,'usable seq count.pdf'))
+pdf(paste0(targetDir2,'usable read count.pdf'))
 boxplot(T.wga$usable.count, F.wga$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable reads (%)",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'usable seq count (non-wga).pdf'))
+pdf(paste0(targetDir2,'usable read count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,usable.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
@@ -462,7 +462,7 @@ boxplot(F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","4"),outcol=c("1
 dev.off()
 
 #just WGA
-pdf(paste0(targetDir2,'usable seq count (wga).pdf'))
+pdf(paste0(targetDir2,'usable read count (wga).pdf'))
 ggplot(T.wga,aes(sampleId,usable.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
@@ -583,7 +583,7 @@ t.test(T.wga$usable.percent,F.wga$usable.percent)
 #overall wga vs nonwga
 pdf(paste0(targetDir2,'usable seq percent.pdf'))
 boxplot(T.wga$usable.percent, F.wga$usable.percent,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable reads (%)",xlab="Method",varwidth=TRUE)
-legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+#legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
 #just non-wga 
@@ -648,32 +648,32 @@ anova(line)
 #=====uniq usable seq.count
 t.test(T.wga$uniq_usable_seq.count,F.wga$uniq_usable_seq.count)
 
-pdf(paste0(targetDir2,'usable seq count.pdf'))
+pdf(paste0(targetDir2,'unique usable seq count.pdf'))
 boxplot(T.wga$uniq_usable_seq.count, F.wga$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable seq count",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'usable seq count (non-wga).pdf'))
+pdf(paste0(targetDir2,'unique usable seq count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,uniq_usable_seq.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'usable read overall percent(non-wga).pdf'))
+pdf(paste0(targetDir2,'unique usable read overall percent(non-wga).pdf'))
 boxplot(F.wga.ca$uniq_usable_seq.count, F.wga.cf$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="unique usable sequences",ylab="seq count",xlab="Method",varwidth=TRUE)
 dev.off()
 
 #just WGA
-pdf(paste0(targetDir2,'usable seq count (wga).pdf'))
+pdf(paste0(targetDir2,'unique usable seq count (wga).pdf'))
 ggplot(T.wga,aes(sampleId,uniq_usable_seq.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'usable read overall percent(wga).pdf'))
+pdf(paste0(targetDir2,'unique usable read overall percent(wga).pdf'))
 boxplot(T.wga.ca$uniq_usable_seq.count, T.wga.cf$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="unique usable sequences",ylab="seq count",xlab="Method",varwidth=TRUE)
 dev.off()
 
 #box plot for all fractions 
-pdf(paste0(targetDir2,'usable seq count(all fractions).pdf'))
-boxplot(T.wga.ca$uniq_usable_seq.count, T.wga.cf$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count, F.wga.cf$uniq_usable_seq.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.seq count",ylab="percent",xlab="Sample fraction",varwidth=TRUE)
+pdf(paste0(targetDir2,'unique usable seq count(all fractions).pdf'))
+boxplot(T.wga.ca$uniq_usable_seq.count, T.wga.cf$uniq_usable_seq.count,F.wga.ca$uniq_usable_seq.count, F.wga.cf$uniq_usable_seq.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.seq count",ylab="count",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
 dev.off()
 
