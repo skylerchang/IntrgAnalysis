@@ -369,11 +369,23 @@ anova(line)
 #raw read boxplot
 t.test(T.wga$raw.count,F.wga$raw.count)
 
+#wga vs non-wga overall
 pdf(paste0(targetDir2,'raw reads.pdf'))
 boxplot(T.wga$raw.count, F.wga$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="raw count",ylab="number of raw reads",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+#just non-wga 
+pdf(paste0(targetDir2,'raw reads count (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'raw reads count (wga).pdf'))
+ggplot(T.wga,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#comparing all fractions for both wga and non-wga
 pdf(paste0(targetDir2,'raw reads (all fractions).pdf'))
 boxplot(T.wga.ca$raw.count, T.wga.cf$raw.count,F.wga.ca$raw.count, F.wga.cf$raw.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" raw.count",ylab="read count",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
@@ -426,9 +438,20 @@ anova(line)
 #==== usable reads 
 t.test(T.wga$usable.count,F.wga$usable.count)
 
-pdf(paste0(targetDir2,'usable seq.pdf'))
+#wga vs nonwga overall
+pdf(paste0(targetDir2,'usable seq count.pdf'))
 boxplot(T.wga$usable.count, F.wga$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable reads (%)",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+#just non-wga 
+pdf(paste0(targetDir2,'usable seq count (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,usable.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'usable seq count (wga).pdf'))
+ggplot(T.wga,aes(sampleId,usable.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #box plot for all fractions 
@@ -541,9 +564,20 @@ anova(line)
 #boxplots 
 t.test(T.wga$usable.percent,F.wga$usable.percent)
 
+#overall wga vs nonwga
 pdf(paste0(targetDir2,'usable seq percent.pdf'))
 boxplot(T.wga$usable.percent, F.wga$usable.percent,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable reads (%)",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+#just non-wga 
+pdf(paste0(targetDir2,'usable seq percent (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,usable.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'usable seq percent (wga).pdf'))
+ggplot(T.wga,aes(sampleId,usable.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #box plot for all fractions 
@@ -593,6 +627,16 @@ t.test(T.wga$uniq_usable_seq.count,F.wga$uniq_usable_seq.count)
 pdf(paste0(targetDir2,'usable seq count.pdf'))
 boxplot(T.wga$uniq_usable_seq.count, F.wga$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable seq count",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+#just non-wga 
+pdf(paste0(targetDir2,'usable seq count (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,uniq_usable_seq.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'usable seq count (wga).pdf'))
+ggplot(T.wga,aes(sampleId,uniq_usable_seq.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #box plot for all fractions 
@@ -648,6 +692,16 @@ boxplot(T.wga$cln.count, F.wga$cln.count,col=c("10","4"),outcol=c("10","4"), nam
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+#just non-wga 
+pdf(paste0(targetDir2,'cln clonotype count (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,cln.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'cln clonotype count (wga).pdf'))
+ggplot(T.wga,aes(sampleId,cln.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #box plot for all fractions 
 pdf(paste0(targetDir2,'clonotype count (all fractions).pdf'))
 boxplot(T.wga.ca$cln.count, T.wga.cf$cln.count,F.wga.ca$cln.count, F.wga.cf$cln.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" clonotype count",ylab="cln.count",xlab="Sample fraction",varwidth=TRUE)
@@ -671,6 +725,39 @@ ggplot(t,aes(pcrId,cln.count,fill=wga))+geom_bar(position = "dodge",stat="identi
 #=========================================================================
 ggplot(t,aes(pcrId,w_most_pop_clns.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
+t.test(T.wga$w_most_pop_clns.count,F.wga$w_most_pop_clns.percent)
+
+#boxplot overall wga vs nonwga
+pdf(paste0(targetDir2,'most abundant cln clonotype count.pdf'))
+boxplot(T.wga$w_most_pop_clns.count, F.wga$w_most_pop_clns.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="percent of the most popular clonotype",ylab="percent of total seq",xlab="Method",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+#just non-wga 
+pdf(paste0(targetDir2,'most abundant cln clonotype count (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,w_most_pop_clns.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'most abundant cln clonotype count (wga).pdf'))
+ggplot(T.wga,aes(sampleId,w_most_pop_clns.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#box plot for all fractions 
+pdf(paste0(targetDir2,'most abundant cln clonotype count (all fractions).pdf'))
+boxplot(T.wga.ca$w_most_pop_clns.count, T.wga.cf$w_most_pop_clns.count,F.wga.ca$w_most_pop_clns.percent, F.wga.cf$w_most_pop_clns.percent,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" percent of the most popular clonotype",ylab="percent of total seq",xlab="Sample fraction",varwidth=TRUE)
+legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+dev.off()
+
+#T-TEST wga ca fraction vs non-wga cf fraction 
+t.test (T.wga.ca$w_most_pop_clns.count,F.wga.ca$w_most_pop_clns.count)
+#T-TEST wga cf fraction vs non-wga cf fraction 
+t.test (T.wga.cf$w_most_pop_clns.count,F.wga.cf$w_most_pop_clns.count)
+#T-TEST wga ca fraction vs wga cf fraction 
+t.test (T.wga.ca$w_most_pop_clns.count,T.wga.cf$w_most_pop_clns.count)
+#T-TEST non-wga ca fraction vs non-wga ca fraction 
+t.test (F.wga.ca$w_most_pop_clns.count,F.wga.cf$w_most_pop_clns.count)
+
 #=========================================================================
 #========================= most popular cln- count percent== ========================
 #=========================================================================
@@ -678,13 +765,24 @@ ggplot(t,aes(pcrId,w_most_pop_clns.percent,fill=wga))+geom_bar(position = "dodge
 
 t.test(T.wga$w_most_pop_clns.percent,F.wga$w_most_pop_clns.percent)
 
-pdf(paste0(targetDir2,'most abundant cln clonotype count.pdf'))
+#boxplot overall wga vs nonwga
+pdf(paste0(targetDir2,'most abundant cln clonotype percent.pdf'))
 boxplot(T.wga$w_most_pop_clns.percent, F.wga$w_most_pop_clns.percent,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="percent of the most popular clonotype",ylab="percent of total seq",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+#just non-wga 
+pdf(paste0(targetDir2,'most abundant cln clonotype percent (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,w_most_pop_clns.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'most abundant cln clonotype percent (wga).pdf'))
+ggplot(T.wga,aes(sampleId,w_most_pop_clns.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #box plot for all fractions 
-pdf(paste0(targetDir2,'most abundant cln clonotype count (all fractions).pdf'))
+pdf(paste0(targetDir2,'most abundant cln clonotype percent (all fractions).pdf'))
 boxplot(T.wga.ca$w_most_pop_clns.percent, T.wga.cf$w_most_pop_clns.percent,F.wga.ca$w_most_pop_clns.percent, F.wga.cf$w_most_pop_clns.percent,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" percent of the most popular clonotype",ylab="percent of total seq",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
 dev.off()
@@ -710,6 +808,15 @@ boxplot(T.wga$effective_species.count, F.wga$effective_species.count,col=c("10",
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+#just non-wga 
+pdf(paste0(targetDir2,'boxplot effective species (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,effective_species.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'boxplot effective species (wga).pdf'))
+ggplot(T.wga,aes(sampleId,effective_species.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
 
 #boxplot inculding all sample fractions 
 pdf(paste0(targetDir2,'boxplot effective species (comparing fractions).pdf'))
@@ -738,6 +845,16 @@ boxplot(T.wga$alpha_diversity.count, F.wga$alpha_diversity.count,col=c("10","4")
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+#just non-wga 
+pdf(paste0(targetDir2,'boxplot alpha diversity (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,alpha_diversity.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'boxplot alpha diversity (wga).pdf'))
+ggplot(T.wga,aes(sampleId,alpha_diversity.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #boxplot inculding all sample fractions 
 pdf(paste0(targetDir2,'boxplot alpha diversity (all fractions).pdf'))
 boxplot(T.wga.ca$alpha_diversity.count, T.wga.cf$alpha_diversity.count,F.wga.ca$alpha_diversity.count, F.wga.cf$alpha_diversity.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" alpha diversity",ylab="alpha_diversity.count",xlab="Sample fraction",varwidth=TRUE)
@@ -759,11 +876,23 @@ t.test (F.wga.ca$alpha_diversity.count,F.wga.cf$alpha_diversity.count)
 
 t.test(T.wga$diversity_normed.count,F.wga$diversity_normed.count)
 
+#overall
 pdf(paste0(targetDir2,'normalized diversity.pdf'))
 boxplot(T.wga$diversity_normed.count, F.wga$diversity_normed.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="diversity",ylab="diversity_normed.count",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+#just non-wga 
+pdf(paste0(targetDir2,'normalized diversity (non-wga).pdf'))
+ggplot(F.wga,aes(sampleId,diversity_normed.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#just WGA
+pdf(paste0(targetDir2,'normalized diversity (wga).pdf'))
+ggplot(T.wga,aes(sampleId,diversity_normed.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#comparing all fractions 
 pdf(paste0(targetDir2,'normalized diversity (all fractions).pdf'))
 boxplot(T.wga.ca$diversity_normed.count, T.wga.cf$diversity_normed.count,F.wga.ca$diversity_normed.count, F.wga.cf$diversity_normed.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" diversity_normed.count",ylab="diversity_normed.count",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
