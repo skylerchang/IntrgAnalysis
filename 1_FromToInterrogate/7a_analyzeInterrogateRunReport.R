@@ -474,7 +474,7 @@ dev.off()
 pdf(paste0(targetDir2,'usable seq (all fractions).pdf'))
 boxplot(T.wga.ca$usable.count, T.wga.cf$usable.count,F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.percent",ylab="percent",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
-dev.off
+dev.off()
 
 #T-TEST wga ca fraction vs non-wga cf fraction 
 t.test (T.wga.ca$usable.count,F.wga.ca$usable.count)
