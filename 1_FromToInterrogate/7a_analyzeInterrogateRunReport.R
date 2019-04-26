@@ -291,6 +291,9 @@ colnames(t)
 #to compare the correlations of variable and significance (t-test) data subsets will be made for WGA 
 # always double check on which file "seq run" j is 
 
+#=============== for pdf output 
+targetDir2<-'../Results/InterrogateRunReport/WGAgraphs/'
+
 #========= subsets for ca and cf fractions for wga and non-wga 
 #to trun fraction in to a numeric value -> fraction1 to 1 
 #create sample fraction (MRD study: fraction1: PBMCs, fraction2: plasma; CSF study ...)
@@ -339,14 +342,14 @@ F.wga.cf <-subset(F.wga,sampleFraction==2)
 cor.test(t$raw.count,t$effective_species.count)
 plot(t$raw.count,t$effective_species.count)
 
-pdf(paste0(outputPath,'raw counts vs effective species'))
+
 plot(t$raw.count,t$effective_species.count, pch= c(22,21) ,col= c("10","4") ,main="raw counts vs effective species",xlab="raw counts",ylab="effective species count")
 legend ("topleft",inset=0.02,cex=0.7,title="Sample type",pch =c(22,21),col=c("10","4"),c("WGA","non-WGA"))
 linewga <- lm(T.wga$effective_species.count~ T.wga$raw.count)
 linenonwga <- lm(F.wga$effective_species.count~ F.wga$raw.count)
 abline(linewga, col=c(10))
 abline(linenonwga, col=c(4))
-dev.off()
+
 
 #just WGA 
 #cor.test not working 
@@ -366,13 +369,15 @@ anova(line)
 #raw read boxplot
 t.test(T.wga$raw.count,F.wga$raw.count)
 
-pdf(paste0(outputPath,'raw reads.pdf'))
+pdf(paste0(targetDir2,'raw reads.pdf'))
 boxplot(T.wga$raw.count, F.wga$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="raw count",ylab="number of raw reads",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+pdf(paste0(targetDir2,'raw reads (all fractions).pdf'))
 boxplot(T.wga.ca$raw.count, T.wga.cf$raw.count,F.wga.ca$raw.count, F.wga.cf$raw.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" raw.count",ylab="read count",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+dev.off()
 
 #T-TEST wga ca fraction vs non-wga cf fraction 
 t.test (T.wga.ca$raw.count,F.wga.ca$raw.count)
@@ -470,36 +475,8 @@ ggplot(t,aes(pcrId,usable.count,fill=wga))+geom_bar(position = "dodge", stat="id
 #========================= usable reads - percent ========================
 #=========================================================================
 
-<<<<<<< HEAD
 ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-ggplot(t,aes(sampleId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
-ggplot(t,aes(sampleId,usable.percent,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
-ggplot(t,aes(wga,usable.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(~submissionId)
-ggplot(t,aes(wga,usable.percent))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_grid(sampleFraction~submissionId)
-=======
-ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
->>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
-
-t[t$sampleId=="18-062164-1",c("sampleId","usable.percent","wga")]
-=======
-ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
->>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
-=======
-ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
->>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
-
-t$sampleId
-=======
-ggplot(t,aes(pcrId,usable.percent,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
->>>>>>> fc416a15e9b497159bfe1a6c2a7d6bab64358046
->>>>>>> 647dac8733903225681c4600bc04c1019284de86
 
 #percent of usable reads and effective species 
 cor.test(t$usable.percent,t$effective_species.count)
