@@ -991,4 +991,16 @@ t.test (F.wga.ca$diversity_normed.count,F.wga.cf$diversity_normed.count)
 ggplot(t,aes(pcrId,diversity_normed.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
 
+#========================= determining perdicted variables =======================
+#=================================================================================
 
+#first we will create two new variables one for lym count and one for lym concentration
+# this will use cyto values for samples below 200 cytospin count and hemo values for samples with a cytospin count of 200
+
+#create 'final.lymcount' 
+t$final.lymcount<-t$lym.cytocount
+t[t$cytospin.count=="200" & !is.na(t$lym.cytocount),"final.lymcount"]<-t[t$cytospin.count == "200" & !is.na(t$lym.cytocount),"lym.hemo_count"]
+
+#create 'final. lym concentration (cells/ul) ->
+t$final.lymcon<-t$lym.cyto_con
+t[t$cytospin.count=="200" & !is.na(t$lym.cyto_con),"final.lymcon"]<-t[t$cytospin.count == "200" & !is.na(t$lym.cyto_con),"hemolym.cells.ul"]
