@@ -1489,6 +1489,7 @@ anova(line)
 #====note
 #====that the hierarchy for alpha diversity and effective species is almost completely identical
 
+#==============================
 #1. alpha diversity hierarchy 
 #==== raw reads 
 #bargraph
@@ -1520,6 +1521,7 @@ ggplot(F.wga,aes(alpha.hierarchy,diversity_normed.count, fill=sampleFraction))+g
 ggplot(t,aes(alpha.hierarchy,effective_species.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 ggplot(F.wga,aes(alpha.hierarchy,effective_species.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
+#===================================
 #2. normalized diversity hierarchy
 #==== raw reads 
 #bargraph
@@ -1547,6 +1549,7 @@ ggplot(F.wga,aes(normalized.hierarchy,cln.count, fill=sampleFraction))+geom_bar(
 ggplot(t,aes(normalized.hierarchy,effective_species.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 ggplot(F.wga,aes(normalized.hierarchy,effective_species.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
+#===============================
 #3. effective species  hierarchy
 #==== raw reads 
 #bargraph
