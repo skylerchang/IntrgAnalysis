@@ -990,7 +990,7 @@ t.test (F.wga.ca$diversity_normed.count,F.wga.cf$diversity_normed.count)
 # bar graph 
 ggplot(t,aes(pcrId,diversity_normed.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
-
+#=================================================================================
 #========================= determining perdicted variables =======================
 #=================================================================================
 
@@ -1004,3 +1004,572 @@ t[t$cytospin.count=="200" & !is.na(t$lym.cytocount),"final.lymcount"]<-t[t$cytos
 #create 'final. lym concentration (cells/ul) ->
 t$final.lymcon<-t$lym.cyto_con
 t[t$cytospin.count=="200" & !is.na(t$lym.cyto_con),"final.lymcon"]<-t[t$cytospin.count == "200" & !is.na(t$lym.cyto_con),"hemolym.cells.ul"]
+
+#========== analysis 
+#========== deteriming if there any perdicted variables to determine if a sample is ideal for NGS
+#variables to look at 
+#1. DNA yields
+#2. hemo (cell concentration(cells/ul))
+#3. hemo (lym concentration (cells/ul))
+#4. hemo (lym count (calculated for 200 ul same as the cytospin))
+#5. cyto (lym concentration (cells/ul)) 
+#6. cyto (lym count)
+#7. using final lym concentration 
+#8. using final lym count 
+
+#==============1. DNA yields 
+#=============================
+
+#==============2. hemo (cell concentration(cells/ul))
+#====================================================
+#bargraph
+ggplot(t,aes(submissionId,hemo.cells.ul))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$hemo.cells.ul)
+plot(F.wga$raw.count,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent
+cor.test(F.wga$usable.percent,F.wga$hemo.cells.ul)
+plot(F.wga$usable.percent,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$hemo.cells.ul)
+plot(F.wga$usable.count,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$hemo.cells.ul)
+plot(F.wga$uniq_usable_seq.count,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$hemo.cells.ul)
+plot(F.wga$cln.count,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$hemo.cells.ul)
+plot(F.wga$alpha_diversity.count,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$hemo.cells.ul)
+plot(F.wga$diversity_normed.count,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$hemo.cells.ul)
+plot(F.wga$effective_species.count,F.wga$hemo.cells.ul)
+line<-lm(F.wga$hemo.cells.ul~F.wga$effective_species.count)
+abline(line)
+anova(line)
+
+
+#==============3. hemo (lym concentration (cells/ul))
+#====================================================
+#bargraph
+ggplot(t,aes(submissionId,hemolym.cells.ul))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$hemolym.cells.ul)
+plot(F.wga$raw.count,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent 
+cor.test(F.wga$usable.percent,F.wga$hemolym.cells.ul)
+plot(F.wga$usable.percent,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$hemolym.cells.ul)
+plot(F.wga$usable.count,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$hemolym.cells.ul)
+plot(F.wga$uniq_usable_seq.count,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$hemolym.cells.ul)
+plot(F.wga$cln.count,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$hemolym.cells.ul)
+plot(F.wga$alpha_diversity.count,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$hemolym.cells.ul)
+plot(F.wga$diversity_normed.count,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$hemolym.cells.ul)
+plot(F.wga$effective_species.count,F.wga$hemolym.cells.ul)
+line<-lm(F.wga$hemolym.cells.ul~F.wga$effective_species.count)
+abline(line)
+anova(line)
+
+
+
+#==============4. hemo (lym count (calculated for 200 ul same as the cytospin))
+#==============================================================================
+#bargraph
+ggplot(t,aes(submissionId,lym.hemo_count))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$lym.hemo_count)
+plot(F.wga$raw.count,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent 
+cor.test(F.wga$usable.percent,F.wga$lym.hemo_count)
+plot(F.wga$usable.percent,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$lym.hemo_count)
+plot(F.wga$usable.count,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.hemo_count)
+plot(F.wga$uniq_usable_seq.count,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$lym.hemo_count)
+plot(F.wga$cln.count,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$lym.hemo_count)
+plot(F.wga$alpha_diversity.count,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$lym.hemo_count)
+plot(F.wga$diversity_normed.count,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$lym.hemo_count)
+plot(F.wga$effective_species.count,F.wga$lym.hemo_count)
+line<-lm(F.wga$lym.hemo_count~F.wga$effective_species.count)
+abline(line)
+anova(line)
+
+
+#==============5. cyto (lym concentration (cells/ul)) 
+#====================================================
+#bargraph
+ggplot(t,aes(submissionId,lym.cyto_con))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$lym.cyto_con)
+plot(F.wga$raw.count,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent 
+cor.test(F.wga$usable.percent,F.wga$lym.cyto_con)
+plot(F.wga$usable.percent,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$lym.cyto_con)
+plot(F.wga$usable.count,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.cyto_con)
+plot(F.wga$uniq_usable_seq.count,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$lym.cyto_con)
+plot(F.wga$cln.count,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$lym.cyto_con)
+plot(F.wga$alpha_diversity.count,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$lym.cyto_con)
+plot(F.wga$diversity_normed.count,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$lym.cyto_con)
+plot(F.wga$effective_species.count,F.wga$lym.cyto_con)
+line<-lm(F.wga$lym.cyto_con~F.wga$effective_species.count)
+abline(line)
+anova(line)
+
+
+#==============6. cyto (lym count) 
+#=================================
+#bargraph
+ggplot(t,aes(submissionId,lym.cytocount))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$lym.cytocount)
+plot(F.wga$raw.count,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent 
+cor.test(F.wga$usable.percent,F.wga$lym.cytocount)
+plot(F.wga$usable.percent,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$lym.cytocount)
+plot(F.wga$usable.count,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$lym.cytocount)
+plot(F.wga$uniq_usable_seq.count,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$lym.cytocount)
+plot(F.wga$cln.count,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$lym.cytocount)
+plot(F.wga$alpha_diversity.count,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$lym.cytocount)
+plot(F.wga$diversity_normed.count,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$lym.cytocount)
+plot(F.wga$effective_species.count,F.wga$lym.cytocount)
+line<-lm(F.wga$lym.cytocount~F.wga$effective_species.count)
+abline(line)
+anova(line)
+
+#==============7. using final lym concentration 
+#==============================================
+# comparing concentration from cytospin vs hemocytometer 
+
+boxplot(F.wga$lym.cyto_con, F.wga$hemolym.cells.ul,col=c("10","4"),outcol=c("10","4"), names=c("cytospin", "hemocytometer"),  cex.axis=1,main="lymphocyte concentration",ylab="cells/ul",xlab="cell count method",varwidth=TRUE)
+
+t.test (F.wga$lym.cyto_con,F.wga$hemolym.cells.ul)
+
+#bargraph
+ggplot(t,aes(submissionId,final.lymcon))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$final.lymcon)
+plot(F.wga$raw.count,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent 
+cor.test(F.wga$usable.percent,F.wga$final.lymcon)
+plot(F.wga$usable.percent,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$final.lymcon)
+plot(F.wga$usable.count,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$final.lymcon)
+plot(F.wga$uniq_usable_seq.count,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$final.lymcon)
+plot(F.wga$cln.count,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$final.lymcon)
+plot(F.wga$alpha_diversity.count,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$final.lymcon)
+plot(F.wga$diversity_normed.count,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$final.lymcon)
+plot(F.wga$effective_species.count,F.wga$final.lymcon)
+line<-lm(F.wga$final.lymcon~F.wga$effective_species.count)
+abline(line)
+anova(line)
+
+
+#==============8. using final lym count 
+#==============================================
+# comparing lym counts from cytospin vs hemocytometer (for 200 ul)
+
+boxplot(F.wga$lym.cytocount, F.wga$lym.hemo_count,col=c("10","4"),outcol=c("10","4"), names=c("cytospin", "hemocytometer"),  cex.axis=1,main="lymphocyte count",ylab="cells",xlab="cell count method",varwidth=TRUE)
+
+t.test (F.wga$lym.cytocount,F.wga$lym.hemo_count)
+
+#bargraph
+ggplot(t,aes(submissionId,final.lymcount))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$final.lymcount)
+plot(F.wga$raw.count,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent 
+cor.test(F.wga$usable.percent,F.wga$final.lymcount)
+plot(F.wga$usable.percent,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$final.lymcount)
+plot(F.wga$usable.count,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$final.lymcount)
+plot(F.wga$uniq_usable_seq.count,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$final.lymcount)
+plot(F.wga$cln.count,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$final.lymcount)
+plot(F.wga$alpha_diversity.count,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$final.lymcount)
+plot(F.wga$diversity_normed.count,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$final.lymcount)
+plot(F.wga$effective_species.count,F.wga$final.lymcount)
+line<-lm(F.wga$final.lymcount~F.wga$effective_species.count)
+abline(line)
+anova(line)
+#=================================================================================
+#=============================== sample Hierarchy ================================
+#=================================================================================
+
+# three diversity variables 
+#1. alpha diversity
+#2. normalized diversity
+#3. effective species 
+#====note
+#====that the hierarchy for alpha diversity and effective species is almost completely identical
+
+#1. alpha diversity hierarchy 
+#==== raw reads 
+#bargraph
+#wga vs non-wga
+ggplot(t,aes(alpha.hierarchy,raw.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(alpha.hierarchy,raw.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== usable reads counts
+ggplot(t,aes(alpha.hierarchy,usable.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(alpha.hierarchy,usable.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== unique seq
+ggplot(t,aes(alpha.hierarchy,uniq_usable_seq.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(alpha.hierarchy,uniq_usable_seq.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== clonotype count
+ggplot(t,aes(alpha.hierarchy,cln.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(alpha.hierarchy,cln.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#normelized diversity 
+ggplot(t,aes(alpha.hierarchy,diversity_normed.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+ggplot(F.wga,aes(alpha.hierarchy,diversity_normed.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#effective species 
+ggplot(t,aes(alpha.hierarchy,effective_species.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+ggplot(F.wga,aes(alpha.hierarchy,effective_species.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#2. normalized diversity hierarchy
+#==== raw reads 
+#bargraph
+#wga vs non-wga
+ggplot(t,aes(normalized.hierarchy,raw.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(normalized.hierarchy,raw.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== usable reads counts
+ggplot(t,aes(normalized.hierarchy,usable.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(normalized.hierarchy,usable.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== unique seq
+ggplot(t,aes(normalized.hierarchy,uniq_usable_seq.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(normalized.hierarchy,uniq_usable_seq.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== clonotype count
+ggplot(t,aes(normalized.hierarchy,cln.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(normalized.hierarchy,cln.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#effective species 
+ggplot(t,aes(normalized.hierarchy,effective_species.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+ggplot(F.wga,aes(normalized.hierarchy,effective_species.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#3. effective species  hierarchy
+#==== raw reads 
+#bargraph
+#wga vs non-wga
+ggplot(t,aes(eff_species.hierarchy,raw.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(eff_species.hierarchy,raw.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== usable reads counts
+ggplot(t,aes(eff_species.hierarchy,usable.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(eff_species.hierarchy,usable.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== unique seq
+ggplot(t,aes(eff_species.hierarchy,uniq_usable_seq.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(eff_species.hierarchy,uniq_usable_seq.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#==== clonotype count
+ggplot(t,aes(eff_species.hierarchy,cln.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+#nonwga -> ca vs cf
+ggplot(F.wga,aes(eff_species.hierarchy,cln.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#alpha diversity 
+ggplot(t,aes(eff_species.hierarchy,alpha_diversity.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+ggplot(F.wga,aes(eff_species.hierarchy,alpha_diversity.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
