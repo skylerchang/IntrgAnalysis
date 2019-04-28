@@ -729,6 +729,10 @@ boxplot(T.wga$cln.count, F.wga$cln.count,col=c("10","4"),outcol=c("10","4"), nam
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+pdf(paste0(targetDir2,'clonotype count (all samples).pdf'))
+ggplot(t,aes(sampleId,cln.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'cln clonotype count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,cln.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -869,6 +873,10 @@ boxplot(T.wga$effective_species.count, F.wga$effective_species.count,col=c("10",
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+pdf(paste0(targetDir2,'effective species (all samples).pdf'))
+ggplot(t,aes(sampleId,effective_species.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off() 
+
 #just non-wga 
 pdf(paste0(targetDir2,'boxplot effective species (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,effective_species.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -959,6 +967,10 @@ boxplot(T.wga$diversity_normed.count, F.wga$diversity_normed.count,col=c("10","4
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+pdf(paste0(targetDir2,'normalized diversity (all samples).pdf'))
+ggplot(t,aes(sampleId,diversity_normed.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'normalized diversity (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,diversity_normed.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -1023,8 +1035,10 @@ t[t$cytospin.count=="200" & !is.na(t$lym.cyto_con),"final.lymcon"]<-t[t$cytospin
 #8. using final lym count 
 
 #==============1. DNA yields 
-#=============================
-
+#============================= need to fix 
+pdf(paste0(targetDir2,'DNA yileds (all samples).pdf'))
+ggplot(t,aes(sampleId,postwga.dna,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+dev.off()
 #==============2. hemo (cell concentration(cells/ul))
 #====================================================
 #bargraph
