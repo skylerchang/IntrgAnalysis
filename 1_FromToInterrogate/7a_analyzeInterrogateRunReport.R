@@ -375,6 +375,11 @@ boxplot(T.wga$raw.count, F.wga$raw.count,col=c("10","4"),outcol=c("10","4"), nam
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+#all samples 
+pdf(paste0(targetDir2,'raw reads count (all samples).pdf'))
+ggplot(t,aes(sampleId,raw.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'raw reads count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
