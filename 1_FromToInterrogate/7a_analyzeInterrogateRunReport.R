@@ -379,6 +379,10 @@ dev.off()
 pdf(paste0(targetDir2,'raw reads count (all samples).pdf'))
 ggplot(t,aes(sampleId,raw.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'raw reads count (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,raw.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
 
 #just non-wga 
 pdf(paste0(targetDir2,'raw reads count (non-wga).pdf'))
@@ -455,6 +459,14 @@ t.test(T.wga$usable.count,F.wga$usable.count)
 pdf(paste0(targetDir2,'usable read count.pdf'))
 boxplot(T.wga$usable.count, F.wga$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable reads (%)",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+pdf(paste0(targetDir2,'usable read count (all samples).pdf'))
+ggplot(t,aes(sampleId,usable.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'usable read count(all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,usable.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
@@ -591,6 +603,14 @@ boxplot(T.wga$usable.percent, F.wga$usable.percent,col=c("10","4"),outcol=c("10"
 #legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+pdf(paste0(targetDir2,'usable seq percent (all samples).pdf'))
+ggplot(t,aes(sampleId,usable.percent,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'usable seq percent(all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,usable.percent,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'usable seq percent (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,usable.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -656,6 +676,14 @@ t.test(T.wga$uniq_usable_seq.count,F.wga$uniq_usable_seq.count)
 pdf(paste0(targetDir2,'unique usable seq count.pdf'))
 boxplot(T.wga$uniq_usable_seq.count, F.wga$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="usable seq",ylab="usable seq count",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+pdf(paste0(targetDir2,'unique usable seq count.pdf (all samples).pdf'))
+ggplot(t,aes(sampleId,uniq_usable_seq.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'unique usable seq count.pdf(all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,uniq_usable_seq.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
@@ -732,6 +760,10 @@ dev.off()
 pdf(paste0(targetDir2,'clonotype count (all samples).pdf'))
 ggplot(t,aes(sampleId,cln.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'clonotype count (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
 
 #just non-wga 
 pdf(paste0(targetDir2,'cln clonotype count (non-wga).pdf'))
@@ -782,6 +814,14 @@ boxplot(T.wga$w_most_pop_clns.count, F.wga$w_most_pop_clns.count,col=c("10","4")
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
 dev.off()
 
+pdf(paste0(targetDir2,'most abundant cln clonotype count(all samples).pdf'))
+ggplot(t,aes(sampleId,w_most_pop_clns.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off() 
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'most abundant cln clonotype count (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,w_most_pop_clns.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'most abundant cln clonotype count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,w_most_pop_clns.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -826,6 +866,14 @@ t.test(T.wga$w_most_pop_clns.percent,F.wga$w_most_pop_clns.percent)
 pdf(paste0(targetDir2,'most abundant cln clonotype percent.pdf'))
 boxplot(T.wga$w_most_pop_clns.percent, F.wga$w_most_pop_clns.percent,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="percent of the most popular clonotype",ylab="percent of total seq",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+pdf(paste0(targetDir2,'most abundant cln clonotype percent(all samples).pdf'))
+ggplot(t,aes(sampleId,w_most_pop_clns.percent,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off() 
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'most abundant cln clonotype percent (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,w_most_pop_clns.percent,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
@@ -876,6 +924,10 @@ dev.off()
 pdf(paste0(targetDir2,'effective species (all samples).pdf'))
 ggplot(t,aes(sampleId,effective_species.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off() 
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'effective species (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
 
 #just non-wga 
 pdf(paste0(targetDir2,'boxplot effective species (non-wga).pdf'))
@@ -920,6 +972,14 @@ t.test(T.wga$alpha_diversity.count,F.wga$alpha_diversity.count)
 pdf(paste0(targetDir2,'boxplot alpha diversity.pdf'))
 boxplot(T.wga$alpha_diversity.count, F.wga$alpha_diversity.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "non-WGA"),  cex.axis=1,main="diversity",ylab="alpha diversity",xlab="Method",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","non-WGA"))
+dev.off()
+
+pdf(paste0(targetDir2,'alpha diversity (all samples).pdf'))
+ggplot(t,aes(sampleId,alpha_diversity.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'alpha diversity (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,alpha_diversity.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
@@ -969,6 +1029,10 @@ dev.off()
 
 pdf(paste0(targetDir2,'normalized diversity (all samples).pdf'))
 ggplot(t,aes(sampleId,diversity_normed.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+  #boxplot with more then one layer of organization 
+pdf(paste0(targetDir2,'normalized diversity (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,diversity_normed.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
