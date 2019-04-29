@@ -384,6 +384,11 @@ pdf(paste0(targetDir2,'raw reads count (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,raw.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+  #bargraph 
+pdf(paste0(targetDir2,'raw read count (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,raw.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'raw reads count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -527,8 +532,9 @@ abline(line)
 anova(line)
 
 #bargraph 
-ggplot(t,aes(pcrId,usable.count,fill=wga))+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
+pdf(paste0(targetDir2,'usable read count (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,usable.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
 
 #=========================================================================
 #========================= usable reads - percent ========================
@@ -611,6 +617,11 @@ pdf(paste0(targetDir2,'usable seq percent(all samples by wga and fraction).pdf')
 ggplot(t,aes(wga,usable.percent,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+  #bargraph 
+pdf(paste0(targetDir2,'usable seq percent (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,usable.percent,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'usable seq percent (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,usable.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -684,6 +695,11 @@ dev.off()
 #boxplot with more then one layer of organization 
 pdf(paste0(targetDir2,'unique usable seq count.pdf(all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,uniq_usable_seq.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+  #bargraph 
+pdf(paste0(targetDir2,'unique usable seq count (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,uniq_usable_seq.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
@@ -765,6 +781,11 @@ pdf(paste0(targetDir2,'clonotype count (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+  #bargraph 
+pdf(paste0(targetDir2,'clonotype count (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'cln clonotype count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,cln.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -822,6 +843,11 @@ pdf(paste0(targetDir2,'most abundant cln clonotype count (all samples by wga and
 ggplot(t,aes(wga,w_most_pop_clns.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+  #bargraph 
+pdf(paste0(targetDir2,'most abundant cln clonotype count (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,w_most_pop_clns.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'most abundant cln clonotype count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,w_most_pop_clns.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -874,6 +900,11 @@ dev.off()
 #boxplot with more then one layer of organization 
 pdf(paste0(targetDir2,'most abundant cln clonotype percent (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,w_most_pop_clns.percent,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+  #bargraph 
+pdf(paste0(targetDir2,'most abundant cln clonotype percent (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,w_most_pop_clns.percent,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
@@ -929,6 +960,11 @@ pdf(paste0(targetDir2,'effective species (all samples by wga and fraction).pdf')
 ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+  #bargraph 
+pdf(paste0(targetDir2,'effective species (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'boxplot effective species (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,effective_species.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -982,6 +1018,11 @@ pdf(paste0(targetDir2,'alpha diversity (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,alpha_diversity.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+#bargraph 
+pdf(paste0(targetDir2,'alpha diversity  (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,alpha_diversity.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just non-wga 
 pdf(paste0(targetDir2,'boxplot alpha diversity (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,alpha_diversity.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -1033,6 +1074,11 @@ dev.off()
   #boxplot with more then one layer of organization 
 pdf(paste0(targetDir2,'normalized diversity (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,diversity_normed.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#bargraph 
+pdf(paste0(targetDir2,'normalized diversity (all samples- bargraph).pdf'))
+ggplot(t,aes(wga,diversity_normed.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
