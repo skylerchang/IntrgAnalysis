@@ -1127,10 +1127,12 @@ ggplot(t,aes(pcrId,diversity_normed.count,fill=wga))+geom_bar(position = "dodge"
 #create 'final.lymcount' 
 t$final.lymcount<-t$lym.cytocount
 t[t$cytospin.count=="200" & !is.na(t$lym.cytocount),"final.lymcount"]<-t[t$cytospin.count == "200" & !is.na(t$lym.cytocount),"lym.hemo_count"]
+t[t$cytospin.count=="100" & !is.na(t$lym.cytocount),"final.lymcount"]<-t[t$cytospin.count == "100" & !is.na(t$lym.cytocount),"lym.hemo_count"]
 
 #create 'final. lym concentration (cells/ul) ->
 t$final.lymcon<-t$lym.cyto_con
 t[t$cytospin.count=="200" & !is.na(t$lym.cyto_con),"final.lymcon"]<-t[t$cytospin.count == "200" & !is.na(t$lym.cyto_con),"hemolym.cells.ul"]
+t[t$cytospin.count=="100" & !is.na(t$lym.cyto_con),"final.lymcon"]<-t[t$cytospin.count == "100" & !is.na(t$lym.cyto_con),"hemolym.cells.ul"]
 
 #========== analysis 
 #========== deteriming if there any perdicted variables to determine if a sample is ideal for NGS
