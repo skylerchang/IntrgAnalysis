@@ -1287,6 +1287,7 @@ ggplot(t,aes(submissionId,lym.hemo_count))+geom_bar(position = "dodge",stat="ide
 
 #correlations with seq variables 
 
+
 #raw reads
 cor.test(F.wga$raw.count,F.wga$lym.hemo_count)
 plot(F.wga$raw.count,F.wga$lym.hemo_count)
