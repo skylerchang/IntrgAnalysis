@@ -33,7 +33,7 @@ files<-list.files(targetDir,pattern = "^Run.*xlsx")
 # 1 = csf run 2 = seq run 24 
 # 2 = csf run 3 = seq run 26 
 # 3 = excel file with both csf run 2 and 3 combined 
-j<-1
+j<-4
 
 for (j in 1:length(files)){
   t<-readxl::read_excel(paste0(targetDir,files[j]))
