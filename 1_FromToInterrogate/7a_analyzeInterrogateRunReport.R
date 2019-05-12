@@ -30,10 +30,12 @@ targetDir<-'../Results/InterrogateRunReport/'
 
 files<-list.files(targetDir,pattern = "^Run.*xlsx")
 #pick which file to use
-# 1 = csf run 2 = seq run 24 
-# 2 = csf run 3 = seq run 26 
-# 3 = excel file with both csf run 2 and 3 combined 
-j<-4
+# 1 = csf run 1 = seq run 21
+# 2 = csf run 2 = seq run 24 
+# 3 = csf run 3 = seq run 26 
+# 4 = excel file with both csf run 2 and 3 combined 
+# 5 = excel file with all three seq runs 
+j<-5
 
 for (j in 1:length(files)){
   t<-readxl::read_excel(paste0(targetDir,files[j]))
@@ -132,6 +134,16 @@ for (j in 1:length(files)){
   t$raw.percent<-as.numeric(t$raw.percent)
   t$usable.percent<-as.numeric(t$usable.percent)
   t$w_most_pop_clns.percent<-as.numeric(t$w_most_pop_clns.percent)
+  t$hemo.cells.L<-as.numeric(t$hemo.cells.L)
+  t$hemo.cells.ul<-as.numeric(t$hemo.cells.ul)
+  t$cytospin.count<-as.numeric(t$cytospin.count)
+  t$lym.cyto.con<-as.numeric(t$lym.cyto.con)
+  t$lym.cytocount<-as.numeric(t$lym.cytocount)
+  t$lym.cytopercent<-as.numeric(t$lym.cytopercent)
+  t$lym.hemo_con<-as.numeric(t$lym.hemo_con)
+  t$hemolym.cells.ul<-as.numeric(t$hemolym.cells.ul)
+  t$lym.hemo_count<-as.numeric(t$lym.hemo_count)
+  t$pred.lym.cyto<-as.numeric(t$pred.lym.cyto)
   colnames(t)
 }
   #============= plot read numbers =============
@@ -379,6 +391,11 @@ dev.off()
 pdf(paste0(targetDir2,'raw reads count (all samples).pdf'))
 ggplot(t,aes(sampleId,raw.count,fill=wga))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
+
+pdf(paste0(targetDir,'raw reads count (all samples no wga).pdf'))
+ggplot(t,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #boxplot with more then one layer of organization 
 pdf(paste0(targetDir2,'raw reads count (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,raw.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -475,11 +492,11 @@ ggplot(t,aes(wga,usable.count,fill=sampleFraction))+facet_grid(.~submissionId)+g
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'usable read count (non-wga).pdf'))
+pdf(paste0(targetDir,'usable read count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,usable.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'usable read overall (non-wga).pdf'))
+pdf(paste0(targetDir,'usable read overall (non-wga).pdf'))
 boxplot(F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="usable read count",ylab="number of usable reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -665,9 +682,9 @@ abline(lineca)
 anova(lineca)
 anova(line)
 #=====lymphocyte count 
-cor.test(F.wga$usable.percent,F.wga$lym.count)
-plot(F.wga$usable.percent,F.wga$lym.count)
-line<-lm(F.wga$lym.count~F.wga$usable.percent)
+cor.test(F.wga$usable.percent,F.wga$pred.lym.cyto)
+plot(F.wga$usable.percent,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$usable.percent)
 abline(line)
 anova(line)
 
@@ -703,11 +720,11 @@ ggplot(t,aes(wga,uniq_usable_seq.count,fill=sampleFraction))+facet_grid(.~submis
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'unique usable seq count (non-wga).pdf'))
+pdf(paste0(targetDir,'unique usable seq count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,uniq_usable_seq.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'unique usable read overall percent(non-wga).pdf'))
+pdf(paste0(targetDir,'unique usable read overall percent(non-wga).pdf'))
 boxplot(F.wga.ca$uniq_usable_seq.count, F.wga.cf$uniq_usable_seq.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="unique usable sequences",ylab="seq count",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -787,11 +804,11 @@ ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'cln clonotype count (non-wga).pdf'))
+pdf(paste0(targetDir,'cln clonotype count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,cln.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'clonotype count overall (non-wga).pdf'))
+pdf(paste0(targetDir,'clonotype count overall (non-wga).pdf'))
 boxplot(F.wga.ca$cln.count, F.wga.cf$cln.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="clonotype",ylab="cln count",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -849,11 +866,11 @@ ggplot(t,aes(wga,w_most_pop_clns.count,fill=sampleFraction))+facet_grid(.~submis
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'most abundant cln clonotype count (non-wga).pdf'))
+pdf(paste0(targetDir,'most abundant cln clonotype count (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,w_most_pop_clns.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'most abundant cln clonotype count overall (non-wga).pdf'))
+pdf(paste0(targetDir,'most abundant cln clonotype count overall (non-wga).pdf'))
 boxplot(F.wga.ca$w_most_pop_clns.count, F.wga.cf$w_most_pop_clns.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="count of the most popular clonotype",ylab="cln count",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -908,11 +925,11 @@ ggplot(t,aes(wga,w_most_pop_clns.percent,fill=sampleFraction))+facet_grid(.~subm
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'most abundant cln clonotype percent (non-wga).pdf'))
+pdf(paste0(targetDir,'most abundant cln clonotype percent (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,w_most_pop_clns.percent,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'most abundant cln clonotype percent overall (non-wga).pdf'))
+pdf(paste0(targetDir,'most abundant cln clonotype percent overall (non-wga).pdf'))
 boxplot(F.wga.ca$w_most_pop_clns.percent, F.wga.cf$w_most_pop_clns.percent,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="portion of the most popular clonotype",ylab="percent",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -966,11 +983,11 @@ ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~subm
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'boxplot effective species (non-wga).pdf'))
+pdf(paste0(targetDir,'boxplot effective species (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,effective_species.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'effective species overall (non-wga).pdf'))
+pdf(paste0(targetDir,'effective species overall (non-wga).pdf'))
 boxplot(F.wga.ca$effective_species.count, F.wga.cf$effective_species.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="effective species",ylab="count",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -1024,11 +1041,11 @@ ggplot(t,aes(wga,alpha_diversity.count,fill=sampleFraction))+facet_grid(.~submis
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'boxplot alpha diversity (non-wga).pdf'))
+pdf(paste0(targetDir,'boxplot alpha diversity (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,alpha_diversity.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'alpha diveraity overall (non-wga).pdf'))
+pdf(paste0(targetDir,'alpha diveraity overall (non-wga).pdf'))
 boxplot(F.wga.ca$alpha_diversity.count, F.wga.cf$alpha_diversity.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="alpha diversity",ylab="count",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -1082,11 +1099,11 @@ ggplot(t,aes(wga,diversity_normed.count,fill=sampleFraction))+facet_grid(.~submi
 dev.off()
 
 #just non-wga 
-pdf(paste0(targetDir2,'normalized diversity (non-wga).pdf'))
+pdf(paste0(targetDir,'normalized diversity (non-wga).pdf'))
 ggplot(F.wga,aes(sampleId,diversity_normed.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
-pdf(paste0(targetDir2,'normalized diveraity overall (non-wga).pdf'))
+pdf(paste0(targetDir,'normalized diveraity overall (non-wga).pdf'))
 boxplot(F.wga.ca$diversity_normed.count, F.wga.cf$diversity_normed.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="normalized diversity",ylab="count",xlab="Method",varwidth=TRUE)
 dev.off()
 
@@ -1145,6 +1162,7 @@ t[t$cytospin.count=="100" & !is.na(t$lym.cyto_con),"final.lymcon"]<-t[t$cytospin
 #6. cyto (lym count)
 #7. using final lym concentration 
 #8. using final lym count 
+#9. predicted cyto spin count 
 
 #==============1. DNA yields 
 #============================= need to fix 
@@ -1154,6 +1172,22 @@ dev.off()
 
 pdf(paste0(targetDir2,'DNA yileds (input vs output).pdf'))
 boxplot(F.wga$postwga.dna, T.wga$postwga.dna,col=c("10","4"),outcol=c("10","4"), names=c("input", "output"),  cex.axis=1,main="WGA DNA yields",ylab="DNA yields (ng/ul)",varwidth=TRUE)
+dev.off()
+
+pdf(paste0(targetDir,'DNA yileds (overall).pdf'))
+boxplot(F.wga$pre.dna,col=c("10"),outcol=c("10"), names=c("All fractions"),  cex.axis=1,main="DNA yields",ylab="DNA yields (ng/ul)",varwidth=TRUE)
+dev.off()
+summary (F.wga$pre.dna)
+
+pdf(paste0(targetDir2,'DNA yileds (ca vs cf).pdf'))
+boxplot(F.wga.ca$pre.dna, F.wga.cf$pre.dna,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="DNA yields",ylab="DNA yields (ng/ul)",varwidth=TRUE)
+dev.off()
+summary (F.wga.ca$pre.dna)
+summary (F.wga.cf$pre.dna)
+
+#bwtween runs 
+pdf(paste0(targetDir,'DNA yields (btw runs).pdf'))
+ggplot(F.wga,aes(sampleFraction,pre.dna,fill=sampleFraction))+facet_grid(.~seq.run)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 #==============2. hemo (cell concentration(cells/ul))
 #====================================================
@@ -1614,6 +1648,70 @@ plot(F.wga$effective_species.count,F.wga$final.lymcount)
 line<-lm(F.wga$final.lymcount~F.wga$effective_species.count)
 abline(line)
 anova(line)
+
+#=================================================================================
+#predicted cyto
+#=================================================================================
+#bargraph
+ggplot(t,aes(submissionId,pred.lym.cyto))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+#correlations with seq variables 
+
+#raw reads
+cor.test(F.wga$raw.count,F.wga$pred.lym.cyto)
+plot(F.wga$raw.count,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent
+cor.test(F.wga$usable.percent,F.wga$pred.lym.cyto)
+plot(F.wga$usable.percent,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$pred.lym.cyto)
+plot(F.wga$usable.count,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$pred.lym.cyto)
+plot(F.wga$uniq_usable_seq.count,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$pred.lym.cyto)
+plot(F.wga$cln.count,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$pred.lym.cyto)
+plot(F.wga$alpha_diversity.count,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$pred.lym.cyto)
+plot(F.wga$diversity_normed.count,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$pred.lym.cyto)
+plot(F.wga$effective_species.count,F.wga$pred.lym.cyto)
+line<-lm(F.wga$pred.lym.cyto~F.wga$effective_species.count)
+abline(line)
+anova(line)
 #=================================================================================
 #=============================== sample Hierarchy ================================
 #=================================================================================
@@ -1712,3 +1810,20 @@ ggplot(F.wga,aes(eff_species.hierarchy,cln.count, fill=sampleFraction))+geom_bar
 #alpha diversity 
 ggplot(t,aes(eff_species.hierarchy,alpha_diversity.count, fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 ggplot(F.wga,aes(eff_species.hierarchy,alpha_diversity.count, fill=sampleFraction))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
+
+
+#======================================================================================
+#comparing all seq results (seq 21+24+26)
+# no WGA 
+#======================================================================================
+
+# DNA yields
+pdf(paste0(targetDir,'DNA yields (all seq).pdf'))
+ggplot(F.wga,aes(sampleFraction,pre.dna,fill=seq.run))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+#raw reads 
+#boxplot with more then one layer of organization 
+pdf(paste0(targetDir,'raw reads count (all seq).pdf'))
+ggplot(F.wga,aes(pcrId,raw.count))+facet_grid(.~seq.run)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+#raw reads 
