@@ -1151,6 +1151,10 @@ t[t$cytospin.count=="100" & !is.na(t$lym.cyto_con),"final.lymcon"]<-t[t$cytospin
 pdf(paste0(targetDir2,'DNA yileds (all samples).pdf'))
 ggplot(t,aes(sampleId,postwga.dna,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 dev.off()
+
+pdf(paste0(targetDir2,'DNA yileds (input vs output).pdf'))
+boxplot(F.wga$postwga.dna, T.wga$postwga.dna,col=c("10","4"),outcol=c("10","4"), names=c("input", "output"),  cex.axis=1,main="WGA DNA yields",ylab="DNA yields (ng/ul)",varwidth=TRUE)
+dev.off()
 #==============2. hemo (cell concentration(cells/ul))
 #====================================================
 #bargraph
