@@ -1141,6 +1141,11 @@ pdf(paste0(targetDir,'normalized diversity vs total read count.pdf'))
 ggplot(t,aes(raw.count,diversity_normed.count,fill=wga))+geom_point(size=2, shape=23)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+# by seq runs 
+pdf(paste0(targetDir,'normalized diversity vs total read count(by runs).pdf'))
+ggplot(t,aes(raw.count,diversity_normed.count,fill=seq.run))+geom_point(size=2, shape=23)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #non-wga
 pdf(paste0(targetDir,'normalized diversity vs total read count(nonwga).pdf'))
 plot(F.wga$raw.count,F.wga$diversity_normed.count,main="normalized diversity vs total read count",xlab="raw counts",ylab="normalized diversity count")
