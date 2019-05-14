@@ -1134,6 +1134,24 @@ t.test (F.wga.ca$diversity_normed.count,F.wga.cf$diversity_normed.count)
 # bar graph 
 ggplot(t,aes(pcrId,diversity_normed.count,fill=wga))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
 
+#looking at the confidence of the normalized diversity count 
+# plot normalized diversity vs total read count 
+
+pdf(paste0(targetDir,'normalized diversity vs total read count.pdf'))
+ggplot(t,aes(raw.count,diversity_normed.count,fill=wga))+geom_point(size=2, shape=23)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#non-wga
+pdf(paste0(targetDir,'normalized diversity vs total read count(nonwga).pdf'))
+plot(F.wga$raw.count,F.wga$diversity_normed.count,main="normalized diversity vs total read count",xlab="raw counts",ylab="normalized diversity count")
+dev.off()
+
+# wga 
+pdf(paste0(targetDir,'normalized diversity vs total read count (WGA).pdf'))
+plot(T.wga$raw.count,T.wga$diversity_normed.count,main="normalized diversity vs total read count",xlab="raw counts",ylab="normalized diversity count")
+dev.off()
+
+
 #=================================================================================
 #========================= determining perdicted variables =======================
 #=================================================================================
@@ -1185,6 +1203,7 @@ dev.off()
 summary (F.wga.ca$pre.dna)
 summary (F.wga.cf$pre.dna)
 
+t.test (F.wga.ca$pre.dna,F.wga.cf$pre.dna)
 #bwtween runs 
 pdf(paste0(targetDir,'DNA yields (btw runs).pdf'))
 ggplot(F.wga,aes(sampleFraction,pre.dna,fill=sampleFraction))+facet_grid(.~seq.run)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
