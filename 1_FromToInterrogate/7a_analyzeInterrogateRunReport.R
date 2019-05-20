@@ -412,7 +412,7 @@ ggplot(F.wga,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(a
 dev.off()
 
 pdf(paste0(targetDir2,'raw read overall (non-wga).pdf'))
-boxplot(F.wga.ca$raw.count, F.wga.cf$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="raw count",ylab="number of raw reads",xlab="Method",varwidth=TRUE)
+boxplot(F.wga.ca$raw.count, F.wga.cf$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="Raw read count",ylab="Number of raw reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
 #just WGA
@@ -421,13 +421,17 @@ ggplot(T.wga,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(a
 dev.off()
 
 pdf(paste0(targetDir2,'raw read overall (wga).pdf'))
-boxplot(T.wga.ca$raw.count, T.wga.cf$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="raw count",ylab="number of raw reads",xlab="Method",varwidth=TRUE)
+boxplot(T.wga.ca$raw.count, T.wga.cf$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="Raw read count",ylab="Number of raw reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
 #comparing all fractions for both wga and non-wga
 pdf(paste0(targetDir2,'raw reads (all fractions).pdf'))
 boxplot(T.wga.ca$raw.count, T.wga.cf$raw.count,F.wga.ca$raw.count, F.wga.cf$raw.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" raw.count",ylab="read count",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+dev.off()
+
+pdf(paste0(targetDir2,'raw reads (all fractions).pdf'))
+boxplot(T.wga$raw.count,F.wga$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "NON-WGA"),  cex.axis=1,main=" Raw read count",ylab="Number of raw reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
 #T-TEST wga ca fraction vs non-wga cf fraction 
@@ -497,7 +501,7 @@ ggplot(F.wga,aes(sampleId,usable.count,fill=sampleFraction))+geom_boxplot()+them
 dev.off()
 
 pdf(paste0(targetDir,'usable read overall (non-wga).pdf'))
-boxplot(F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="usable read count",ylab="number of usable reads",xlab="Method",varwidth=TRUE)
+boxplot(F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="Usable read count",ylab="Number of usable reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
 #just WGA
@@ -513,6 +517,10 @@ dev.off()
 pdf(paste0(targetDir2,'usable seq (all fractions).pdf'))
 boxplot(T.wga.ca$usable.count, T.wga.cf$usable.count,F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","10","4","4"),outcol=c("10","10","4","4"), names=c("Cell-associated", "Cell-free","Cell-associated", "Cell-free"),  cex.axis=1,main=" usable.percent",ylab="percent",xlab="Sample fraction",varwidth=TRUE)
 legend ("topleft",inset=0.02,cex=1,title="Sample type",pch =c(21,21),col=c("10","4"),c("WGA","Non-WGA"))
+dev.off()
+
+pdf(paste0(targetDir2,'raw reads (all fractions).pdf'))
+boxplot(T.wga$usable.count,F.wga$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("WGA", "NON-WGA"),  cex.axis=1,main=" Usable read count",ylab="Number of usable reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
 #T-TEST wga ca fraction vs non-wga cf fraction 
@@ -795,7 +803,7 @@ ggplot(t,aes(sampleId,cln.count,fill=wga))+geom_boxplot()+theme(axis.text.x = el
 dev.off()
 #boxplot with more then one layer of organization 
 pdf(paste0(targetDir2,'clonotype count (all samples by wga and fraction).pdf'))
-ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+xlab("WGA method")+ ylab("Clonotype count") + ggtitle("Clonotype count") +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
   #bargraph 
@@ -974,7 +982,7 @@ ggplot(t,aes(sampleId,effective_species.count,fill=wga))+geom_boxplot()+theme(ax
 dev.off() 
 #boxplot with more then one layer of organization 
 pdf(paste0(targetDir2,'effective species (all samples by wga and fraction).pdf'))
-ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+xlab("WGA method")+ ylab("Number of effective species") + ggtitle("Effective species count") +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
   #bargraph 
@@ -1137,7 +1145,7 @@ ggplot(t,aes(pcrId,diversity_normed.count,fill=wga))+geom_bar(position = "dodge"
 #looking at the confidence of the normalized diversity count 
 # plot normalized diversity vs total read count 
 
-pdf(paste0(targetDir,'normalized diversity vs total read count.pdf'))
+pdf(paste0(targetDir,'normalized diversity vs total read count (by WGA treatment).pdf'))
 ggplot(t,aes(raw.count,diversity_normed.count,fill=wga))+geom_point(size=2, shape=23)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
@@ -1213,6 +1221,63 @@ t.test (F.wga.ca$pre.dna,F.wga.cf$pre.dna)
 pdf(paste0(targetDir,'DNA yields (btw runs).pdf'))
 ggplot(F.wga,aes(sampleFraction,pre.dna,fill=sampleFraction))+facet_grid(.~seq.run)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
+
+#correlations 
+#raw reads
+cor.test(F.wga$raw.count,F.wga$pre.dna)
+plot(F.wga$raw.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$raw.count)
+abline(line)
+anova(line)
+
+#usable reads percent
+cor.test(F.wga$usable.percent,F.wga$pre.dna)
+plot(F.wga$usable.percent,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$usable.percent)
+abline(line)
+anova(line)
+
+#usable reads count
+cor.test(F.wga$usable.count,F.wga$pre.dna)
+plot(F.wga$usable.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$usable.count)
+abline(line)
+anova(line)
+
+#usable seq 
+cor.test(F.wga$uniq_usable_seq.count,F.wga$pre.dna)
+plot(F.wga$uniq_usable_seq.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$uniq_usable_seq.count)
+abline(line)
+anova(line)
+
+#clonotype count
+cor.test(F.wga$cln.count,F.wga$pre.dna)
+plot(F.wga$cln.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$cln.count)
+abline(line)
+anova(line)
+
+#alpha diversity
+cor.test(F.wga$alpha_diversity.count,F.wga$pre.dna)
+plot(F.wga$alpha_diversity.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$alpha_diversity.count)
+abline(line)
+anova(line)
+
+#normalized diversity
+cor.test(F.wga$diversity_normed.count,F.wga$pre.dna)
+plot(F.wga$diversity_normed.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$diversity_normed.count)
+abline(line)
+anova(line)
+
+#effective species 
+cor.test(F.wga$effective_species.count,F.wga$pre.dna)
+plot(F.wga$effective_species.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$effective_species.count)
+abline(line)
+anova(line)
 #==============2. hemo (cell concentration(cells/ul))
 #====================================================
 #bargraph
