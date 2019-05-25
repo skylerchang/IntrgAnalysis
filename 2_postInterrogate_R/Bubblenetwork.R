@@ -26,8 +26,8 @@ col<-unique(col)
 color100<- col[1:100]
 
 ####  this version is to read clntab files only #####
-targetFolder<-"../../Clntab/"
-outFolder<-"../../Result/"
+targetFolder<-"Clntab/"
+outFolder<-"Out/"
 #### e.g. Run25 S1 and S2 ######
 filesA<-list.files(targetFolder,pattern ="16-051749",recursive = T)
 
