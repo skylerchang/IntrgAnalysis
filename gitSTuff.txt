@@ -1,7 +1,6 @@
 Initialize the local directory as a Git repository.
 $ git init
 
-
 Add the files in your new local repository. This stages them for the first commit.
 $ git add .
 # Adds the files in the local repository and stages them for commit. To unstage a file, use 'git reset HEAD YOUR-FILE'.
@@ -20,3 +19,19 @@ $ git remote -v
 # Verify new remote
 > origin  https://github.com/user/repo.git (fetch)
 > origin  https://github.com/user/repo.git (push)
+
+
+#=========== git username & email =============
+#different from github username; associates commits with identity
+#determine user name
+$ git config --global user.name
+> Mona Lisa
+#set user name
+$ git config --global user.name "Mona Lisa"
+
+#determine email
+$ git config --global user.email
+>email@example.com
+#set email
+$ git config --global user.email "email@example.com"
+
