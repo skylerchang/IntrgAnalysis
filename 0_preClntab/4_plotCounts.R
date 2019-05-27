@@ -1,7 +1,24 @@
+### ComputeCanada Version needs to load modules####
+module load r/3.5.0
+module load gcc
+module load openmpi
+
+### Install R packages before running script ######
+#install.packages("tidyverse")
+#install.packages("here")
+#install.packages("gsubfn")
+#install.packages("reshape2")
+#install.packages("proto")
+
+
+
+
 library(tidyverse)
 library(here)
 library(gsubfn)
 library(reshape2)
+#library(proto)
+
 
 targetfolder<-"../../Data/Counts/"
 outfolder<-"../../Data/CountPlots/"
@@ -27,10 +44,13 @@ d$file<-basename(d$file)
 #melt
 dd<-melt(d,id='file')
 dd$rep<-ifelse(grepl("-[0-9]+[A-Z]*D[0-9]+P[0-9]*[13579]C",dd$file),'rep1','rep2')
+
+#dd$sample<-sub('[0-9]D[0-9].*P[0-9].*C[0-9].*P[0-9].*C[0-9]_', '', dd$file)
 dd$sample<-sub("D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$","",dd$file)
 dd$fraction<-ifelse(grepl("1$",dd$sample),'pellet','supernatant')
+#dd$submission<-sub('-[0-9].*-[A-Z].*[a-z]', '', dd$sample)
 dd$submission<-sub("-[0-9]+[A-Z]*$","",dd$sample)
-colnames(dd)<-c('file','type','count','rep')
+colnames(dd)<-c('file','type','count','rep','sample','fraction','submission')
 dd<-as_tibble(dd)
 
 #bargraph before/after - by file
