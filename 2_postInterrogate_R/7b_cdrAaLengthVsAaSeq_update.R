@@ -1,6 +1,3 @@
-#this script is specific to Run02; save under new name and adapt to other runs)
-
-
 library(tidyverse)
 library(gridExtra)
 library(here)
@@ -72,4 +69,3 @@ for (i in 1:length(datalist)){
   #marrangeGrob(plotlist,nrow=2,ncol=2)
   dev.off()
 }
-
