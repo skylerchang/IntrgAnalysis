@@ -806,9 +806,13 @@ pdf(paste0(targetDir2,'clonotype count (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+xlab("WGA method")+ ylab("Clonotype count") + ggtitle("Clonotype count") +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
+# using dog id instead of submission number 
+pdf(paste0(targetDir2,'clonotype count (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~dog.id)+geom_boxplot()+xlab("WGA method")+ ylab("Clonotype count") + ggtitle("Clonotype count") +scale_fill_discrete( name = "Sample Fraction",labels = c("ca", "cf"))+ scale_x_discrete( name = "WGA method",labels = c("non-WGA", "WGA"))+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
   #bargraph 
 pdf(paste0(targetDir2,'clonotype count (all samples- bargraph).pdf'))
-ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity") + scale_x_discrete( name = "Sample Fraction",labels = c("ca", "cf"))+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 
 #just non-wga 
@@ -984,7 +988,10 @@ dev.off()
 pdf(paste0(targetDir2,'effective species (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_boxplot()+xlab("WGA method")+ ylab("Number of effective species") + ggtitle("Effective species count") +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
-
+# using dog id instead of submission number 
+pdf(paste0(targetDir2,'effective species (all samples by wga and fraction).pdf'))
+ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~dog.id)+geom_boxplot()+xlab("WGA method")+ ylab("Clonotype count") + ggtitle("Clonotype count") +scale_fill_discrete( name = "Sample Fraction",labels = c("ca", "cf"))+ scale_x_discrete( name = "WGA method",labels = c("non-WGA", "WGA"))+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
   #bargraph 
 pdf(paste0(targetDir2,'effective species (all samples- bargraph).pdf'))
 ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
