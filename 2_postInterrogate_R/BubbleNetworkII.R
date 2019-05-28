@@ -27,7 +27,7 @@ compare_list<-list(datalist[[sampleID.1]],datalist[[sampleID.2]])
 name_list<-list(my.sample.1,my.sample.2)
 
 for (i in 1:length(loci)) {
-      pdf(paste0(outFolder,"/cln2igr_",loci[i],"_loci.pdf"),width=9,height=11)
+      pdf(paste0(outpath,"/cln2igr_",loci[i],"_loci.pdf"),width=9,height=11)
       par(mfrow=c(4,4),mar=c(1,1,1,1))
       for (j in seq(from=8,to=23,by=1))  {
         for (k in 1:length(compare_list)) {
