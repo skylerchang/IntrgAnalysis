@@ -64,7 +64,7 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
           dd<-dd[!is.na(dd$aaSeq),]
           tt2<-as_tibble(ddply(dd,.(aaSeq,aaLength),numcolwise(sum)))
           tt2<-tt2[order(-tt2$size),]
-          tt2$aaLength[tt2$aaSeq=="noju"]<-"NA"
+          tt2$aaSeq[tt2$aaSeq=="noju"]<-"NA"
           tt2<-tt2[complete.cases(tt2),]
           if ( nrow(tt2) > 100 ) { 
           tt2$color<-"grey"
