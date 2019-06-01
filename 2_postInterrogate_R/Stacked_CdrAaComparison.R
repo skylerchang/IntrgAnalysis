@@ -123,7 +123,10 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     
     a3<-as.data.frame(a3)
     colnames(a3)<-c("aaSeq","S1","S2")
-    a3[is.na(a3)]<-"grey"
+    a3$S1<-as.character(a3$S1)
+    a3$S2<-as.character(a3$S2)
+    a3$S2<-a3$S2 %>% replace_na("grey")
+    a3$S1<-a3$S1 %>% replace_na("grey")
     a3$length<-nchar(as.character(a3$aaSeq))
     dfnew2B<-melt(a3,id=c("aaSeq","length"))
     
