@@ -7,6 +7,7 @@ library(seqinr)
 library(plyr)
 library(igraph)
 library(stringdist)
+library(kader)
 
 #####assign 100 colors to bubbles#######
 col1<-brewer.pal(n = 8, name = 'Dark2')
@@ -60,6 +61,11 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
       for (j in seq(from=8,to=23,by=1))  {
         for (k in 1:length(compare_list)) {
           d<-compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
+          
+          ##### if data have template DNA, remove TGTTCGCCTTATCGCCTTATGG and length as bellow: ######
+          #d<-compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
+          #d <- subset(d,(!grepl(".TGTTCGCCTTATCGCCTTATGG.*",d$completeNtSeq)) | d$aaLength!=8)
+   
           dd<-d[d$vAndJchainSimplified==loci[i],c("aaSeq","size","aaLength")]
           dd<-dd[!is.na(dd$aaSeq),]
           tt2<-as_tibble(ddply(dd,.(aaSeq,aaLength),numcolwise(sum)))
@@ -69,10 +75,12 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
           if ( nrow(tt2) > 100 ) { 
           tt2$color<-"grey"
           tt2$color[1:100]<-col
-          } else {
-            tt2$color<-"grey"
-            tt2$color[1:nrow(tt2)]<-col[1:nrow(tt2)]
-          }
+         } else if (nrow(tt2) > 0 && nrow(tt2)<100 ) {
+          tt2$color<-"grey"
+          tt2$color[1:nrow(tt2)]<-col[1:nrow(tt2)]
+        } else {
+          break
+        }  
           test<-tt2[tt2$aaLength==j,c("aaSeq","size","color")]
           test<-as.data.frame(test)
           test<-test[complete.cases(test),]
