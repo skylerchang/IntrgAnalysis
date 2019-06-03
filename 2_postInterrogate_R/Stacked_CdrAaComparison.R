@@ -155,7 +155,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     # plot
     plotname=paste("Aa's frequency in", paste0(loci[j]),"between S1:",paste0(my.sample.1),"and S2:",paste0(my.sample.2))
     p<-ggplot(data=dfnew4.final, aes(y = value, x = variable, fill = grp),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
-      scale_fill_manual(values=colors) + guides(fill=F)  + facet_grid( ~ length, switch = "both") + ggtitle(plotname) + theme_grey(base_size=26) + theme(panel.spacing = unit(0, "lines")) + 
+      scale_fill_manual(values=colors) + guides(fill=F,color=F)  + facet_grid( ~ length, switch = "both") + ggtitle(plotname) + theme_grey(base_size=26) + theme(panel.spacing = unit(0, "lines")) + 
       xlab("samples in different Aa lengths") + ylab("percentage %")
     plotlist[[j]]<-ggplotGrob(p)
     # empty table list will be skipped
