@@ -56,6 +56,11 @@ for (m in seq(from=1,to=length(datalist),by=2)){
   tablelist<-list()
   for (i in 1:length(compare_list)){
     t<-compare_list[[i]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
+    #### If data have template DNA, replace TGTTCGCCTTATCGCCTTATGG and length to remove from data ######
+    #t <- subset(t,(!grepl(".TGTTCGCCTTATCGCCTTATGG.*",t$completeNtSeq)) | t$aaLength!=8)
+    ##### Remove Not juction from data########
+    t <- subset(t,(t$aaSeq!="noju"))
+    
     #subset for locus
     tt<-t[t$vAndJchainSimplified==loci[j],c("aaSeq","size")]
     #tt<-t[t$vAndJchainSimplified=="TRB",c("aaSeq","size")]
@@ -63,9 +68,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     #collapse lines with identical 'aaSeq' and sum up 'size'
     tt<-as_tibble(ddply(tt,"aaSeq",numcolwise(sum)))
     tt<-tt[order(-tt$size),]
-    tt[tt$aaSeq=="noju",c("aaSeq","size")]
-    tt$aaSeq[tt$aaSeq=="noju"]<-"xxxx"
-    tt$size[tt$aaSeq=="xxxx"]<-0
+   
     #if there are greater than n sequences, collapse sequences of identical length
     if (nrow(tt)>n){
       #convert aaSeqs in string of 'x's
@@ -144,7 +147,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     dfnew4.final<-rbind(dfnew4.colored,dfnew4.grey)
     rownames(dfnew4.final)<-NULL
     
-    dfnew4.final$grp<-paste(dfnew4.final$variable,dfnew4.final$aaSeq)
+    dfnew4.final$grp <- paste(dfnew4.final$variable,dfnew4.final$aaSeq)
     dfnew4.final$grp <- reorder(dfnew4.final$grp, dfnew4.final$value)
     dfnew4.final$grp <- factor(dfnew4.final$grp, levels=rev(unique(dfnew4.final$grp)))
     colors<-dfnew4.final$color
