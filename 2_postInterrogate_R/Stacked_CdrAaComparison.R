@@ -110,10 +110,11 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     df3<-rbind(df1,df2)
     df5<-data.frame(df3$aaSeq,df3$sample,df3$percent)
     df6<-data.frame(df3$aaSeq,df3$sample,df3$color)
-    #a2<-cast(df5, df3.aaSeq ~ df3.sample)
-    #a3<-cast(df6, df3.aaSeq ~ df3.sample)
-    a2<-reshape(df5,direction="wide",idvar="df3.aaSeq",timevar="df3.sample")
-    a3<-reshape(df6,direction="wide",idvar="df3.aaSeq",timevar="df3.sample")
+    a2<-cast(df5, df3.aaSeq ~ df3.sample)
+    a3<-cast(df6, df3.aaSeq ~ df3.sample)
+    #######if cast function fails, try reshaple function######
+    #a2<-reshape(df5,direction="wide",idvar="df3.aaSeq",timevar="df3.sample")
+    #a3<-reshape(df6,direction="wide",idvar="df3.aaSeq",timevar="df3.sample")
 
     a2<-as.data.frame(a2)
     colnames(a2)<-c("aaSeq","S1","S2")
@@ -142,14 +143,16 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     dfnew4.grey<-dfnew4[grepl("x",dfnew4$aaSeq),]
     dfnew4.final<-rbind(dfnew4.colored,dfnew4.grey)
     rownames(dfnew4.final)<-NULL
-    dfnew4.final$aaSeq <- reorder(dfnew4.final$aaSeq, dfnew4.final$value)
-    dfnew4.final$aaSeq <- factor(dfnew4.final$aaSeq, levels=rev(unique(dfnew4.final$aaSeq)))
-    color<-dfnew4.final$color
-    names(color) <- dfnew4.final$aaSeq
+    
+    dfnew4.final$grp<-paste(dfnew4.final$variable,dfnew4.final$aaSeq)
+    dfnew4.final$grp <- reorder(dfnew4.final$grp, dfnew4.final$value)
+    dfnew4.final$grp <- factor(dfnew4.final$grp, levels=rev(unique(dfnew4.final$grp)))
+    colors<-dfnew4.final$color
+    names(colors) <- dfnew4.final$grp
     # plot
     plotname=paste("Aa's frequency in", paste0(loci[j]),"between S1:",paste0(my.sample.1),"and S2:",paste0(my.sample.2))
-    p<-ggplot(data=dfnew4.final, aes(y = value, x = variable, fill = aaSeq),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
-      scale_fill_manual(values=color) + guides(fill=F)  + facet_grid( ~ length, switch = "both") + ggtitle(plotname) + theme_grey(base_size=26) + theme(panel.spacing = unit(0, "lines")) + 
+    p<-ggplot(data=dfnew4.final, aes(y = value, x = variable, fill = grp),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
+      scale_fill_manual(values=colors) + guides(fill=F)  + facet_grid( ~ length, switch = "both") + ggtitle(plotname) + theme_grey(base_size=26) + theme(panel.spacing = unit(0, "lines")) + 
       xlab("samples in different Aa lengths") + ylab("percentage %")
     plotlist[[j]]<-ggplotGrob(p)
     # empty table list will be skipped
