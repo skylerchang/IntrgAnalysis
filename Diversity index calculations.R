@@ -48,7 +48,7 @@ diversity(x, index = "shannon", MARGIN = 1, base = exp(1))
 communityI <- c(10, 1, 1, 1, 1)
 communityII <- c(5, 5, 5, 5, 5)
 communities <- rbind(communityI,communityII)
-#default diveristy index
+# default diveristy index
 # shannon index does it by row 
 diversity(communities)
 
@@ -57,10 +57,12 @@ diversity(communities)
 TEST <-read.csv(file.choose())
 
 # test 2 -> calculation the alpha diversity by rows 
-#-1 removes the first column 
+# default does margin = 1 -> does the diversity idex by row
 diversity (TEST)
 
 #test 3 -> calculation by colunm , Margin = 2 
+#-1 removes the first column 
+# need to remove the first column as its not numeric
 diversity(TEST[,-1], index = "shannon", MARGIN = 2, base = exp(1))
 
 #test 4 -> calculating a specifc column 
