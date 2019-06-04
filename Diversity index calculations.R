@@ -37,6 +37,9 @@ getwd()
 #files<-list.files(targetDir,pattern = "^Run.*xlsx")
 
 
+diversity(x, index = "shannon", MARGIN = 1, base = exp(1))
+
+
 #======================
 # test 
 #======================
