@@ -1755,8 +1755,8 @@ ggplot(t,aes(submissionId,pred.lym.cyto))+geom_bar(position = "dodge",stat="iden
 
 #raw reads
 cor.test(F.wga$raw.count,F.wga$pred.lym.cyto)
-plot(F.wga$raw.count,F.wga$pred.lym.cyto)
-line<-lm(F.wga$pred.lym.cyto~F.wga$raw.count)
+plot(F.wga$pred.lym.cyto,F.wga$raw.count,xlab ="Lymphocyte count",ylab= "Raw read count")
+line<-lm(F.wga$raw.count~F.wga$pred.lym.cyto)
 abline(line)
 anova(line)
 
@@ -1769,8 +1769,8 @@ anova(line)
 
 #usable reads count
 cor.test(F.wga$usable.count,F.wga$pred.lym.cyto)
-plot(F.wga$usable.count,F.wga$pred.lym.cyto)
-line<-lm(F.wga$pred.lym.cyto~F.wga$usable.count)
+plot(F.wga$pred.lym.cyto,F.wga$usable.count,main= "Predicted variable",xlab ="Lymphocyte count",ylab= "Usable read count")
+line<-lm(F.wga$usable.count~F.wga$pred.lym.cyto)
 abline(line)
 anova(line)
 
