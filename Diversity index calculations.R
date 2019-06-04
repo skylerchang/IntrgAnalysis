@@ -2,7 +2,7 @@
 #      alpha diversity calculations ("shannon diversity index")
 #===================================================================================
 
-# shannon diversity calculation -> H = - sum pi log(pi)
+# shannon diversity calculation -> H = - sum [pi ln(pi)]
 # pi = ni/N
 # ni = number of individuals of the ith species
 # N  = total number of individuals 
@@ -54,6 +54,8 @@ diversity(communities)
 
 
 # upload excel file 
+# TEST - DIVERSITY INDEX.CSV 
+# found in intrgAnalysis folder
 TEST <-read.csv(file.choose())
 
 # test 2 -> calculation the alpha diversity by rows 
