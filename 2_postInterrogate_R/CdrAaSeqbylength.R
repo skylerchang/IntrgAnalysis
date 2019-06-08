@@ -7,6 +7,29 @@ library(here)
 library(openxlsx)
 library(RColorBrewer)
 
+col1<-brewer.pal(n = 8, name = 'Dark2')
+col2<-brewer.pal(n = 12, name = 'Set3')
+col3<-brewer.pal(n = 12, name = 'Paired')
+col4<-brewer.pal(n = 9, name = 'Pastel1')
+col5<-brewer.pal(n = 8, name='Pastel2')
+col6<-brewer.pal(n = 8, name = 'Set2')
+col7<-brewer.pal(n = 8, name = 'Accent') 
+col8<-brewer.pal(n = 9, name = 'Set1')
+col9<-brewer.pal(n = 10, name = 'PRGn')
+col10<-brewer.pal(n = 10, name = 'RdBu')
+col11<-brewer.pal(n = 10, name = 'BrBG')
+col<-as.vector(rbind(col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11))
+col<-unique(col)
+col[[78]] <- "#8E0152"
+col[[90]] <- "#C51B7D"
+col[[81]] <- "#DE77AE"
+col[[89]] <- "#F1B6DA"
+col[[87]] <- "#3288BD"
+col[[82]] <- "#66C2A5"
+col[[100]] <-"#D53E4F"
+col[[101]] <-"grey40"
+col<-unique(col)
+
 #========== adjust the following variables ================
 t<-read_rds('RDS/clntab_vAndJ.rds')
 outpath<-'OUT/cdrAaLengthVsAaSeq'
@@ -41,24 +64,26 @@ for (i in 1:length(datalist)){
         #if there are greater than n sequences, collapse sequences of identical length
         if (nrow(tt)>n){
             #convert aaSeqs in string of 'x's
-            tt$aaSeq[(n+1):nrow(tt)]<-gsub("[A-Z\\*#]","x",tt$aaSeq[(n+1):nrow(tt)])
-            #collapse aaSeq
-            tt<-as_tibble(ddply(tt,"aaSeq",numcolwise(sum)))
+            tt$aaSeq[(n+1):nrow(tt)]<-gsub("[A-Z\\*#]","x",tt$aaSeq[(n+1):nrow(tt)]
             #assign color
-            b<-rep(brewer.pal(8,"Accent"),ceiling(nrow(tt)/8))
-            tt$color<-b[1:nrow(tt)]
-            tt$color[(n+1):nrow(tt)]<-"grey"
+            tt$color<-"grey"
+            tt$color[1:100]<-col
+            tt<-as_tibble(ddply(tt,.(aaSeq,color),numcolwise(sum)))
         } else if (nrow(tt)>0 && nrow(tt)<n) {
-            b<-rep(brewer.pal(8,"Accent"),ceiling(nrow(tt)/8))
-            tt$color<-b[1:nrow(tt)]
+            tt$color<-"grey"
+            tt$color[1:nrow(tt)]<-col[1:nrow(tt)]
         } else if (nrow(tt)==0) {
             next
         }
         #create length column
         tt$length<-nchar(tt$aaSeq)
+        tt$aaSeq <- reorder(tt$aaSeq, tt$size)
+        tt$aaSeq <- factor(tt$aaSeq, levels=rev(unique(tt$aaSeq)))
+        colors<-tt$color
+        names(colors) <- tt$aaSeq
         #plot
         plotname=paste(paste0(loci[j]),"Aa's length vs. size")
-        p<-ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = TRUE))+guides(fill=F)+scale_fill_manual(values=tt$color)+xlim(1,35)+ggtitle(plotname)
+        p<-ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = FALSE))+guides(fill=F)+scale_fill_manual(values=tt$color)+xlim(1,35)+ggtitle(plotname)
         plotlist[[j]]<-ggplotGrob(p)
     }
     pdf(paste0(outpath,"/cdrAaSeqByAaLength_",files_short[i],"_size25_unicolor.pdf"))
