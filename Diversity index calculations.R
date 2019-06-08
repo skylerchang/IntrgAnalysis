@@ -11,6 +11,7 @@
 # shannon diversity -> H = -sum ((ni/N)*ln(ni/N))
 
 library(vegan)
+library(here)
 
 #====main R code 
 # diversity(x, index = "shannon", MARGIN = 1, base = exp(1))
@@ -21,23 +22,15 @@ library(vegan)
 # base = The logarithm base used in shannon.
 
 #data 
-# need at least two coloumns to determine alpha diversity for each sample 
+# need at least two columns to determine alpha diversity for each sample 
 # format 
 # col 1 = species -> " unique clonotype"
 # col 2 = species abundance -> abundance of each clontype in a sample 
-# data must be numeric "remove first column"
 
-# eventually will use 
-setwd(here())
-getwd()
-
-#need to decide on location and folder 
-#targetDir<-'../Results/InterrogateRunReport/'
-
-#files<-list.files(targetDir,pattern = "^Run.*xlsx")
+files<-list.files(here(),pattern = ".csv")
 
 
-diversity(x, index = "shannon", MARGIN = 1, base = exp(1))
+diversity(files[1], index = "shannon", MARGIN = 1, base = exp(1))
 
 
 #======================
