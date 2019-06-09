@@ -1,4 +1,7 @@
-#this script is specific to Run02; save under new name and adapt to other runs)
+#-one sample per file (i.e. duplicates are in separate files); 
+#-multiple loci per file
+#-no template filtering
+
 
 
 library(tidyverse)
@@ -30,9 +33,12 @@ col[[100]] <-"#D53E4F"
 col[[101]] <-"grey40"
 col<-unique(col)
 
+setwd(here())
+getwd()
+
 #========== adjust the following variables ================
-t<-read_rds('RDS/clntab_vAndJ.rds')
-outpath<-'OUT/cdrAaLengthVsAaSeq'
+t<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
+outpath<-'../Results/CdrAaLengthVsAaSeq/'
 loci<-c("TRA","TRB","TRD","TRG","IGH")
 #Top n clones that are being displayed in separate colors (all other clones are grey)
 n<-80
@@ -43,6 +49,7 @@ datalist<-t[[1]]
 #sample names are stored separately in a vector
 files_short<-t[[2]]
 
+dir.create(outpath<-'../Results/CdrAaLengthVsAaSeq/',recursive=T)
 
 for (i in 1:length(datalist)){
     t<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
@@ -64,7 +71,7 @@ for (i in 1:length(datalist)){
         #if there are greater than n sequences, collapse sequences of identical length
         if (nrow(tt)>n){
             #convert aaSeqs in string of 'x's
-            tt$aaSeq[(n+1):nrow(tt)]<-gsub("[A-Z\\*#]","x",tt$aaSeq[(n+1):nrow(tt)]
+            tt$aaSeq[(n+1):nrow(tt)]<-gsub("[A-Z\\*#]","x",tt$aaSeq[(n+1):nrow(tt)])
             #assign color
             tt$color<-"grey"
             tt$color[1:100]<-col
