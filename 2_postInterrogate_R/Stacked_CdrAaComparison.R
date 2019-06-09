@@ -1,11 +1,11 @@
 library(tidyverse)
 library(gridExtra)
-library(here)
 library(openxlsx)
 library(RColorBrewer)
 library(plyr)
 library(reshape)
 library(tidyr)
+library(here)
 
 
 col1<-brewer.pal(n = 8, name = 'Dark2')
@@ -19,7 +19,7 @@ col8<-brewer.pal(n = 9, name = 'Set1')
 col9<-brewer.pal(n = 10, name = 'PRGn')
 col10<-brewer.pal(n = 10, name = 'RdBu')
 col11<-brewer.pal(n = 10, name = 'BrBG')
-col<-as.vector(rbind(col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11))
+col<-c(col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11)
 col<-unique(col)
 col[[78]] <- "#8E0152"
 col[[90]] <- "#C51B7D"
@@ -31,9 +31,11 @@ col[[100]] <-"#D53E4F"
 col[[101]] <-"grey40"
 col<-unique(col)
 
+setwd(here())
+getwd()
 
-d<-read_rds('RDS/clntab_vAndJ.rds')
-outpath<-'OUT/CdrAaComparison/'
+d<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
+outpath<-'../Results/CdrAaComparison/'
 loci<-c("TRB","IGH")
 #Top n clones that are being displayed in separate colors (all other clones are grey)
 n<-100
@@ -171,14 +173,3 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     break
   }   
 }
-
-
-
-
-
-
-
-
-
-
-
