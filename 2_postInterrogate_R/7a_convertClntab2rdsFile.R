@@ -2,8 +2,9 @@
 # -only important columns are kept -> file size reduction
 # -depending on whether V and/or J genes could be identified, sequences are split into the following categories and printed to separate files:
 # 1) 'vAndJ'
-# 2) 'jOnly'
-# 3) 'neitherVnorJ'
+# 2) 'vOnly'
+# 3) 'jOnly'
+# 4) 'neitherVnorJ'
 #
 #the script also prints a summary statistics and plot for these categories
 
@@ -22,6 +23,9 @@ outFolder<-"../Results/ClntabJunctionCompare/"
 outFolderDataRds<-"../Data/Clntab_RDS/"
 outFolderDataFasta<-"../Data/Clntab_Fasta/"
 
+#Dummy clntab file created for '18-069890-3D1P4C1P1C1' (run 28) since this there is no clntab file
+#=>intestigate reason
+
 setwd(here())
 getwd()
 
@@ -31,6 +35,15 @@ dir.create(outFolder,recursive=T)
 files<-list.files(targetFolder,pattern ="*.clntab",recursive = T)
 #truncate suffix
 files_short<-basename(sub("_L001_R1_001.fastq.processed.junctioned.profiled.clntab","",files))
+
+#============== validate file number & format of file names ==================
+#the following assumes that samples are in duplicate and have the following format:
+#[1] "16-088089-3D1P3C1P1C1_Mcdermott-Gibbie_S1"      
+#[2] "16-088089-3D1P4C1P1C1_Mcdermott-Gibbie_S2"  
+#check if number of files is even
+if ((length(files_short) %% 2)!=0){stop("Number of files should be even (replicates expected). Exiting ...")}
+#expand to identify replicates
+#========================================================
 
 #initialize things
 datalist_vAndJ<-list()
@@ -146,3 +159,4 @@ for (i in 1:length(datalist_neitherVnorJ)){
   outFile<-paste0(outFolderDataFasta,'/neitherVnorJ/',files_short[i],'_neitherVnorJ.fasta')
   write.fasta(as.list(datalist_neitherVnorJ[[i]]$completeNtSeq),header,outFile)
 }
+
