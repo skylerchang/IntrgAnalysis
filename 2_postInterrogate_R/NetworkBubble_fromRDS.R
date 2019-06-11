@@ -49,6 +49,8 @@ datalist<-t[[1]]
 #sample names are stored separately in a vector
 files_short<-t[[2]]
 
+dir.create(outpath<-'../Results/Networkplots/',recursive=T)
+
 ###### Compare every 2 replicates of same sample#########
 for (m in seq(from=1,to=length(datalist),by=2)) {
 my.sample.1<- files_short[m]
