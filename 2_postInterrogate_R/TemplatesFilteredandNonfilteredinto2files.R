@@ -22,10 +22,15 @@ col11<-brewer.pal(n = 10, name = 'BrBG')
 col<-c(col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11)
 col<-unique(col)
 
-setwd("/Users/haiyang/Desktop")
-d<-read_rds('RDS/clntab_vAndJ.rds')
-outpath1<-'OUT/NonfilteredCdrAaComparison/'
-outpath2<-'OUT/FilteredCdrAaComparison/'
+setwd(here())
+getwd()
+
+d<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
+outpath1<-'../Results/NonfilteredCdrAaComparison/'
+outpath2<-'../Results/FilteredCdrAaComparison/'
+
+dir.create(outpath1<-'../Results/NonfilteredCdrAaComparison/',recursive=T)
+dir.create(outpath2<-'../Results/FilteredCdrAaComparison/',recursive=T)
 
 #Top n clones that are being displayed in separate colors (all other clones are grey)
 n<-100
