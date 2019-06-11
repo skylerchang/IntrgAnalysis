@@ -45,6 +45,8 @@ datalist<-d[[1]]
 #sample names are stored separately in a vector
 files_short<-d[[2]]
 
+dir.create(outpath<-'../Results/CdrAaComparison/',recursive=T)
+
 for (m in seq(from=1,to=length(datalist),by=2)){
   my.sample.1<- files_short[m]
   my.sample.2<- files_short[m+1]
