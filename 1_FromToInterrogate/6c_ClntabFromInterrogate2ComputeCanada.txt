@@ -1,4 +1,4 @@
-#!/bin/bash
+
 
 #cd to equivalent of '/intrg_storage/users/smkeller/analyses/Run02_feTR_normal_Q30L50/last_run_res/Run02_feTR_normal--results'
 
