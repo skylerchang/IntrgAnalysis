@@ -810,6 +810,12 @@ dev.off()
 pdf(paste0(targetDir2,'clonotype count (all samples by wga and fraction).pdf'))
 ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~dog.id)+geom_boxplot()+xlab("WGA method")+ ylab("Clonotype count") + ggtitle("Clonotype count") +scale_fill_discrete( name = "Sample Fraction",labels = c("ca", "cf"))+ scale_x_discrete( name = "WGA method",labels = c("non-WGA", "WGA"))+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
+
+
+pdf(paste0(targetDir2,'clonotype count (all samples by wga and fraction).pdf'))
+ggplot(t,aes(dog.id,cln.count,fill=sampleFraction))+facet_grid(.~wga)+geom_boxplot()+xlab("WGA method")+ ylab("Clonotype count") + ggtitle("Clonotype count") +scale_fill_discrete( name = "Sample Fraction",labels = c("ca", "cf"))+ scale_x_discrete( name = "Patient")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
   #bargraph 
 pdf(paste0(targetDir2,'clonotype count (all samples- bargraph).pdf'))
 ggplot(t,aes(wga,cln.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity") + scale_x_discrete( name = "Sample Fraction",labels = c("ca", "cf"))+theme(axis.text.x = element_text(angle = 90, hjust = 1))
