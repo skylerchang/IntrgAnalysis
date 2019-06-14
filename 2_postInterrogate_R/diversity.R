@@ -15,6 +15,9 @@ getwd()
 sampleNoCodesForFraction<-F        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
+resultsPath<-'../Results/Diversity/'
+
+dir.create(resultsPath)
 
 loci<-c("TRB","IGH")
 #===================================
@@ -104,20 +107,18 @@ for (i in 1:length(d.split)){
   addWorksheet(wb,d.split[[i]]$submission[1])
   writeData(wb,d.split[[i]]$submission[1],d.split[i],colNames = TRUE)
 }
-saveWorkbook(wb,"diversitySummary.xlsx",overwrite = T)
-
-d$invsimpson
-unique(d.long$value)
+saveWorkbook(wb,paste0(resultsPath,"diversitySummary.xlsx"),overwrite = T)
 
 #transform to long format
 d.long<-as_tibble(melt(d,id.vars=c("sample","locus","replicate","submission","sampleIdShort")))
 d.long<-na.omit(d.long)
 d.long.subset<-d.long[d.long$value!=Inf,]
 
+pdf(paste0(resultsPath,"diversityPlot_compareIndexes.pdf"))
 ggplot(d.long.subset,aes(variable,value))+
   geom_boxplot()+
   geom_jitter(mapping=aes(shape=d.long.subset$locus,color=d.long.subset$sampleIdShort),size=5)+
-
+dev.off()
 
 #======== template summary ===========
 templateSummary
