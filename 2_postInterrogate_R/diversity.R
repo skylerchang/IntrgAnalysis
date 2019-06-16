@@ -117,7 +117,7 @@ d.long.subset<-d.long[d.long$value!=Inf,]
 pdf(paste0(resultsPath,"diversityPlot_compareIndexes.pdf"))
 ggplot(d.long.subset,aes(variable,value))+
   geom_boxplot()+
-  geom_jitter(mapping=aes(shape=d.long.subset$locus,color=d.long.subset$sampleIdShort),size=5)+
+  geom_jitter(mapping=aes(shape=d.long.subset$locus,color=d.long.subset$sampleIdShort),size=5)
 dev.off()
 
 #======== template summary ===========
