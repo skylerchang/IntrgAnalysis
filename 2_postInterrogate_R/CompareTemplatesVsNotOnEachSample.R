@@ -19,15 +19,7 @@ col10<-brewer.pal(n = 10, name = 'RdBu')
 col11<-brewer.pal(n = 10, name = 'BrBG')
 col<-c(col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11)
 col<-unique(col)
-col[[78]] <- "#8E0152"
-col[[90]] <- "#C51B7D"
-col[[81]] <- "#DE77AE"
-col[[89]] <- "#F1B6DA"
-col[[87]] <- "#3288BD"
-col[[82]] <- "#66C2A5"
-col[[100]] <-"#D53E4F"
-col[[101]] <-"grey40"
-col<-unique(col)
+
 
 #========== adjust the following variables ================
 t<-read_rds('RDS/clntab_vAndJ.rds')
