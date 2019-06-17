@@ -55,6 +55,7 @@ d.aggregated<-tibble()
 for (i in 1:length(files)){
   print(files[i])
   t<-read_tsv(paste0(targetFolder,files[i]))
+  if(nrow(t)==0){next}
   d<-subset(t, select=c("sequence.5-GENE","sequence.3-GENE","sequence.JUNCTION.aa seq","sequence.JUNCTION.aa seq.len","sequence.size","sequence.nt seq"))
   colnames(d)<-c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq")
   
@@ -88,7 +89,7 @@ for (i in 1:length(files)){
   d$vAndJchainSimplified[grepl('TRD',d$vAndJchain)]<-'TRD'
   d$vAndJchainSimplified[grepl('TRG',d$vAndJchain)]<-'TRG'
 
-  d$junction<-factor(d$junction,levels=c('vAndJ','jOnly','neitherVnorJ'))
+  d$junction<-factor(d$junction,levels=c('vAndJ','vOnly','jOnly','neitherVnorJ'))
   
   datalist_vAndJ[[i]]<-d[d$junction=='vAndJ',]
   datalist_vOnly[[i]]<-d[d$junction=='vOnly',]
