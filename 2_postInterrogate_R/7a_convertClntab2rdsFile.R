@@ -58,7 +58,7 @@ for (i in 1:length(files)){
   
   #for files w/o reads -> insert empty tibble into datalists
   if(nrow(t)==0){
-    df <- as_tibble(matrix(ncol = 7, nrow = 0))
+    df <- as_tibble(data.frame(matrix(ncol = 7, nrow = 0)))
     x <- c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")
     colnames(df) <- x
     datalist_vAndJ[[i]]<-df
@@ -152,7 +152,7 @@ dev.off()
 d.aggregated$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[02468]C",d.aggregated$sample),"rep1","rep2")
 d.aggregated$submission<-sub("P[0-9]+C.*$","",d.aggregated$sample)
 d.aggregated$owner.patient<-sub("_S[0-9]+$","",d.aggregated$sample)
-d.aggregated$owner.patient<-sub("^.*_","",d.aggregated$owner.patient)
+d.aggregated$owner.patient<-sub("^.*\n","",d.aggregated$owner.patient)
 d.aggregated$id<-paste(d.aggregated$submission,d.aggregated$owner.patient,sep="\t")
 
 p<-ggplot(d.aggregated,aes(replicate,x))+
