@@ -55,7 +55,19 @@ d.aggregated<-tibble()
 for (i in 1:length(files)){
   print(files[i])
   t<-read_tsv(paste0(targetFolder,files[i]))
-  if(nrow(t)==0){next}
+  
+  #for files w/o reads -> insert empty tibble into datalists
+  if(nrow(t)==0){
+    df <- as_tibble(matrix(ncol = 7, nrow = 0))
+    x <- c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")
+    colnames(df) <- x
+    datalist_vAndJ[[i]]<-df
+    datalist_vOnly[[i]]<-df
+    datalist_jOnly[[i]]<-df
+    datalist_neitherVnorJ[[i]]<-df
+    next
+  }
+  
   d<-subset(t, select=c("sequence.5-GENE","sequence.3-GENE","sequence.JUNCTION.aa seq","sequence.JUNCTION.aa seq.len","sequence.size","sequence.nt seq"))
   colnames(d)<-c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq")
   
@@ -133,6 +145,29 @@ pages<-n_pages(p)
 pdf(paste0(outFolder,'junctionTypesCompared_all_facet_3x4_freeScales.pdf'))
 for (i in 1:pages){
   print(ggplot(d.aggregated,aes(junction,x,fill=locus))+geom_col()+facet_wrap_paginate(d.aggregated$sample,ncol=3,nrow=4,page=i,scales="free"))
+}
+dev.off()
+
+
+library(ggforce)
+d.aggregated$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[02468]C",d.aggregated$sample),"rep1","rep2")
+d.aggregated$submission<-sub("P[0-9]+C.*$","",d.aggregated$sample)
+p<-ggplot(d.aggregated,aes(replicate,x))+
+  geom_point(aes(fill=locus,shape=junction))+
+  scale_fill_brewer(palette="Set1")+
+  coord_flip()+
+  facet_wrap_paginate(~submission,ncol=2,nrow=10,page=i)+
+  scale_shape_manual(values=c(21,22,23,24))
+
+pages<-n_pages(p)
+pdf(paste0(outFolder,'junctionTypesCompared_all_facet_pointplot.pdf'))
+for (i in 1:pages){
+  print(ggplot(d.aggregated,aes(replicate,x))+
+    geom_point(aes(fill=locus,shape=junction))+
+    scale_fill_brewer(palette="Set1")+
+    coord_flip()+
+    facet_wrap_paginate(~submission,ncol=2,nrow=10,page=i)+
+    scale_shape_manual(values=c(21,22,23,24)))
 }
 dev.off()
 
