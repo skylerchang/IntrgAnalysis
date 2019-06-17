@@ -36,6 +36,7 @@ diversity<-tibble()
 included<-c("Berzitis-Lucky","Henriques-Miyuki","Mckechnie-Coyote","OWN33-PAT1","Regier-Addy","Singleton-Zoya","White-Danny","Zehr-Murphy")
 
 for (i in 1:length(datalist)){
+  print(files_short[[i]])
   a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
   if(nrow(a)==0){next}
   #============ standardize sample name =======
@@ -89,8 +90,12 @@ for (i in 1:length(datalist)){
   #============ diversity =======
   for (j in 1:length(loci)){
     #subset by locus if locus is NOT "IGH+TRB"
-    if (loci[j]!="IGH+TRB"){a.woTemp<-a.woTemp[a.woTemp$vAndJchainSimplified==loci[j],]}
-    aa<-as_tibble(ddply(a.woTemp[,c("aaSeq","size")],"aaSeq",numcolwise(sum)))
+    if (loci[j]=="IGH+TRB"){
+      aa<-a.woTemp
+    }else{
+      aa<-a.woTemp[a.woTemp$vAndJchainSimplified==loci[j],]
+      }
+    aa<-as_tibble(ddply(aa[,c("aaSeq","size")],"aaSeq",numcolwise(sum)))
     aa.shannon<-diversity(aa$size, index = "shannon",base = exp(1))
     aa.simpson<-diversity(aa$size, index = "simpson")
     aa.invsimpson<-diversity(aa$size, index = "invsimpson")
@@ -116,16 +121,16 @@ for (i in 1:length(d.split)){
 saveWorkbook(wb,paste0(resultsPath,"diversitySummary.xlsx"),overwrite = T)
 
 #transform to long format
-d.long<-as_tibble(melt(d,id.vars=c("sample","locus","replicate","submission","sampleIdShort")))
+d.long<-as_tibble(melt(as.data.frame(d,id.vars=c("sample","locus","replicate","submission","sampleIdShort"))))
 d.long<-na.omit(d.long)
 d.long.subset<-d.long[d.long$value!=Inf,]
 
 
 pdf(paste0(resultsPath,"diversityPlot_compareIndexes.pdf"))
 ggplot(d.long.subset,aes(variable,value))+
-  geom_boxplot()+
-  geom_jitter(mapping=aes(shape=d.long.subset$locus,color=d.long.subset$sampleIdShort),size=5)
+  geom_jitter(mapping=aes(shape=d.long.subset$locus,color=d.long.subset$sampleIdShort),size=3)+facet_wrap(~variable, scales="free")
 dev.off()
+
 
 #======== template summary ===========
 templateSummary
