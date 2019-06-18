@@ -58,8 +58,22 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
       ############ test on Amino acid length from 8 to 23########
       for (j in seq(from=8,to=23,by=1))  {
         for (k in 1:length(compare_list)) {
-          d<-compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
-          dd<-d[d$vAndJchainSimplified==loci[i],c("aaSeq","size","aaLength")]
+          a <- compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
+          a <- subset(a,(a$aaSeq!="noju"))
+          #============ check for templates =======
+          a$template<-'no'
+          #Akash‘s templates
+          a$template[grepl("TGTGCATCACGACACAGTGGTCTGG",a$completeNtSeq)]<-'t1'
+          a$template[grepl("TGTGCATCACGACCAGATCCACAGATCCATTGGTTACTGG",a$completeNtSeq)]<-'t2'
+          #Tamara‘s templates
+          a$template[grepl("TGTTCGCCTTATCGCCTTATGG",a$completeNtSeq)]<-'IGHV1-30_IGHJ4'
+          a$template[grepl("TGTCTAGTACGCCTCTCTGCCTCTCTGCTAGTACGTGG",a$completeNtSeq)]<-'IGHV1-30_IGHJ6'
+          a$template[grepl("TGTGCTTCTGCCTTTCTGCCTGCTCAGGATTCTGCCTGCTCAGGAGCTCAGGATTCTCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ4'
+          a$template[grepl("TGTGAGGAGTCCGTAGAGAGAGGAGTCCAGCGTAGCCATGCCTAAGGAGTCCCAGCCTCGGTAGAGAGAGCGCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ6'
+          a$template[grepl("TGTAAGGAGTAACTGCATAACTGCATACTAAGCCTAAGGAGTATGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ4'
+          a$template[grepl("TGTGTGCCTCTTTCCTCTACTAGATCGCCTCTCTATTATCCTCTAGAGTAGAGTAAGGAGTAGATCGCTATCCTCTGTAAGGAGTCCTCTACCTGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ6'
+          a.woTemp<-a[a$template=='no',] 
+          dd<-a.woTemp[a.woTemp$vAndJchainSimplified==loci[i],c("aaSeq","size","aaLength")]
           dd<-dd[!is.na(dd$aaSeq),]
           tt2<-as_tibble(ddply(dd,.(aaSeq,aaLength),numcolwise(sum)))
           tt2<-tt2[order(-tt2$size),]
