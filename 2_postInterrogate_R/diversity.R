@@ -6,6 +6,8 @@ library(plyr)
 library(here)
 library(reshape2)
 library(openxlsx)
+library(RColorBrewer)
+library(ggforce)
 
 setwd(here())
 getwd()
@@ -99,8 +101,9 @@ for (i in 1:length(datalist)){
     aa.shannon<-diversity(aa$size, index = "shannon",base = exp(1))
     aa.simpson<-diversity(aa$size, index = "simpson")
     aa.invsimpson<-diversity(aa$size, index = "invsimpson")
+    totalSize<-sum(aa$size)
     
-    temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=submission,sampleIdShort=sampleIdShort)
+    temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=submission,sampleIdShort=sampleIdShort,size=totalSize)
     diversity<-bind_rows(diversity,temp)
   }
 }
@@ -121,14 +124,88 @@ for (i in 1:length(d.split)){
 saveWorkbook(wb,paste0(resultsPath,"diversitySummary.xlsx"),overwrite = T)
 
 #transform to long format
-d.long<-as_tibble(melt(as.data.frame(d,id.vars=c("sample","locus","replicate","submission","sampleIdShort"))))
+d.long<-as_tibble(melt(as.data.frame(d),id.vars=c("sample","locus","replicate","submission","sampleIdShort","size")))
 d.long<-na.omit(d.long)
 d.long.subset<-d.long[d.long$value!=Inf,]
+d.long.subset<-d.long.subset[d.long.subset$locus!="IGH+TRB",]
+d.long.subset$owner.patient<-sub("_S[0-9]+$","",d.long.subset$sample)
+d.long.subset$owner.patient<-sub(".+_","",d.long.subset$owner.patient)
+d.long.subset$owner<-sub("-.*","",d.long.subset$owner.patient)
+str(d.long.subset)
+d.long.subset$owner<-as.factor(d.long.subset$owner)
 
+colorCount<-nlevels(d.long.subset$owner)
+getPalette<-colorRampPalette(brewer.pal(9,'Set1'))
 
-pdf(paste0(resultsPath,"diversityPlot_compareIndexes.pdf"))
+#jitter all indexes
+pdf(paste0(resultsPath,"diversityPlot_allIndexes.pdf"))
 ggplot(d.long.subset,aes(variable,value))+
-  geom_jitter(mapping=aes(shape=d.long.subset$locus,color=d.long.subset$sampleIdShort),size=3)+facet_wrap(~variable, scales="free")
+  geom_jitter(aes(shape=locus,color=owner),size=3)+
+  facet_wrap(~variable, scales="free")+
+  scale_color_manual(values=getPalette(colorCount))
+dev.off()
+
+#point - by size - all indexes 
+pdf(paste0(resultsPath,"diversityPlot_allIndexes_withSize.pdf"))
+ggplot(d.long.subset,aes(size,value))+
+  geom_point(mapping=aes(shape=locus,color=owner),size=3)+
+  facet_wrap(~variable,ncol=1,scales="free")+
+  scale_color_manual(values=getPalette(colorCount))
+dev.off()
+
+#point - by size - shannon - with label
+pdf(paste0(resultsPath,"diversityPlot_shannon_withSize_withLabel.pdf"))
+d.long.subset2<-d.long.subset[d.long.subset$variable=="shannon",]
+ggplot(d.long.subset2,aes(size,value))+
+  geom_point(mapping=aes(shape=locus,color=owner),size=3)+
+  facet_wrap(~variable,ncol=1,scales="free")+
+  scale_color_manual(values=getPalette(colorCount))+
+  geom_text(aes(label=owner),hjust=0, vjust=0,size=3)+
+  scale_x_log10()+
+  theme(legend.position="none")
+dev.off
+
+#point - by size - shannon - facet by owner
+p<-ggplot(d.long.subset2,aes(size,value))+
+  geom_point(mapping=aes(shape=locus,color=owner),size=3)+
+  facet_wrap_paginate(~owner,ncol=3,nrow=4)+
+  scale_color_manual(values=getPalette(colorCount))+
+  scale_x_log10()+
+  theme(legend.position="none")
+pages<-n_pages(p)
+pdf(paste0(resultsPath,"diversityPlot_shannon_withSize_facetByOwner.pdf"))
+for (i in 1:pages){
+  print(ggplot(d.long.subset2,aes(size,value))+
+          geom_point(mapping=aes(shape=locus,color=owner),size=3)+
+          facet_wrap_paginate(~owner,ncol=3,nrow=4,page=i)+
+          scale_color_manual(values=getPalette(colorCount))+
+          scale_x_log10()+
+          theme(legend.position="none"))
+}
+dev.off()
+
+#point - by size - simpson - with label
+d.long.subset2<-d.long.subset[d.long.subset$variable=="simpson",]
+pdf(paste0(resultsPath,"diversityPlot_simpson_withSize_withLabel.pdf"))
+ggplot(d.long.subset2,aes(size,value))+
+  geom_point(mapping=aes(shape=locus,color=owner),size=3)+
+  facet_wrap(~variable,ncol=1,scales="free")+
+  scale_color_manual(values=getPalette(colorCount))+
+  geom_text(aes(label=owner),hjust=0, vjust=0,size=3)+
+  scale_x_log10()+
+  theme(legend.position="none")
+dev.off()
+
+#point - by size - invsimpson - with label
+d.long.subset2<-d.long.subset[d.long.subset$variable=="invsimpson",]
+pdf(paste0(resultsPath,"diversityPlot_invsimpson_withSize_withLabel.pdf"))
+ggplot(d.long.subset2,aes(size,value))+
+  geom_point(mapping=aes(shape=locus,color=owner),size=3)+
+  facet_wrap(~variable,ncol=1,scales="free")+
+  scale_color_manual(values=getPalette(colorCount))+
+  geom_text(aes(label=owner),hjust=0, vjust=0,size=3)+
+  scale_x_log10()+
+  theme(legend.position="none")
 dev.off()
 
 
