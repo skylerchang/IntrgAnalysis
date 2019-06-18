@@ -50,17 +50,25 @@ for (m in seq(from=1,to=length(datalist),by=2)){
   
     tabletempw<-list()
     tabletempwo<-list()
+  
     for (i in 1:length(compare_list)){
-      a<-compare_list[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
-      a <- subset(a,(a$aaSeq!="noju"))
+      a <- datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
+      a <- subset(a,(t$aaSeq!="noju"))
       tabletempw[[i]]<-a
-      d <- subset(a,(!grepl(".TGTTCGCCTTATCGCCTTATGG.*",a$completeNtSeq)) | a$aaLength!=8)
-      d <- subset(d,(!grepl(".TGTCTAGTACGCCTCTCTGCCTCTCTGCTAGTACGTGG.*",d$completeNtSeq)) | d$aaLength!=13)
-      d <- subset(d,(!grepl(".TGTGCTTCTGCCTTTCTGCCTGCTCAGGATTCTGCCTGCTCAGGAGCTCAGGATTCTCTGG.*",d$completeNtSeq)) | d$aaLength!=21)
-      d <- subset(d,(!grepl(".TGTGAGGAGTCCGTAGAGAGAGGAGTCCAGCGTAGCCATGCCTAAGGAGTCCCAGCCTCGGTAGAGAGAGCGCTGG.*",d$completeNtSeq)) | d$aaLength!=26)
-      d <- subset(d,(!grepl(".TGTAAGGAGTAACTGCATAACTGCATACTAAGCCTAAGGAGTATGG.*",d$completeNtSeq)) | d$aaLength!=16)
-      d <- subset(d,(!grepl(".TGTGTGCCTCTTTCCTCTACTAGATCGCCTCTCTATTATCCTCTAGAGTAGAGTAAGGAGTAGATCGCTATCCTCTGTAAGGAGTCCTCTACCTGG.*",d$completeNtSeq)) | d$aaLength!=32)
-      tabletempwo[[i]]<-d
+      #============ check for templates =======
+      a$template<-'no'
+      #Akash‘s templates
+      a$template[grepl("TGTGCATCACGACACAGTGGTCTGG",a$completeNtSeq)]<-'t1'
+      a$template[grepl("TGTGCATCACGACCAGATCCACAGATCCATTGGTTACTGG",a$completeNtSeq)]<-'t2'
+      #Tamara‘s templates
+      a$template[grepl("TGTTCGCCTTATCGCCTTATGG",a$completeNtSeq)]<-'IGHV1-30_IGHJ4'
+      a$template[grepl("TGTCTAGTACGCCTCTCTGCCTCTCTGCTAGTACGTGG",a$completeNtSeq)]<-'IGHV1-30_IGHJ6'
+      a$template[grepl("TGTGCTTCTGCCTTTCTGCCTGCTCAGGATTCTGCCTGCTCAGGAGCTCAGGATTCTCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ4'
+      a$template[grepl("TGTGAGGAGTCCGTAGAGAGAGGAGTCCAGCGTAGCCATGCCTAAGGAGTCCCAGCCTCGGTAGAGAGAGCGCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ6'
+      a$template[grepl("TGTAAGGAGTAACTGCATAACTGCATACTAAGCCTAAGGAGTATGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ4'
+      a$template[grepl("TGTGTGCCTCTTTCCTCTACTAGATCGCCTCTCTATTATCCTCTAGAGTAGAGTAAGGAGTAGATCGCTATCCTCTGTAAGGAGTCCTCTACCTGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ6'
+      a.woTemp<-a[a$template=='no',]
+      tabletempwo[[i]]<-a.woTemp
     }
     create.stackedcomparebars<-function(table) {
       tablelist<-list()
