@@ -41,7 +41,7 @@ dir.create(outpath<-'../Results/CdrAaLengthTemplate/',recursive=T)
 
 for (i in 1:length(datalist)){
   a <- datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
-  a <- subset(a,(t$aaSeq!="noju"))
+  a <- subset(a,(a$aaSeq!="noju"))
   a.all <- a
   #============ check for templates =======
   a$template<-'no'
