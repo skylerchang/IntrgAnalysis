@@ -59,11 +59,6 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
       for (j in seq(from=8,to=23,by=1))  {
         for (k in 1:length(compare_list)) {
           d<-compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
-          
-          ##### if data have template DNA, remove TGTTCGCCTTATCGCCTTATGG and length as bellow: ######
-          #d<-compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
-          #d <- subset(d,(!grepl(".TGTTCGCCTTATCGCCTTATGG.*",d$completeNtSeq)) | d$aaLength!=8)
-   
           dd<-d[d$vAndJchainSimplified==loci[i],c("aaSeq","size","aaLength")]
           dd<-dd[!is.na(dd$aaSeq),]
           tt2<-as_tibble(ddply(dd,.(aaSeq,aaLength),numcolwise(sum)))
