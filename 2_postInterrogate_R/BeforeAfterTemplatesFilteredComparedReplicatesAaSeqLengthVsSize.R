@@ -53,7 +53,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
   
     for (i in 1:length(compare_list)){
       a <- datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
-      a <- subset(a,(t$aaSeq!="noju"))
+      a <- subset(a,(a$aaSeq!="noju"))
       tabletempw[[i]]<-a
       #============ check for templates =======
       a$template<-'no'
