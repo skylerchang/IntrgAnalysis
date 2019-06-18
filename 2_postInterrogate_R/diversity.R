@@ -68,6 +68,14 @@ for (i in 1:length(datalist)){
   sampleIdShort<-sub("D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$","",sampleId)
   submission<-sub("-[0-9a-zA-Z]+$","",sampleIdShort)
   
+  #============ filter seqs by seqs & ^C.{3,30}[FW]$ =======
+  total<-nrow(a)
+  out<-nrow(a[!grepl("^C.{3,30}[FW]$",a$aaSeq),])
+  perc<-out/total*100
+  print(paste0("Filtered reads by C-FW: ",out,"/",total," (",perc,"%)"))
+  a<-a[grepl("^C.{3,30}[FW]$",a$aaSeq),]
+  if(nrow(a)==0){next}
+  
   #============ check for templates =======
   a$template<-'no'
   #Akash‘s templates
@@ -102,8 +110,9 @@ for (i in 1:length(datalist)){
     aa.simpson<-diversity(aa$size, index = "simpson")
     aa.invsimpson<-diversity(aa$size, index = "invsimpson")
     totalSize<-sum(aa$size)
+    clonotypeCount<-nrow(aa)
     
-    temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=submission,sampleIdShort=sampleIdShort,size=totalSize)
+    temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=submission,sampleIdShort=sampleIdShort,size=totalSize,clonotypeCount=clonotypeCount)
     diversity<-bind_rows(diversity,temp)
   }
 }
@@ -124,7 +133,7 @@ for (i in 1:length(d.split)){
 saveWorkbook(wb,paste0(resultsPath,"diversitySummary.xlsx"),overwrite = T)
 
 #transform to long format
-d.long<-as_tibble(melt(as.data.frame(d),id.vars=c("sample","locus","replicate","submission","sampleIdShort","size")))
+d.long<-as_tibble(melt(as.data.frame(d),id.vars=c("sample","locus","replicate","submission","sampleIdShort","size","clonotypeCount")))
 d.long<-na.omit(d.long)
 d.long.subset<-d.long[d.long$value!=Inf,]
 d.long.subset<-d.long.subset[d.long.subset$locus!="IGH+TRB",]
