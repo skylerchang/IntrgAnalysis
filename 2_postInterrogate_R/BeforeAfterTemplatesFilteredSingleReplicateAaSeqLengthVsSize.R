@@ -1,9 +1,10 @@
 library(tidyverse)
 library(gridExtra)
-library(here)
+library(plyr)
 library(openxlsx)
 library(RColorBrewer)
-library(plyr)
+library(here)
+
 
 
 col1<-brewer.pal(n = 8, name = 'Dark2')
@@ -25,7 +26,7 @@ setwd(here())
 getwd()
 
 #========== adjust the following variables ================
-t<-read_rds('../Clntab_RDS/clntab_vAndJ.rds')
+t<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
 outpath<-'../Results/CdrAaLengthTemplate/'
 loci<-c("IGH")
 #Top n clones that are being displayed in separate colors (all other clones are grey)
@@ -62,7 +63,6 @@ for (i in 1:length(datalist)){
   temp<-as_tibble(ddply(a.tempOnly[,c("template","size")],"template",numcolwise(sum)))
   if(nrow(temp)==0){next}
   temp$sample<-files_short[i]
-  templateSummary<-bind_rows(templateSummary,temp)
  ####### make compared Plots between all reads AAseqLength VS Size and without template reads ######  
   plotlist<-list()
   for (j in 1:length(loci)){
