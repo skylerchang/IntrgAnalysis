@@ -106,13 +106,14 @@ for (i in 1:length(datalist)){
       aa<-a.woTemp[a.woTemp$vAndJchainSimplified==loci[j],]
       }
     aa<-as_tibble(ddply(aa[,c("aaSeq","size")],"aaSeq",numcolwise(sum)))
-    aa.shannon<-diversity(aa$size, index = "shannon",base = exp(1))
-    aa.simpson<-diversity(aa$size, index = "simpson")
-    aa.invsimpson<-diversity(aa$size, index = "invsimpson")
+    aa.shannon<-diversity(aa$size,index = "shannon",base = exp(1))
+    aa.simpson<-diversity(aa$size,index = "simpson")
+    aa.invsimpson<-diversity(aa$size,index = "invsimpson")
     totalSize<-sum(aa$size)
     clonotypeCount<-nrow(aa)
+    effectiveSpecies<-exp(aa.shannon)
     
-    temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=submission,sampleIdShort=sampleIdShort,size=totalSize,clonotypeCount=clonotypeCount)
+    temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=submission,sampleIdShort=sampleIdShort,size=totalSize,clonotypeCount=clonotypeCount,effectiveSpecies=effectiveSpecies)
     diversity<-bind_rows(diversity,temp)
   }
 }
@@ -208,6 +209,18 @@ dev.off()
 #point - by size - invsimpson - with label
 d.long.subset2<-d.long.subset[d.long.subset$variable=="invsimpson",]
 pdf(paste0(resultsPath,"diversityPlot_invsimpson_withSize_withLabel.pdf"))
+ggplot(d.long.subset2,aes(size,value))+
+  geom_point(mapping=aes(shape=locus,color=owner),size=3)+
+  facet_wrap(~variable,ncol=1,scales="free")+
+  scale_color_manual(values=getPalette(colorCount))+
+  geom_text(aes(label=owner),hjust=0, vjust=0,size=3)+
+  scale_x_log10()+
+  theme(legend.position="none")
+dev.off()
+
+#point - by size - effectiveSpecies - with label
+d.long.subset2<-d.long.subset[d.long.subset$variable=="effectiveSpecies",]
+pdf(paste0(resultsPath,"diversityPlot_effectiveSpecies_withSize_withLabel.pdf"))
 ggplot(d.long.subset2,aes(size,value))+
   geom_point(mapping=aes(shape=locus,color=owner),size=3)+
   facet_wrap(~variable,ncol=1,scales="free")+
