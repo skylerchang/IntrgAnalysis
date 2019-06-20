@@ -37,7 +37,7 @@ diversity<-tibble()
 
 included<-c("Berzitis-Lucky","Henriques-Miyuki","Mckechnie-Coyote","OWN33-PAT1","Regier-Addy","Singleton-Zoya","White-Danny","Zehr-Murphy")
 
-for (i in 1:length(datalist)){
+for (i in 1:length(datalist)){  
   print(files_short[[i]])
   a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
   if(nrow(a)==0){next}
@@ -72,7 +72,7 @@ for (i in 1:length(datalist)){
   total<-nrow(a)
   out<-nrow(a[!grepl("^C.{3,30}[FW]$",a$aaSeq),])
   perc<-out/total*100
-  print(paste0("Filtered reads by C-FW: ",out,"/",total," (",perc,"%)"))
+  print(paste0("Filtered reads by '^C.{3,30}[FW]$': ",out,"/",total," (",perc,"%)"))
   a<-a[grepl("^C.{3,30}[FW]$",a$aaSeq),]
   if(nrow(a)==0){next}
   
@@ -93,9 +93,10 @@ for (i in 1:length(datalist)){
   
   #============ summarize templates for sample and store in tibble =======
   temp<-as_tibble(ddply(a.tempOnly[,c("template","size")],"template",numcolwise(sum)))
-  if(nrow(temp)==0){next}
-  temp$sample<-files_short[i]
-  templateSummary<-bind_rows(templateSummary,temp)
+  if(nrow(temp)!=0){
+    temp$sample<-files_short[i]
+    templateSummary<-bind_rows(templateSummary,temp)
+  }
   
   #============ diversity =======
   for (j in 1:length(loci)){
@@ -127,6 +128,9 @@ str(d.split)
 wb<-createWorkbook()
 addWorksheet(wb,"summary")
 writeData(wb,"summary",d)
+addWorksheet(wb,"summary_IGH+TRB_only")
+d.igh.trb<-d[d$locus=="IGH+TRB",]
+writeData(wb,"summary_IGH+TRB_only",d.igh.trb)
 for (i in 1:length(d.split)){
   addWorksheet(wb,d.split[[i]]$submission[1])
   writeData(wb,d.split[[i]]$submission[1],d.split[i],colNames = TRUE)
