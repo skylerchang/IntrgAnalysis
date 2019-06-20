@@ -32,7 +32,7 @@ t<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
 outpath<-'../Results/CdrAaLengthVsAaSeq/'
 loci<-c("TRA","TRB","TRD","TRG","IGH")
 #Top n clones that are being displayed in separate colors (all other clones are grey)
-n<-80
+n<-100
 
 #==========================================================
 #datalist contains one tibble per sample
