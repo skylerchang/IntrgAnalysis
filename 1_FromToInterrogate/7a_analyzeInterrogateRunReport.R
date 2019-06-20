@@ -35,7 +35,7 @@ files<-list.files(targetDir,pattern = "^Run.*xlsx")
 # 3 = csf run 3 = seq run 26 
 # 4 = excel file with both csf run 2 and 3 combined 
 # 5 = excel file with all three seq runs 
-j<-5
+j<-1
 
 for (j in 1:length(files)){
   t<-readxl::read_excel(paste0(targetDir,files[j]))
@@ -320,6 +320,9 @@ if (sampleNoCoding){
 T.wga <-t[t$wga,]
 F.wga <-t[!t$wga,]
 
+#remove run 1 for wga analysis (only do if analysisng WGA)
+F.wga<- F.wga[-c(1:4,13:16,21:24,29:32,41:44,49:52),]
+
 #csf fraction for wga
 T.wga.ca<- subset(T.wga,sampleFraction==1)
 T.wga.cf <-subset(T.wga,sampleFraction==2)
@@ -534,10 +537,10 @@ t.test (F.wga.ca$usable.count,F.wga.cf$usable.count)
 
 #looking at correlations with usable reads (just non WGA samples )
 #DNA yields 
-cor.test(F.wga$usable.count,F.wga$dna)
-plot(F.wga$usable.count,F.wga$dna)
-line<-lm(F.wga$dna~F.wga$usable.count)
-lineca<-lm(F.wga.ca$dna~F.wga.ca$usable.count)
+cor.test(F.wga$usable.count,F.wga$pre.dna)
+plot(F.wga$usable.count,F.wga$pre.dna)
+line<-lm(F.wga$pre.dna~F.wga$usable.count)
+lineca<-lm(F.wga.ca$pre.dna~F.wga.ca$usable.count)
 abline(line)
 abline(lineca)
 anova(lineca)
@@ -1243,6 +1246,9 @@ line<-lm(F.wga$pre.dna~F.wga$raw.count)
 abline(line)
 anova(line)
 
+cor.test(F.wga.ca$raw.count,F.wga.ca$pre.dna)
+cor.test(F.wga.cf$raw.count,F.wga.cf$pre.dna)
+
 #usable reads percent
 cor.test(F.wga$usable.percent,F.wga$pre.dna)
 plot(F.wga$usable.percent,F.wga$pre.dna)
@@ -1250,12 +1256,16 @@ line<-lm(F.wga$pre.dna~F.wga$usable.percent)
 abline(line)
 anova(line)
 
+
 #usable reads count
 cor.test(F.wga$usable.count,F.wga$pre.dna)
 plot(F.wga$usable.count,F.wga$pre.dna)
 line<-lm(F.wga$pre.dna~F.wga$usable.count)
 abline(line)
 anova(line)
+
+cor.test(F.wga.ca$usable.count,F.wga.ca$pre.dna)
+cor.test(F.wga.cf$usable.count,F.wga.cf$pre.dna)
 
 #usable seq 
 cor.test(F.wga$uniq_usable_seq.count,F.wga$pre.dna)
@@ -1271,12 +1281,18 @@ line<-lm(F.wga$pre.dna~F.wga$cln.count)
 abline(line)
 anova(line)
 
+cor.test(F.wga.ca$cln.count,F.wga.ca$pre.dna)
+cor.test(F.wga.cf$cln.count,F.wga.cf$pre.dna)
+
 #alpha diversity
 cor.test(F.wga$alpha_diversity.count,F.wga$pre.dna)
 plot(F.wga$alpha_diversity.count,F.wga$pre.dna)
 line<-lm(F.wga$pre.dna~F.wga$alpha_diversity.count)
 abline(line)
 anova(line)
+
+cor.test(F.wga.ca$alpha_diversity.count,F.wga.ca$pre.dna)
+cor.test(F.wga.cf$alpha_diversity.count,F.wga.cf$pre.dna)
 
 #normalized diversity
 cor.test(F.wga$diversity_normed.count,F.wga$pre.dna)
@@ -1285,12 +1301,16 @@ line<-lm(F.wga$pre.dna~F.wga$diversity_normed.count)
 abline(line)
 anova(line)
 
+
 #effective species 
 cor.test(F.wga$effective_species.count,F.wga$pre.dna)
 plot(F.wga$effective_species.count,F.wga$pre.dna)
 line<-lm(F.wga$pre.dna~F.wga$effective_species.count)
 abline(line)
 anova(line)
+
+cor.test(F.wga.ca$effective_species.count,F.wga.ca$pre.dna)
+cor.test(F.wga.cf$effective_species.count,F.wga.cf$pre.dna)
 #==============2. hemo (cell concentration(cells/ul))
 #====================================================
 #bargraph
@@ -1304,6 +1324,9 @@ plot(F.wga$raw.count,F.wga$hemo.cells.ul)
 line<-lm(F.wga$hemo.cells.ul~F.wga$raw.count)
 abline(line)
 anova(line)
+
+cor.test(F.wga.ca$raw.count,F.wga.ca$hemo.cells.ul)
+cor.test(F.wga.cf$raw.count,F.wga.cf$hemo.cells.ul)
 
 #usable reads percent
 cor.test(F.wga$usable.percent,F.wga$hemo.cells.ul)
@@ -1319,6 +1342,9 @@ line<-lm(F.wga$hemo.cells.ul~F.wga$usable.count)
 abline(line)
 anova(line)
 
+cor.test(F.wga.ca$usable.count,F.wga.ca$hemo.cells.ul)
+cor.test(F.wga.cf$usable.count,F.wga.cf$hemo.cells.ul)
+
 #usable seq 
 cor.test(F.wga$uniq_usable_seq.count,F.wga$hemo.cells.ul)
 plot(F.wga$uniq_usable_seq.count,F.wga$hemo.cells.ul)
@@ -1333,12 +1359,18 @@ line<-lm(F.wga$hemo.cells.ul~F.wga$cln.count)
 abline(line)
 anova(line)
 
+cor.test(F.wga.ca$cln.count,F.wga.ca$hemo.cells.ul)
+cor.test(F.wga.cf$cln.count,F.wga.cf$hemo.cells.ul)
+
 #alpha diversity
 cor.test(F.wga$alpha_diversity.count,F.wga$hemo.cells.ul)
 plot(F.wga$alpha_diversity.count,F.wga$hemo.cells.ul)
 line<-lm(F.wga$hemo.cells.ul~F.wga$alpha_diversity.count)
 abline(line)
 anova(line)
+
+cor.test(F.wga.ca$alpha_diversity.count,F.wga.ca$hemo.cells.ul)
+cor.test(F.wga.cf$alpha_diversity.count,F.wga.cf$hemo.cells.ul)
 
 #normalized diversity
 cor.test(F.wga$diversity_normed.count,F.wga$hemo.cells.ul)
@@ -1354,7 +1386,8 @@ line<-lm(F.wga$hemo.cells.ul~F.wga$effective_species.count)
 abline(line)
 anova(line)
 
-
+cor.test(F.wga.ca$effective_species.count,F.wga.ca$hemo.cells.ul)
+cor.test(F.wga.cf$effective_species.count,F.wga.cf$hemo.cells.ul)
 #==============3. hemo (lym concentration (cells/ul))
 #====================================================
 #bargraph
@@ -1761,10 +1794,19 @@ ggplot(t,aes(submissionId,pred.lym.cyto))+geom_bar(position = "dodge",stat="iden
 
 #raw reads
 cor.test(F.wga$raw.count,F.wga$pred.lym.cyto)
+pdf(paste0(targetDir2,'Raw reads vs lymphocyte abundace .pdf'))
 plot(F.wga$pred.lym.cyto,F.wga$raw.count,xlab ="Lymphocyte count",ylab= "Raw read count")
 line<-lm(F.wga$raw.count~F.wga$pred.lym.cyto)
 abline(line)
+dev.off()
 anova(line)
+
+pdf(paste0(targetDir2,'Raw reads vs lymphocyte abundace .pdf'))
+ggplot(F.wga,aes(pred.lym.cyto,raw.count,fill=sampleFraction))+geom_point(size=2, shape=23)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+cor.test(F.wga.ca$raw.count,F.wga.ca$pred.lym.cyto)
+cor.test(F.wga.cf$raw.count,F.wga.cf$pred.lym.cyto)
 
 #usable reads percent
 cor.test(F.wga$usable.percent,F.wga$pred.lym.cyto)
@@ -1780,6 +1822,13 @@ line<-lm(F.wga$usable.count~F.wga$pred.lym.cyto)
 abline(line)
 anova(line)
 
+pdf(paste0(targetDir2,'usable reads vs lymphocyte abundace .pdf'))
+ggplot(F.wga,aes(pred.lym.cyto,usable.count,fill=sampleFraction))+geom_point(size=2, shape=23)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+cor.test(F.wga.ca$usable.count,F.wga.ca$pred.lym.cyto)
+cor.test(F.wga.cf$usable.count,F.wga.cf$pred.lym.cyto)
+
 #usable seq 
 cor.test(F.wga$uniq_usable_seq.count,F.wga$pred.lym.cyto)
 plot(F.wga$uniq_usable_seq.count,F.wga$pred.lym.cyto)
@@ -1794,12 +1843,19 @@ line<-lm(F.wga$pred.lym.cyto~F.wga$cln.count)
 abline(line)
 anova(line)
 
+cor.test(F.wga.ca$cln.count,F.wga.ca$pred.lym.cyto)
+cor.test(F.wga.cf$cln.count,F.wga.cf$pred.lym.cyto)
+
+
 #alpha diversity
 cor.test(F.wga$alpha_diversity.count,F.wga$pred.lym.cyto)
 plot(F.wga$alpha_diversity.count,F.wga$pred.lym.cyto)
 line<-lm(F.wga$pred.lym.cyto~F.wga$alpha_diversity.count)
 abline(line)
 anova(line)
+
+cor.test(F.wga.ca$alpha_diversity.count,F.wga.ca$pred.lym.cyto)
+cor.test(F.wga.cf$alpha_diversity.count,F.wga.cf$pred.lym.cyto)
 
 #normalized diversity
 cor.test(F.wga$diversity_normed.count,F.wga$pred.lym.cyto)
@@ -1814,6 +1870,9 @@ plot(F.wga$effective_species.count,F.wga$pred.lym.cyto)
 line<-lm(F.wga$pred.lym.cyto~F.wga$effective_species.count)
 abline(line)
 anova(line)
+
+cor.test(F.wga.ca$effective_species.count,F.wga.ca$pred.lym.cyto)
+cor.test(F.wga.cf$effective_species.count,F.wga.cf$pred.lym.cyto)
 #=================================================================================
 #=============================== sample Hierarchy ================================
 #=================================================================================
@@ -1929,3 +1988,109 @@ pdf(paste0(targetDir,'raw reads count (all seq).pdf'))
 ggplot(F.wga,aes(pcrId,raw.count))+facet_grid(.~seq.run)+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
 #raw reads 
+
+# correlation and summary 
+summary(F.wga$raw.count)
+summary(F.wga$usable.count)
+summary(F.wga$cln.count)
+summary(F.wga$alpha_diversity.count)
+summary(F.wga$effective_species.count)
+summary(F.wga$pred.lym.cyto)
+summary(F.wga$hemo.cells.L)
+summary(F.wga$pre.dna)
+
+#ca vs cf 
+#read
+t.test (F.wga.ca$raw.count,F.wga.cf$raw.count)
+t.test (F.wga.ca$usable.count,F.wga.cf$usable.count)
+summary (F.wga.ca$raw.count)
+summary (F.wga.cf$raw.count)
+summary (F.wga.ca$usable.count)
+summary (F.wga.cf$usable.count)
+cor.test(F.wga.ca$raw.count,F.wga.cf$raw.count)
+cor.test(F.wga.ca$usable.count,F.wga.cf$usable.count)
+#clnotype
+t.test (F.wga.ca$cln.count,F.wga.cf$cln.count)
+summary(F.wga.ca$cln.count)
+summary(F.wga.cf$cln.count)
+#diversity
+t.test (F.wga.ca$alpha_diversity.count,F.wga.cf$alpha_diversity.count)
+summary(F.wga.ca$alpha_diversity.count)
+summary(F.wga.cf$alpha_diversity.count)
+t.test (F.wga.ca$effective_species.count,F.wga.cf$effective_species.count)
+summary(F.wga.ca$effective_species.count)
+summary(F.wga.cf$effective_species.count)
+
+#wga -> make sure you take out run 1 form the data before running 
+#raw reads
+summary(T.wga$raw.count)
+summary(F.wga$raw.count)
+t.test(T.wga$raw.count,F.wga$raw.count)
+#Usable reads 
+t.test(T.wga$usable.count,F.wga$usable.count)
+summary(F.wga$usable.count)
+summary(T.wga$usable.count)
+#clonotype
+t.test(T.wga$cln.count,F.wga$cln.count)
+summary(T.wga$cln.count)
+summary(F.wga$cln.count)
+#Alpha diversity
+summary(T.wga$alpha_diversity.count)
+summary(F.wga$alpha_diversity.count)
+t.test(T.wga$alpha_diversity.count,F.wga$alpha_diversity.count)
+#Effective species 
+t.test (T.wga$effective_species.count,F.wga$effective_species.count)
+summary(T.wga$effective_species.count)
+summary(F.wga$effective_species.count)
+
+#wga fraction analysis 
+#raw reads
+summary(T.wga.ca$raw.count)
+summary(T.wga.cf$raw.count)
+summary(F.wga.cf$raw.count)
+summary(T.wga.cf$raw.count)
+t.test (T.wga.ca$raw.count,F.wga.ca$raw.count)
+t.test (T.wga.cf$raw.count,F.wga.cf$raw.count)
+t.test (T.wga.ca$raw.count,T.wga.cf$raw.count)
+#usable reads
+summary(T.wga.ca$usable.count)
+summary(T.wga.cf$usable.count)
+summary(F.wga.ca$usable.count)
+summary(F.wga.cf$usable.count)
+t.test (T.wga.ca$usable.count,F.wga.ca$usable.count)
+t.test (T.wga.cf$usable.count,F.wga.cf$usable.count)
+t.test (T.wga.ca$usable.count,T.wga.cf$usable.count)
+#clonotype 
+summary(T.wga.ca$cln.count)
+summary(T.wga.cf$cln.count)
+summary(F.wga.cf$cln.count)
+summary(F.wga.ca$cln.count)
+t.test (T.wga.ca$cln.count,F.wga.ca$cln.count)
+t.test (T.wga.cf$cln.count,F.wga.cf$cln.count)
+t.test (T.wga.ca$cln.count,T.wga.cf$cln.count)
+#diversity 
+summary(F.wga.ca$alpha_diversity.count)
+summary(F.wga.cf$alpha_diversity.count)
+summary(T.wga.cf$alpha_diversity.count)
+summary(T.wga.ca$alpha_diversity.count)
+t.test (T.wga.ca$alpha_diversity.count,F.wga.ca$alpha_diversity.count)
+t.test (T.wga.cf$alpha_diversity.count,F.wga.cf$alpha_diversity.count)
+t.test (T.wga.ca$alpha_diversity.count,T.wga.cf$alpha_diversity.count)
+#Effective species 
+summary(F.wga.ca$effective_species.count)
+summary(F.wga.cf$effective_species.count)
+summary(T.wga.cf$effective_species.count)
+summary(T.wga.ca$effective_species.count)
+t.test (T.wga.ca$effective_species.count,F.wga.ca$effective_species.count)
+t.test (T.wga.cf$effective_species.count,F.wga.cf$effective_species.count)
+t.test (T.wga.ca$effective_species.count,T.wga.cf$effective_species.count)
+
+
+
+
+
+
+
+
+
+
