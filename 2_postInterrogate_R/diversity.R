@@ -14,7 +14,7 @@ getwd()
 
 #=========== adjust =============
 
-sampleNoCodesForFraction<-F        #T or F
+sampleNoCodesForFraction<-T        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPath<-'../Results/Diversity/'
