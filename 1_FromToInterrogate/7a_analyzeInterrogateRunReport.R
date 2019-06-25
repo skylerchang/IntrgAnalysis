@@ -144,6 +144,7 @@ for (j in 1:length(files)){
   t$hemolym.cells.ul<-as.numeric(t$hemolym.cells.ul)
   t$lym.hemo_count<-as.numeric(t$lym.hemo_count)
   t$pred.lym.cyto<-as.numeric(t$pred.lym.cyto)
+  t$csf.sampling.interval<-as.numeric(t$csf.sampling.interval)
   colnames(t)
 }
   #============= plot read numbers =============
