@@ -35,3 +35,5 @@ $ git config --global user.email
 #set email
 $ git config --global user.email "email@example.com"
 
+#============= resolve conflict ================
+https://help.github.com/en/articles/resolving-a-merge-conflict-using-the-command-line
