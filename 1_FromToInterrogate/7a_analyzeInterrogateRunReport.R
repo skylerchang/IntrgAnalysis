@@ -508,6 +508,19 @@ pdf(paste0(targetDir,'usable read overall (non-wga).pdf'))
 boxplot(F.wga.ca$usable.count, F.wga.cf$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="Usable read count",ylab="Number of usable reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
+# raw and usable read boxplots 
+pdf(paste0(targetDir,'raw + usable read overall (ch3).pdf'))
+boxplot(F.wga$raw.count, F.wga$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("raw-reads", "usable-reads"),  cex.axis=1,main="read count",ylab="Number of reads",varwidth=TRUE)
+dev.off()
+
+pdf(paste0(targetDir,'raw read overall (ch3).pdf'))
+boxplot(F.wga$raw.count,col=c("10"),outcol=c("10"), names=c("raw-reads"),  cex.axis=1,main="read count",ylab="Number of reads",xlab= "Raw-reads",varwidth=TRUE)
+dev.off()
+
+pdf(paste0(targetDir,'usable read overall (ch3).pdf'))
+boxplot( F.wga$usable.count,col=c("4"),outcol=c("4"), names=c("usable-reads"),  cex.axis=1,main="read count",ylab="Number of reads",xlab="Usbale-reads",varwidth=TRUE)
+dev.off()
+
 #just WGA
 pdf(paste0(targetDir2,'usable read count (wga).pdf'))
 ggplot(T.wga,aes(sampleId,usable.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
