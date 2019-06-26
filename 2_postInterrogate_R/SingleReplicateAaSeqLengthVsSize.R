@@ -81,7 +81,7 @@ for (i in 1:length(datalist)){
         names(colors) <- tt$aaSeq
         #plot
         plotname=paste(paste0(loci[j]),"Aa's length vs. size")
-        p<-ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = FALSE))+guides(fill=F)+scale_fill_manual(values=tt$color)+xlim(1,35)+ggtitle(plotname)
+        p<-ggplot(tt,aes(length,size,fill=aaSeq))+geom_col(position = position_stack(reverse = FALSE))+guides(fill=F)+scale_fill_manual(values=tt$color)+xlim(3,30)+ggtitle(plotname)
         plotlist[[j]]<-ggplotGrob(p)
     }
     pdf(paste0(outpath,"/cdrAaSeqByAaLength_",files_short[i],"_size25_unicolor.pdf"))
