@@ -166,7 +166,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
       plotname=paste("Aa's frequency between S1:",paste0(my.sample.1),"and S2:",paste0(my.sample.2))
       ggplot(data=dfnew4.final, aes(y = value, x = variable, fill = grp),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
         scale_fill_manual(values=colors) + guides(fill=F,color=F)  + facet_grid( ~ length, switch = "both") + ggtitle(plotname) + theme_grey(base_size=26) + theme(panel.spacing = unit(0, "lines")) + 
-        xlab("samples in different Aa lengths") + ylab("percentage %") + xlim(3,30)
+        scale_x_discrete(name="samples in different Aa lengths",limits=c(3,30)) + ylab("percentage %") + xlim(3,30)
       # empty table list will be skipped
     }  else  {
       next
