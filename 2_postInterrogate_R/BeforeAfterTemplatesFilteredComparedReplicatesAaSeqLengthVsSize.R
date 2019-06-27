@@ -162,11 +162,12 @@ for (m in seq(from=1,to=length(datalist),by=2)){
       dfnew4.final$grp <- factor(dfnew4.final$grp, levels=rev(unique(dfnew4.final$grp)))
       colors<-dfnew4.final$color
       names(colors) <- dfnew4.final$grp
+      dfnew4.final2<-dfnew4.final[dfnew4.final$length > 3 & dfnew4.final$length < 31,c("aaSeq","length","variable","value","color","grp")]
       # plot
       plotname=paste("Aa's frequency between S1:",paste0(my.sample.1),"and S2:",paste0(my.sample.2))
-      ggplot(data=dfnew4.final, aes(y = value, x = variable, fill = grp),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
+      ggplot(data=dfnew4.final2, aes(y = value, x = variable, fill = grp),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
         scale_fill_manual(values=colors) + guides(fill=F,color=F)  + facet_grid( ~ length, switch = "both") + ggtitle(plotname) + theme_grey(base_size=26) + theme(panel.spacing = unit(0, "lines")) + 
-        scale_x_discrete(name="samples in different Aa lengths",limits=c(3,30)) + ylab("percentage %") + xlim(3,30)
+        xlab("samples in different Aa lengths") + ylab("percentage %") 
       # empty table list will be skipped
     }  else  {
       next
