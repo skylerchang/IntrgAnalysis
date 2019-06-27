@@ -144,7 +144,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     dfnew4.final$grp <- factor(dfnew4.final$grp, levels=rev(unique(dfnew4.final$grp)))
     colors<-dfnew4.final$color
     names(colors) <- dfnew4.final$grp
-    dfnew4.final2<-dfnew4.final[dfnew4.final$length > 3 & dfnew4.final$length < 31,c("aaSeq","length","variable","value","color","grp")]
+    dfnew4.final2<-dfnew4.final[dfnew4.final$length > 2 & dfnew4.final$length < 31,c("aaSeq","length","variable","value","color","grp")]
     # plot
     plotname=paste("Aa's frequency in", paste0(loci[j]),"between S1:",paste0(my.sample.1),"and S2:",paste0(my.sample.2))
     p<-ggplot(data=dfnew4.final2, aes(y = value, x = variable, fill = grp),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
