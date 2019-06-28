@@ -4,6 +4,7 @@ library(RColorBrewer)
 library(reshape2)
 library(gsubfn)
 library(gridExtra)
+library(ggplot2)
 
 
 #*************************** adjust settings ************************
@@ -40,5 +41,12 @@ ggplot(L,aes(locus.Ratio,submission))+geom_point()
 dev.off()
 #log axis 
 pdf("../Results/locus ratio(log).pdf")
-ggplot(L,aes(locus.Ratio,submission))+geom_point()+scale_x_log10()
+ggplot(L,aes(locus.Ratio,submission))+geom_point()+scale_x_log10()+ geom_vline(xintercept = 1)
 dev.off()
+
+
+#summary
+summary(L$mean.IGH)
+summary(L$mean.TRB)
+summary(L$locus.Ratio)
+
