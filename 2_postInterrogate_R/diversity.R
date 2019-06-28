@@ -35,6 +35,10 @@ length(files_short)
 templateSummary<-tibble()
 diversity<-tibble()
 
+#tibbles to aggregate the data from each loop
+data.woTemp<-tibble()
+data.tempOnly<-tibble()
+
 included<-c("Berzitis-Lucky","Henriques-Miyuki","Mckechnie-Coyote","OWN33-PAT1","Regier-Addy","Singleton-Zoya","White-Danny","Zehr-Murphy")
 
 for (i in 1:length(datalist)){  
@@ -55,18 +59,18 @@ for (i in 1:length(datalist)){
   file<-sub("k9-pc_D16-07","D16-07",file)
   file<-sub("k9-nt-st_H2O","ntc",file)
   file<-sub("k9-nt_H2O","ntc-st",file)
-  sampleId<-sub("_.*$","",file)
-  sampleName<-sub("^.*_","",file)
+  a$sampleId<-sub("_.*$","",file)
+  a$sampleName<-sub("^.*_","",file)
   
   #============ extract replicate & sample =======
-  replicate<-ifelse(grepl("D[0-9]+P[0-9]*[02468]C",sampleId),"rep1","rep2")
+  a$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[13579]C",a$sampleId),"rep1","rep2")
   if(sampleNoCodesForFraction==T){
-    fraction<-ifelse(grepl("-1D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$",sampleId),"fraction1","fraction2")
+    a$fraction<-ifelse(grepl("-1D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$",a$sampleId),"fraction1","fraction2")
   }else{
-    fraction<-"fraction1"
+    a$fraction<-"fraction1"
   }
-  sampleIdShort<-sub("D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$","",sampleId)
-  submission<-sub("-[0-9a-zA-Z]+$","",sampleIdShort)
+  a$sampleIdShort<-sub("D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$","",a$sampleId)
+  a$submission<-sub("-[0-9a-zA-Z]+$","",a$sampleIdShort)
   
   #============ filter seqs by seqs & ^C.{3,30}[FW]$ =======
   total<-nrow(a)
@@ -76,7 +80,7 @@ for (i in 1:length(datalist)){
   a<-a[grepl("^C.{3,30}[FW]$",a$aaSeq),]
   if(nrow(a)==0){next}
   
-  #============ check for templates =======
+  #============ split dataset into +/- templates =======
   a$template<-'no'
   #Akash‘s templates
   a$template[grepl("TGTGCATCACGACACAGTGGTCTGG",a$completeNtSeq)]<-'t1'
@@ -88,8 +92,13 @@ for (i in 1:length(datalist)){
   a$template[grepl("TGTGAGGAGTCCGTAGAGAGAGGAGTCCAGCGTAGCCATGCCTAAGGAGTCCCAGCCTCGGTAGAGAGAGCGCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ6'
   a$template[grepl("TGTAAGGAGTAACTGCATAACTGCATACTAAGCCTAAGGAGTATGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ4'
   a$template[grepl("TGTGTGCCTCTTTCCTCTACTAGATCGCCTCTCTATTATCCTCTAGAGTAGAGTAAGGAGTAGATCGCTATCCTCTGTAAGGAGTCCTCTACCTGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ6'
+  
+  #split a into w/o template and template only
   a.woTemp<-a[a$template=='no',]
   a.tempOnly<-a[a$template!='no',]
+  
+  data.woTemp<-bind_rows(data.woTemp,a.woTemp)
+  data.tempOnly<-bind_rows(data.tempOnly,a.tempOnly)
   
   #============ summarize templates for sample and store in tibble =======
   temp<-as_tibble(ddply(a.tempOnly[,c("template","size")],"template",numcolwise(sum)))
@@ -118,6 +127,36 @@ for (i in 1:length(datalist)){
     diversity<-bind_rows(diversity,temp)
   }
 }
+
+#============ locus stats ==========
+wot<-data.woTemp[data.woTemp$vAndJchainSimplified=='IGH' | data.woTemp$vAndJchainSimplified=='TRB',]
+
+wot.summary<-as_tibble(ddply(wot,c("vAndJchainSimplified","submission","replicate","fraction"),numcolwise(sum)))
+wot.summary<-subset(wot.summary,select=-aaLength)
+
+pdf("../Results/locusSummary.pdf")
+ggplot(wot.summary,aes(vAndJchainSimplified,size,fill=replicate))+geom_col(position=position_dodge(preserve="single"))+facet_wrap(~submission)
+dev.off()
+
+#convert to wide format
+x<-'IGH'
+transformToWide<-function(x){
+  wot.summary.sub<-wot.summary[wot.summary$vAndJchainSimplified==x,]
+  wot.summary.sub<-subset(wot.summary.sub,select=-vAndJchainSimplified)
+  dcast(wot.summary.sub,submission+fraction~replicate,value.var="size")
+  #colnames(wot.wide)[3:4]<-c(paste0(x,".rep1"),paste0(x,".rep2"))
+}
+
+igh<-transformToWide("IGH")
+trb<-transformToWide("TRB")
+c<-merge(igh,trb,by=c("submission","fraction"))
+colnames(c)[3:6]<-c("IGH.rep1","IGH.rep2","TRB.rep1","TRB.rep2")
+
+#print to xlsx
+wb<-createWorkbook()
+addWorksheet(wb,"summary")
+writeData(wb,"summary",c)
+saveWorkbook(wb,"../Results/locusSummary.xlsx",overwrite = T)
 
 #============= diversity summary ===========
 d<-diversity#[rowSums(is.na(diversity)),]
