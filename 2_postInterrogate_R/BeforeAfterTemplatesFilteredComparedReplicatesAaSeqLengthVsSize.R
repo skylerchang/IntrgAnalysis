@@ -39,13 +39,15 @@ n<-100
 datalist<-d[[1]]
 #sample names are stored separately in a vector
 files_short<-d[[2]]
-
+loci<-c("TRB","IGH")
+for (k in 1:length(loci)) {
 for (m in seq(from=1,to=length(datalist),by=2)){
   my.sample.1<- files_short[m]
   my.sample.2<- files_short[m+1]
-  name_list<-list(my.sample.1,my.sample.2)
-  files_shortA<- gsub("-[AB].*","",my.sample.1)
-  full_names<- gsub("_S.","",my.sample.1)
+  files_shortA<- gsub(".*_","",my.sample.1)
+  files_shortB<- gsub(".*_","",my.sample.2)
+  full_names1<- gsub("\\d*-\\d*-\\w*_","",my.sample.1)
+  full_names2<- gsub("_.*","",full_names1)
   compare_list<-list(datalist[[m]],datalist[[(m+1)]])
   
     tabletempw<-list()
@@ -56,6 +58,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
       a <- subset(a,(a$aaSeq!="noju"))
       tabletempw[[i]]<-a
       #============ check for templates =======
+      if (nrow(a)>0) {
       a$template<-'no'
       #Akash‘s templates
       a$template[grepl("TGTGCATCACGACACAGTGGTCTGG",a$completeNtSeq)]<-'t1'
@@ -69,12 +72,15 @@ for (m in seq(from=1,to=length(datalist),by=2)){
       a$template[grepl("TGTGTGCCTCTTTCCTCTACTAGATCGCCTCTCTATTATCCTCTAGAGTAGAGTAAGGAGTAGATCGCTATCCTCTGTAAGGAGTCCTCTACCTGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ6'
       a.woTemp<-a[a$template=='no',]
       tabletempwo[[i]]<-a.woTemp
+    } else {
+      tabletempwo[[i]]<-a
     }
+      }
     create.stackedcomparebars<-function(table) {
       tablelist<-list()
       for (j in 1:length(table)){
-        t<-table[[j]]
-      tt<-t[t$vAndJchainSimplified=="IGH",c("aaSeq","size")]
+      t<-table[[j]]
+      tt<-t[t$vAndJchainSimplified==loci[k],c("aaSeq","size")]
       tt<-tt[!is.na(tt$aaSeq),]
       #collapse lines with identical 'aaSeq' and sum up 'size'
       tt<-as_tibble(ddply(tt,"aaSeq",numcolwise(sum)))
@@ -164,20 +170,21 @@ for (m in seq(from=1,to=length(datalist),by=2)){
       names(colors) <- dfnew4.final$grp
       dfnew4.final2<-dfnew4.final[dfnew4.final$length > 2 & dfnew4.final$length < 31,c("aaSeq","length","variable","value","color","grp")]
       # plot
-      plotname=paste("Aa's frequency between S1:",paste0(my.sample.1),"and S2:",paste0(my.sample.2))
+      plotname=paste(loci[k],"Aa's frequency between",full_names2,paste0(files_shortA),"(S1)"," VS ",paste0(files_shortB),"(S2)")
       ggplot(data=dfnew4.final2, aes(y = value, x = variable, fill = grp),borders="white") +  geom_col(position = position_stack(reverse = FALSE)) + 
         scale_fill_manual(values=colors) + guides(fill=F,color=F)  + facet_grid( ~ length, switch = "both") + ggtitle(plotname) + theme_grey(base_size=26) + theme(panel.spacing = unit(0, "lines")) + 
         xlab("samples in different Aa lengths") + ylab("percentage %") 
-      # empty table list will be skipped
+      # empty table list will be showed in a white paper
     }  else  {
-      next
+      ggplot() + theme_void()
     }
     }
     create.stackedcomparebars(table=tabletempw)
-    ggsave(paste0(outpath1,"/NonfilteredComparison_",my.sample.1,"VS",my.sample.2,".pdf"),width=26,height=38)
+    ggsave(paste0(outpath1,"/NonfilteredComparison_",loci[k],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf"),width=26,height=38)  
     create.stackedcomparebars(table=tabletempwo)
-    ggsave(paste0(outpath2,"/FilteredComparison_",my.sample.1,"VS",my.sample.2,".pdf"),width=26,height=38)
+    ggsave(paste0(outpath2,"/FilteredComparison_",loci[k],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf"),width=26,height=38)
   if (m > length(datalist)) {
     break
   }   
 }
+  }
