@@ -40,11 +40,13 @@ pdf("../Results/locus ratio.pdf")
 ggplot(L,aes(locus.Ratio,submission))+geom_point()
 dev.off()
 #log axis 
-pdf("../Results/locus ratio(log).pdf")
+pdf("../Results/locus ratio(log-axis).pdf")
 ggplot(L,aes(locus.Ratio,submission))+geom_point()+scale_x_log10()+ geom_vline(xintercept = 1)
 dev.off()
-
-
+#log transformation
+pdf("../Results/locus ratio(log).pdf")
+ggplot(L,aes(log(locus.Ratio),submission))+geom_point()+ geom_vline(xintercept = 0)
+dev.off()
 #summary
 summary(L$mean.IGH)
 summary(L$mean.TRB)
