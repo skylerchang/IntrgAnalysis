@@ -14,7 +14,7 @@ getwd()
 
 #=========== adjust =============
 
-sampleNoCodesForFraction<-T        #T or F
+sampleNoCodesForFraction<-F        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPath<-'../Results/Diversity/'
@@ -123,8 +123,8 @@ for (i in 1:length(datalist)){
     clonotypeCount<-nrow(aa)
     effectiveSpecies<-exp(aa.shannon)
     
-    temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=submission,sampleIdShort=sampleIdShort,size=totalSize,clonotypeCount=clonotypeCount,effectiveSpecies=effectiveSpecies)
-    diversity<-bind_rows(diversity,temp)
+    #temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=aa$submission,size=totalSize,clonotypeCount=clonotypeCount,effectiveSpecies=effectiveSpecies)
+    #diversity<-bind_rows(diversity,temp)
   }
 }
 
@@ -136,6 +136,11 @@ wot.summary<-subset(wot.summary,select=-aaLength)
 
 pdf("../Results/locusSummary.pdf")
 ggplot(wot.summary,aes(vAndJchainSimplified,size,fill=replicate))+geom_col(position=position_dodge(preserve="single"))+facet_wrap(~submission)
+dev.off()
+
+wot.test<-wot.summary[-c(47,47,59,60,115,116,127,128),]
+pdf("../Results/locusSummary(19-018077,18-095326 removed).pdf")
+ggplot(wot.test,aes(vAndJchainSimplified,size,fill=replicate))+geom_col(position=position_dodge(preserve="single"))+facet_wrap(~submission)
 dev.off()
 
 #convert to wide format
