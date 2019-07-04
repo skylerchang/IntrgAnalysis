@@ -14,7 +14,7 @@ getwd()
 
 #=========== adjust =============
 
-sampleNoCodesForFraction<-F        #T or F
+sampleNoCodesForFraction<-T        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPath<-'../Results/Diversity/'
@@ -305,7 +305,7 @@ files<-list.files(targetDir,pattern = "^locus.*xlsx")
 
 j<-1
 j<-2
-
+j<-4
 L<-readxl::read_excel(paste0(targetDir,files[j]))
 
 # adding the means 
