@@ -124,7 +124,7 @@ for (i in 1:length(files_short)){
     invsimpson<-diversity(aa$size,index = "invsimpson")
     totalSizeByLocus<-sum(aa$size)
     clonotypeCountByLocus<-nrow(aa)
-    effectiveSpecies<-exp(aa.shannon)
+    effectiveSpecies<-exp(shannon)
     
     temp<-tibble(shannon=shannon,simpson=simpson,invsimpson=invsimpson,sample=files_short[i],locus=loci[j],replicate=a$replicate[1],submission=a$submission[1],size=totalSizeByLocus,clonotypeCount=clonotypeCountByLocus,effectiveSpecies=effectiveSpecies)
     diversity<-bind_rows(diversity,temp)
