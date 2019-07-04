@@ -32,17 +32,20 @@ length(datalist)
 files_short<-t[[2]]
 length(files_short)
 
+#filter out WGA samples
+includedLogical<-!grepl("WGA",files_short)
+files_short<-files_short[includedLogical]
+datalist<-datalist[includedLogical]
+
+#initialize tibbles
 templateSummary<-tibble()
 diversity<-tibble()
-
 #tibbles to aggregate the data from each loop
 data.woTemp<-tibble()
 data.tempOnly<-tibble()
 
-included<-c("Berzitis-Lucky","Henriques-Miyuki","Mckechnie-Coyote","OWN33-PAT1","Regier-Addy","Singleton-Zoya","White-Danny","Zehr-Murphy")
-
-for (i in 1:length(datalist)){  
-  print(files_short[[i]])
+for (i in 1:length(files_short)){  
+  print(files_short[i])
   a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
   if(nrow(a)==0){next}
   #============ standardize sample name =======
@@ -63,7 +66,7 @@ for (i in 1:length(datalist)){
   a$sampleName<-sub("^.*_","",file)
   
   #============ extract replicate & sample =======
-  a$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[13579]C",a$sampleId),"rep1","rep2")
+  a$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[13579]",a$sampleId),"rep1","rep2")
   if(sampleNoCodesForFraction==T){
     a$fraction<-ifelse(grepl("-1D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$",a$sampleId),"fraction1","fraction2")
   }else{
@@ -116,15 +119,15 @@ for (i in 1:length(datalist)){
       aa<-a.woTemp[a.woTemp$vAndJchainSimplified==loci[j],]
       }
     aa<-as_tibble(ddply(aa[,c("aaSeq","size")],"aaSeq",numcolwise(sum)))
-    aa.shannon<-diversity(aa$size,index = "shannon",base = exp(1))
-    aa.simpson<-diversity(aa$size,index = "simpson")
-    aa.invsimpson<-diversity(aa$size,index = "invsimpson")
-    totalSize<-sum(aa$size)
-    clonotypeCount<-nrow(aa)
+    shannon<-diversity(aa$size,index = "shannon",base = exp(1))
+    simpson<-diversity(aa$size,index = "simpson")
+    invsimpson<-diversity(aa$size,index = "invsimpson")
+    totalSizeByLocus<-sum(aa$size)
+    clonotypeCountByLocus<-nrow(aa)
     effectiveSpecies<-exp(aa.shannon)
     
-    #temp<-tibble(shannon=aa.shannon,simpson=aa.simpson,invsimpson=aa.invsimpson,sample=files_short[i],locus=loci[j],replicate=replicate,submission=aa$submission,size=totalSize,clonotypeCount=clonotypeCount,effectiveSpecies=effectiveSpecies)
-    #diversity<-bind_rows(diversity,temp)
+    temp<-tibble(shannon=shannon,simpson=simpson,invsimpson=invsimpson,sample=files_short[i],locus=loci[j],replicate=a$replicate[1],submission=a$submission[1],size=totalSizeByLocus,clonotypeCount=clonotypeCountByLocus,effectiveSpecies=effectiveSpecies)
+    diversity<-bind_rows(diversity,temp)
   }
 }
 
