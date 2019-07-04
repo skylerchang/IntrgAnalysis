@@ -1,54 +1,86 @@
 library(tidyverse)
-library(gridExtra)
+library(plyr)
 library(here)
-library(openxlsx)
-library(RColorBrewer)
-library(tcR)
 
-#========== adjust the following variables ================
-t<-read_rds('../../Data/clntab_RDS/clntab_vAndJ.rds')
-outpath<-'../../Results/cdrAaLengthVsAaSeq'
-loci<-c("TRA","TRB","TRD","TRG")
-#Top n clones that are being displayed in separate colors (all other clones are grey)
-n<-80
+setwd(here())
+getwd()
+
+#========== adjust variables ================
+infile<-'../Data/clntab_RDS/clntab_vAndJ.rds'
+outpath<-'../Results/RepertoireOverlap/'
 
 #==========================================================
+t<-read_rds(infile)
+dir.create(outpath,recursive=T)
+
 #datalist contains one tibble per sample
 datalist<-t[[1]]
 #sample names are stored separately in a vector
 files_short<-t[[2]]
+
 pcrId<-sub("_.*","",files_short)
+sampleId<-sub("-D[0-9]+P[0-9]+$","",pcrId)
 
 data<-tibble()
 
 for (i in 1:length(datalist)){
   t<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
-  t$sample<-pcrId[i]
+  t$pcrId<-pcrId[i]
+  t$sampleId<-sampleId[i]
   data<-bind_rows(data,t)
 }
 
-data<-data[data$aaLength<30,]
-data<-data[grepl("^C.*[FW]$",data$aaSeq),]
-data<-data[!data$vAndJchainSimplified=='TRA',]
-data.igh<-data[data$vAndJchainSimplified=='IGH',]
-data.trb<-data[data$vAndJchainSimplified=='TRB',]
-ggplot(data,aes(aaLength,size))+geom_col()+facet_wrap(~vAndJchainSimplified)
+# filter by "^C.{3,30}[FW]$" & locus
+d<-data[grepl("^C.{3,30}[FW]$",data$aaSeq),]
+d<-d[!d$vAndJchainSimplified=='TRA',]
+#create col replicate
+d$replicate<-ifelse(grepl("[13579]$",d$pcrId),"rep1","rep2")
 
-#============ igh =================
+#split by locus
+igh<-d[d$vAndJchainSimplified=='IGH',]
+trb<-d[d$vAndJchainSimplified=='TRB',]
+
+#print size distribution for igh & trb individually
+ggplot(d,aes(aaLength,size))+geom_col()+facet_wrap(~vAndJchainSimplified)
+
+#============ aalength by sample - igh =================
 pdf(paste0(outpath,'facet-igh.pdf'))
-ggplot(data.igh,aes(aaLength,size))+geom_col()+facet_wrap(~sample)
+ggplot(igh,aes(aaLength,size))+geom_col()+facet_wrap(~sample)
 dev.off()
 
-s<-data[data$aaSeq=='CGCSWSATLEYW',]
-ggplot(s,aes(sample,size))+geom_col()+coord_flip()
-library(dplyr)
-ddply(s,"sample",numcolwise(sum))
-
-#============ trb =================
-#cdr3 length for all samples
+#============ aaLength by sample - trb =================
 pdf(paste0(outpath,'facet-trb.pdf'))
-ggplot(data.trb,aes(aaLength,size))+geom_col()+facet_wrap(~sample)
+ggplot(trb,aes(aaLength,size))+geom_col()+facet_wrap(~sample)
 dev.off()
+
+#++++++++++++++++++ function - determine overlap ++++++++++++
+determineOverlap<-function(x){
+  samples<-unique(x$sampleId)
+  overlap<-tibble()
+  
+  for (i in 1:length(samples)){
+    t<-x[x$sampleId==samples[i],c("aaSeq","size","replicate")]
+    t<-as_tibble(ddply(t,c("aaSeq","replicate"),numcolwise(sum)))
+    t<-t[t$size>=10,]
+    freq<-as_tibble(count(t,vars=c("aaSeq")))
+    o<-freq$aaSeq[freq$freq>1]
+    temp<-tibble(clone=o,sampleId=samples[i])
+    overlap<-bind_rows(overlap,temp)
+  }
+  
+  f<-as_tibble(count(overlap,vars=c("clone")))
+  f[f$freq>1,]
+}
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+summary.igh<-determineOverlap(trb)
+summary.trb<-determineOverlap(igh)
+
+capture.output(summary.igh,file=paste0(outpath,'summary_igh.txt'))
+capture.output(summary.trb,file=paste0(outpath,'summary_trb.txt'))
+
+
+#====== this is (non-serious) run specific code (histiocytoma), variables are no longer up to date ======================
 
 #sample '15-094420-2D' seems clonal and has a disproportionate number of reads <- get clone
 data.trb.094420<-data.trb[grepl('15-094420-2D',data.trb$sample),]
