@@ -31,7 +31,7 @@ setwd(here())
 getwd()
 
 t<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
-outpath<-'../Results/Networkplots/'
+outpath<-'../Results/FilteredNetworkplots/'
 loci<-c("TRB","IGH")
 #Top n clones that are being displayed in separate colors (all other clones are grey)
 aanum<-100
@@ -41,19 +41,22 @@ datalist<-t[[1]]
 #sample names are stored separately in a vector
 files_short<-t[[2]]
 
-dir.create(outpath<-'../Results/Networkplots/',recursive=T)
+dir.create(outpath<-'../Results/FilteredNetworkplots/',recursive=T)
 
 ###### Compare every 2 replicates of same sample#########
 for (m in seq(from=1,to=length(datalist),by=2)) {
 my.sample.1<- files_short[m]
 my.sample.2<- files_short[m+1]
 name_list<-list(my.sample.1,my.sample.2)
-files_shortA<- gsub("-[AB].*","",my.sample.1)
-full_names<- gsub("_S.","",my.sample.1)
+files_shortA<- gsub(".*_","",my.sample.1)
+files_shortB<- gsub(".*_","",my.sample.2)
+full_names1<- gsub("\\d*-\\d*-\\w*_","",my.sample.1)  
+#full_names1<- gsub("\\d*-\\d*-\\w*-\\w*_","",my.sample.1)
+full_names2<- gsub("_.*","",full_names1)
 compare_list<-list(datalist[[m]],datalist[[(m+1)]])
 ####### test different locus ########
   for (i in 1:length(loci)) {
-      pdf((paste0(outpath,files_shortA,"-",loci[i],"_loci.pdf")),width=10,height=13)
+      pdf((paste0(outpath,"FilteredNetwork_",loci[i],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf")),width=10,height=13)
       par(mfrow=c(4,4),mar=c(1,1,1,1),oma=c(0,0,2,0))
       ############ test on Amino acid length from 8 to 23########
       for (j in seq(from=8,to=23,by=1))  {
@@ -120,7 +123,7 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
           }
         }
       }
-      mtext((paste0("Network Bubble plots of ",full_names)), outer=TRUE, cex=1,side=3)
+      mtext((paste0("Network Bubble plots: ",full_names2,":",files_shortA,"VS",files_shortB)), outer=TRUE, cex=1,side=3)
       dev.off()
       } 
        if (m > length(datalist)) {
