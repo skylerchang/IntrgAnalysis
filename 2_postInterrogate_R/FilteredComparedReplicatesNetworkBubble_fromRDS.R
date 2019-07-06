@@ -56,7 +56,7 @@ full_names2<- gsub("_.*","",full_names1)
 compare_list<-list(datalist[[m]],datalist[[(m+1)]])
 ####### test different locus ########
   for (i in 1:length(loci)) {
-      pdf((paste0(outpath,"FilteredNetwork_",loci[i],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf")),width=10,height=13)
+      pdf((paste0(outpath,"FilteredNetwork_",loci[i],"-",full_names2,"-",files_shortA,"VS",files_shortB,".pdf")),width=10,height=13)
       par(mfrow=c(4,4),mar=c(1,1,1,1),oma=c(0,0,2,0))
       ############ test on Amino acid length from 8 to 23########
       for (j in seq(from=8,to=23,by=1))  {
@@ -123,7 +123,7 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
           }
         }
       }
-      mtext((paste0("Network Bubble plots: ",full_names2,":",files_shortA,"VS",files_shortB)), outer=TRUE, cex=1,side=3)
+      mtext((paste0("Network Bubble plots: ",full_names2,"-",files_shortA,"VS",files_shortB)), outer=TRUE, cex=1,side=3)
       dev.off()
       } 
        if (m > length(datalist)) {
