@@ -26,11 +26,11 @@ setwd(here())
 getwd()
 
 d<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
-outpath1<-'../Results/NonfilteredCdrAaComparison/'
-outpath2<-'../Results/FilteredCdrAaComparison/'
+outpath1<-'../Results/Barplots_Nonfiltered/'
+outpath2<-'../Results/Barplots_Filtered/'
 
-dir.create(outpath1<-'../Results/NonfilteredCdrAaComparison/',recursive=T)
-dir.create(outpath2<-'../Results/FilteredCdrAaComparison/',recursive=T)
+dir.create(outpath1<-'../Results/Barplots_Nonfiltered/',recursive=T)
+dir.create(outpath2<-'../Results/Barplots_Filtered/',recursive=T)
 
 #Top n clones that are being displayed in separate colors (all other clones are grey)
 n<-100
@@ -46,6 +46,7 @@ for (m in seq(from=1,to=length(datalist),by=2)){
   my.sample.2<- files_short[m+1]
   files_shortA<- gsub(".*_","",my.sample.1)
   files_shortB<- gsub(".*_","",my.sample.2)
+  #full_names1<- gsub("\\d*-\\d*-\\w*-\\w*_","",my.sample.1)
   full_names1<- gsub("\\d*-\\d*-\\w*_","",my.sample.1)
   full_names2<- gsub("_.*","",full_names1)
   compare_list<-list(datalist[[m]],datalist[[(m+1)]])
@@ -180,9 +181,9 @@ for (m in seq(from=1,to=length(datalist),by=2)){
     }
     }
     create.stackedcomparebars(table=tabletempw)
-    ggsave(paste0(outpath1,"/NonfilteredComparison_",loci[k],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf"),width=26,height=38)  
+    ggsave(paste0(outpath1,"/Barplots_Nonfiltered-",loci[k],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf"),width=26,height=38)  
     create.stackedcomparebars(table=tabletempwo)
-    ggsave(paste0(outpath2,"/FilteredComparison_",loci[k],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf"),width=26,height=38)
+    ggsave(paste0(outpath2,"/Barplots_Filtered-",loci[k],"-",full_names2,":",files_shortA,"VS",files_shortB,".pdf"),width=26,height=38)
   if (m > length(datalist)) {
     break
   }   
