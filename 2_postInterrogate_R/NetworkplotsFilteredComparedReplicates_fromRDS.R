@@ -31,7 +31,7 @@ setwd(here())
 getwd()
 
 t<-read_rds('../Data/Clntab_RDS/clntab_vAndJ.rds')
-outpath<-'../Results/FilteredNetworkplots/'
+outpath<-'../Results/Networkplots_Filtered/'
 loci<-c("TRB","IGH")
 #Top n clones that are being displayed in separate colors (all other clones are grey)
 aanum<-100
@@ -41,7 +41,7 @@ datalist<-t[[1]]
 #sample names are stored separately in a vector
 files_short<-t[[2]]
 
-dir.create(outpath<-'../Results/FilteredNetworkplots/',recursive=T)
+dir.create(outpath<-'../Results/Networkplots_Filtered/',recursive=T)
 
 ###### Compare every 2 replicates of same sample#########
 for (m in seq(from=1,to=length(datalist),by=2)) {
@@ -56,14 +56,15 @@ full_names2<- gsub("_.*","",full_names1)
 compare_list<-list(datalist[[m]],datalist[[(m+1)]])
 ####### test different locus ########
   for (i in 1:length(loci)) {
-      pdf((paste0(outpath,"FilteredNetwork_",loci[i],"-",full_names2,"-",files_shortA,"VS",files_shortB,".pdf")),width=10,height=13)
+      pdf((paste0(outpath,"Networkplots_Filtered-",loci[i],"-",full_names2,"-",files_shortA,"VS",files_shortB,".pdf")),width=10,height=13)
       par(mfrow=c(4,4),mar=c(1,1,1,1),oma=c(0,0,2,0))
       ############ test on Amino acid length from 8 to 23########
       for (j in seq(from=8,to=23,by=1))  {
         for (k in 1:length(compare_list)) {
-          a <- compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","vAndJchainSimplified")]
+          a <- compare_list[[k]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
           a <- subset(a,(a$aaSeq!="noju"))
           #============ check for templates =======
+          if (nrow(a)>0) {
           a$template<-'no'
           #Akash‘s templates
           a$template[grepl("TGTGCATCACGACACAGTGGTCTGG",a$completeNtSeq)]<-'t1'
@@ -75,7 +76,10 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
           a$template[grepl("TGTGAGGAGTCCGTAGAGAGAGGAGTCCAGCGTAGCCATGCCTAAGGAGTCCCAGCCTCGGTAGAGAGAGCGCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ6'
           a$template[grepl("TGTAAGGAGTAACTGCATAACTGCATACTAAGCCTAAGGAGTATGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ4'
           a$template[grepl("TGTGTGCCTCTTTCCTCTACTAGATCGCCTCTCTATTATCCTCTAGAGTAGAGTAAGGAGTAGATCGCTATCCTCTGTAAGGAGTCCTCTACCTGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ6'
-          a.woTemp<-a[a$template=='no',] 
+          a.woTemp<-a[a$template=='no',]
+          } else {
+          a.woTemp<-a
+          }
           dd<-a.woTemp[a.woTemp$vAndJchainSimplified==loci[i],c("aaSeq","size","aaLength")]
           dd<-dd[!is.na(dd$aaSeq),]
           tt2<-as_tibble(ddply(dd,.(aaSeq,aaLength),numcolwise(sum)))
