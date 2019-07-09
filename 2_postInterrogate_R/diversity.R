@@ -40,6 +40,7 @@ datalist<-datalist[includedLogical]
 #initialize tibbles
 templateSummary<-tibble()
 diversity<-tibble()
+readCount<-tibble()
 #tibbles to aggregate the data from each loop
 data.woTemp<-tibble()
 data.tempOnly<-tibble()
@@ -47,6 +48,7 @@ data.tempOnly<-tibble()
 for (i in 1:length(files_short)){  
   print(files_short[i])
   a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
+  total<-nrow(a)
   if(nrow(a)==0){next}
   #============ standardize sample name =======
   #assume the following default format:
@@ -76,13 +78,11 @@ for (i in 1:length(files_short)){
   a$submission<-sub("-[0-9a-zA-Z]+$","",a$sampleIdShort)
   
   #============ filter seqs by seqs & ^C.{3,30}[FW]$ =======
-  total<-nrow(a)
   out<-nrow(a[!grepl("^C.{3,30}[FW]$",a$aaSeq),])
   perc<-out/total*100
   print(paste0("Filtered reads by '^C.{3,30}[FW]$': ",out,"/",total," (",perc,"%)"))
   a<-a[grepl("^C.{3,30}[FW]$",a$aaSeq),]
   if(nrow(a)==0){next}
-  
   #============ split dataset into +/- templates =======
   a$template<-'no'
   #Akash‘s templates
@@ -102,6 +102,12 @@ for (i in 1:length(files_short)){
   
   data.woTemp<-bind_rows(data.woTemp,a.woTemp)
   data.tempOnly<-bind_rows(data.tempOnly,a.tempOnly)
+  
+  template<-nrow(a.tempOnly)
+  noTemplate<-nrow(a.woTemp)
+  
+  temp.count<-tibble(sample=a$sampleIdShort[1],total=total,CWFilterOut=out,template=template,noTemplate=noTemplate)
+  readCount<-bind_rows(readCount,temp.count)
   
   #============ summarize templates for sample and store in tibble =======
   temp<-as_tibble(ddply(a.tempOnly[,c("template","size")],"template",numcolwise(sum)))
@@ -126,10 +132,21 @@ for (i in 1:length(files_short)){
     clonotypeCountByLocus<-nrow(aa)
     effectiveSpecies<-exp(shannon)
     
-    temp<-tibble(shannon=shannon,simpson=simpson,invsimpson=invsimpson,sample=files_short[i],locus=loci[j],replicate=a$replicate[1],submission=a$submission[1],size=totalSizeByLocus,clonotypeCount=clonotypeCountByLocus,effectiveSpecies=effectiveSpecies)
+    temp<-tibble(shannon=shannon,simpson=simpson,invsimpson=invsimpson,sample=files_short[i],locus=loci[j],replicate=a$replicate[1],submission=a$submission[1],sampleIdShort=a$sampleIdShort[1],size=totalSizeByLocus,clonotypeCount=clonotypeCountByLocus,effectiveSpecies=effectiveSpecies)
     diversity<-bind_rows(diversity,temp)
   }
 }
+#============ read count summary ===========
+#print xlsx
+wb<-createWorkbook()
+addWorksheet(wb,"summary")
+writeData(wb,"summary",readCount)
+saveWorkbook(wb,"../Results/ReadCounts/readCountSummary.xlsx",overwrite=T)
+
+readCount.long<-melt(readCount[,c(1,3:5)],id.vars="sample")
+pdf('../Results/ReadCounts/readCountSummary.pdf')
+ggplot(readCount.long,aes(sample,value,fill=variable))+geom_col()+coord_flip()
+dev.off()
 
 #============ locus stats ==========
 wot<-data.woTemp[data.woTemp$vAndJchainSimplified=='IGH' | data.woTemp$vAndJchainSimplified=='TRB',]
@@ -315,6 +332,9 @@ dev.off()
 
 #======== template summary ===========
 templateSummary
+pdf('../Results/Templates/templatesBytemplate.pdf')
 ggplot(templateSummary,aes(template,size,fill=sample))+geom_col()+coord_flip()
+dev.off()
+pdf('../Results/Templates/templatesBySample.pdf')
 ggplot(templateSummary,aes(sample,size,fill=template))+geom_col()+coord_flip()
-
+dev.off()
