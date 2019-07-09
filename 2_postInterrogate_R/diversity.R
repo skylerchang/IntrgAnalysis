@@ -13,8 +13,8 @@ setwd(here())
 getwd()
 
 #=========== adjust =============
-
-sampleNoCodesForFraction<-T        #T or F
+run<-30
+sampleNoCodesForFraction<-F        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPath<-'../Results/Diversity/'
@@ -137,17 +137,18 @@ wot<-data.woTemp[data.woTemp$vAndJchainSimplified=='IGH' | data.woTemp$vAndJchai
 wot.summary<-as_tibble(ddply(wot,c("vAndJchainSimplified","submission","replicate","fraction"),numcolwise(sum)))
 wot.summary<-subset(wot.summary,select=-aaLength)
 
-pdf("../Results/locusSummary.pdf")
+pdf("../Results/LocusStats/locusSummary_bySample.pdf")
 ggplot(wot.summary,aes(vAndJchainSimplified,size,fill=replicate))+geom_col(position=position_dodge(preserve="single"))+facet_wrap(~submission)
 dev.off()
 
-wot.test<-wot.summary[-c(47,47,59,60,115,116,127,128),]
-pdf("../Results/locusSummary(19-018077,18-095326 removed).pdf")
-ggplot(wot.test,aes(vAndJchainSimplified,size,fill=replicate))+geom_col(position=position_dodge(preserve="single"))+facet_wrap(~submission)
-dev.off()
+if (run==28){
+  wot.test<-wot.summary[-c(47,47,59,60,115,116,127,128),]
+  pdf("../Results/LocusStats/locusSummary(19-018077,18-095326 removed).pdf")
+  ggplot(wot.test,aes(vAndJchainSimplified,size,fill=replicate))+geom_col(position=position_dodge(preserve="single"))+facet_wrap(~submission)
+  dev.off()
+}
 
-#convert to wide format
-x<-'IGH'
+#convert to wide format - define function
 transformToWide<-function(x){
   wot.summary.sub<-wot.summary[wot.summary$vAndJchainSimplified==x,]
   wot.summary.sub<-subset(wot.summary.sub,select=-vAndJchainSimplified)
@@ -155,16 +156,46 @@ transformToWide<-function(x){
   #colnames(wot.wide)[3:4]<-c(paste0(x,".rep1"),paste0(x,".rep2"))
 }
 
+#convert to wide format - use function
 igh<-transformToWide("IGH")
 trb<-transformToWide("TRB")
 c<-merge(igh,trb,by=c("submission","fraction"))
 colnames(c)[3:6]<-c("IGH.rep1","IGH.rep2","TRB.rep1","TRB.rep2")
 
+#calculate replicate means
+c$mean.IGH<-(c$IGH.rep1+c$IGH.rep2)/2
+c$mean.TRB<-(c$TRB.rep1+c$TRB.rep2)/2
+
+#calculate the igh/trb ratio 
+c$locusRatio<-c$mean.IGH/c$mean.TRB
+
+#plot ratios against each other 
+#no log
+pdf("../Results/LocusStats/locusRatio.pdf")
+ggplot(c,aes(locusRatio,submission))+geom_point()
+dev.off()
+#log axis 
+pdf("../Results/LocusStats/locusRatio-logAxis.pdf")
+ggplot(c,aes(locusRatio,submission))+geom_point()+scale_x_log10()+ geom_vline(xintercept = 1)
+dev.off()
+#log transformation
+pdf("../Results/LocusStats/locusRatio-logTransform.pdf")
+ggplot(c,aes(log(locusRatio),submission))+geom_point()+ geom_vline(xintercept = 0)
+dev.off()
+
+#summary
+summary(c$mean.IGH)
+summary(c$mean.TRB)
+summary(c$locus.Ratio)
+
+#save as rds
+saveRDS(c,"../Results/LocusStats/locusSummary.rds")
+
 #print to xlsx
 wb<-createWorkbook()
 addWorksheet(wb,"summary")
 writeData(wb,"summary",c)
-saveWorkbook(wb,"../Results/locusSummary.xlsx",overwrite = T)
+saveWorkbook(wb,"../Results/LocusStats/locusSummary.xlsx",overwrite = T)
 
 #============= diversity summary ===========
 d<-diversity#[rowSums(is.na(diversity)),]
@@ -286,54 +317,4 @@ dev.off()
 templateSummary
 ggplot(templateSummary,aes(template,size,fill=sample))+geom_col()+coord_flip()
 ggplot(templateSummary,aes(sample,size,fill=template))+geom_col()+coord_flip()
-
-
-#locus analysis 
-#*************************** adjust settings ************************
-sampleNoCoding<-1
-
-#********************************************************************
-setwd(here())
-getwd()
-
-targetDir<-'../Results/'
-
-files<-list.files(targetDir,pattern = "^locus.*xlsx")
-#pick which file to use
-# 1 = runs 21, 24, 26
-# 2 = run 28
-
-j<-1
-j<-2
-j<-4
-L<-readxl::read_excel(paste0(targetDir,files[j]))
-
-# adding the means 
-L$mean.IGH<-(L$IGH.rep1+L$IGH.rep2)/2
-L$mean.TRB<-(L$TRB.rep1+L$TRB.rep2)/2
-
-#calculate the ratio 
-L$locus.Ratio<-L$mean.IGH/L$mean.TRB
-
-#plot ratios agaisnt each other 
-#no log
-pdf("../Results/locus ratio.pdf")
-ggplot(L,aes(locus.Ratio,submission))+geom_point()
-dev.off()
-#log axis 
-pdf("../Results/locus ratio(log-axis).pdf")
-ggplot(L,aes(locus.Ratio,submission))+geom_point()+scale_x_log10()+ geom_vline(xintercept = 1)
-dev.off()
-#log transformation
-pdf("../Results/locus ratio(log).pdf")
-ggplot(L,aes(log(locus.Ratio),submission))+geom_point()+ geom_vline(xintercept = 0)
-dev.off()
-#summary
-summary(L$mean.IGH)
-summary(L$mean.TRB)
-summary(L$locus.Ratio)
-
-# save as RDS file 
-
-saveRDS(L, file = "LocusRatiodata.rds")
 
