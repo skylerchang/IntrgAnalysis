@@ -419,6 +419,19 @@ pdf(paste0(targetDir2,'raw read overall (non-wga).pdf'))
 boxplot(F.wga.ca$raw.count, F.wga.cf$raw.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="Raw read count",ylab="Number of raw reads",xlab="Method",varwidth=TRUE)
 dev.off()
 
+#run 4 (no fraction)-> read counts
+pdf(paste0(targetDir2,'read count (run 4).pdf'))
+boxplot(F.wga$raw.count, F.wga.cf$usable.count,col=c("10","4"),outcol=c("10","4"), names=c("raw reads", "usable reads"),  cex.axis=1,main="read counts",ylab="Number of reads",varwidth=TRUE)
+dev.off()
+  #raw reads
+pdf(paste0(targetDir2,'raw read count (run 4).pdf'))
+boxplot(F.wga$raw.count,col=c("10"),outcol=c("10"), names=c("raw reads"),  cex.axis=1,main="raw read counts",ylab="Number of  reads",varwidth=TRUE)
+dev.off()
+  #usable reads
+pdf(paste0(targetDir2,'usable read count (run 4).pdf'))
+boxplot(F.wga.cf$usable.count,col=c("4"),outcol=c("4"), names=c( "usable reads"),  cex.axis=1,main="Usable read counts",ylab="Number of reads",varwidth=TRUE)
+dev.off()
+
 #just WGA
 pdf(paste0(targetDir2,'raw reads count (wga).pdf'))
 ggplot(T.wga,aes(sampleId,raw.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -847,6 +860,15 @@ pdf(paste0(targetDir,'clonotype count overall (non-wga).pdf'))
 boxplot(F.wga.ca$cln.count, F.wga.cf$cln.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="clonotype",ylab="cln count",xlab="Method",varwidth=TRUE)
 dev.off()
 
+#for run 4 
+pdf(paste0(targetDir,'clonotype count run 4 .pdf'))
+boxplot(F.wga$cln.count, col=c("10"),outcol=c("10"),  cex.axis=1,main="clonotype",ylab="cln count",varwidth=TRUE)
+dev.off()
+
+pdf(paste0(targetDir2,'clonotype count (all samples- run 4).pdf'))
+ggplot(F.wga,aes(cln.count,submissionId, ))+geom_point()+ ylab("Clonotype count") + ggtitle("Clonotype count")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 #just WGA
 pdf(paste0(targetDir2,'cln clonotype count (wga).pdf'))
 ggplot(T.wga,aes(sampleId,cln.count,fill=sampleFraction))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -1019,6 +1041,10 @@ dev.off()
 pdf(paste0(targetDir2,'effective species (all samples- bargraph).pdf'))
 ggplot(t,aes(wga,effective_species.count,fill=sampleFraction))+facet_grid(.~submissionId)+geom_bar(position = "dodge", stat="identity")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 dev.off()
+#for run 4
+pdf(paste0(targetDir,'effective species count run 4 .pdf'))
+boxplot(F.wga$effective_species.count, col=c("10"),outcol=c("10"),  cex.axis=1,main="effective species count",ylab="effective species ",varwidth=TRUE)
+dev.off()
 
 #just non-wga 
 pdf(paste0(targetDir,'boxplot effective species (non-wga).pdf'))
@@ -1094,6 +1120,11 @@ dev.off()
 
 pdf(paste0(targetDir2,'alpha diveraity overall (wga).pdf'))
 boxplot(T.wga.ca$alpha_diversity.count, T.wga.cf$alpha_diversity.count,col=c("10","4"),outcol=c("10","4"), names=c("cell-associated", "cell-free"),  cex.axis=1,main="alpha diversity",ylab="count",xlab="Method",varwidth=TRUE)
+dev.off()
+
+# for run 4 
+pdf(paste0(targetDir,'alpha diversity run 4 .pdf'))
+boxplot(F.wga$alpha_diversity.count, col=c("10"),outcol=c("10"),  cex.axis=1,main="alpha diveristy",ylab="diveristy index",varwidth=TRUE)
 dev.off()
 
 #boxplot inculding all sample fractions 
@@ -1853,6 +1884,24 @@ print(p1, vp = vplayout(1,1))
 print(p2, vp = vplayout(2,1))
 print(p3, vp = vplayout(3,1))
 dev.off()
+
+#for run 4 
+#facet plot by sample fraction
+fractionreads<-F.wga[,c("submissionId","raw.count","usable.count")]
+f.long=as_tibble(melt(fractionreads,id=c("submissionId")))
+mf<- merge(F.wga, f.long, by = "submissionId", sort = TRUE)
+pdf(paste0(targetDir2,'Reads vs lymps  (run 4).pdf'))
+ggplot(mf,aes(pred.lym.cyto,value,color=variable))+xlab("lymphocyte count (cells)")+ ylab(" read counts") + ggtitle("lymphcyte count vs  read count") +scale_color_discrete( name = "reads",labels = c("raw", "usable")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
+#above graph but fro DNA vs read count 
+fractionDNA<-F.wga[,c("submissionId","raw.count","usable.count")]
+f.long=as_tibble(melt(fractionDNA,id=c("submissionId")))
+mf<- merge(F.wga, f.long, by = "submissionId", sort = TRUE)
+pdf(paste0(targetDir2,'Reads vs DNA  (run 4).pdf'))
+ggplot(mf,aes(pre.dna,value,color=variable))+xlab("DNA yields (ng/ul)")+ ylab(" read counts") + ggtitle("DNA yields vs  read count") +scale_color_discrete( name = "reads",labels = c("raw", "usable")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+dev.off()
+
 
 #usable reads percent
 cor.test(F.wga$usable.percent,F.wga$pred.lym.cyto)
