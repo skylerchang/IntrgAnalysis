@@ -16,7 +16,7 @@ library(RColorBrewer)
 library(reshape2)
 library(gsubfn)
 library(gridExtra)
-
+library(grid)
 
 #*************************** adjust settings ************************
 #Is SampleNo coding? values: T/F; (e.g. MRD - yes: jake-01.1 (pbmcs), jake-01.2 (plasma); Histiocytoma - no)
@@ -1799,7 +1799,7 @@ abline(line)
 anova(line)
 
 #=================================================================================
-#predicted cyto
+#predicted cyto lymphocytes
 #=================================================================================
 #bargraph
 ggplot(t,aes(submissionId,pred.lym.cyto))+geom_bar(position = "dodge",stat="identity")+theme(axis.text.x = element_text(angle = 90,hjust = 1))
@@ -1821,6 +1821,38 @@ dev.off()
 
 cor.test(F.wga.ca$raw.count,F.wga.ca$pred.lym.cyto)
 cor.test(F.wga.cf$raw.count,F.wga.cf$pred.lym.cyto)
+
+#facet plot by sample fraction
+p1<- ggplot(F.wga,aes(pred.lym.cyto,raw.count,color=sampleFraction))+facet_grid(.~sampleFraction) +xlab("Lymphocyte abundace (cells)")+ ylab("Raw reads") + ggtitle("lymphcyte count vs raw count") +scale_color_discrete( name = "Sample Fraction",labels = c("ca", "cf")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p2<- ggplot(F.wga,aes(pred.lym.cyto,usable.count,color=sampleFraction))+facet_grid(.~sampleFraction) +xlab("Lymphocyte abundace (cells)")+ ylab("Usable reads") + ggtitle("lymphcyte count vs usable read count") +scale_color_discrete( name = "Sample Fraction",labels = c("ca", "cf")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+fractionreads<-F.wga[,c("submissionId","raw.count","usable.count")]
+f.long=as_tibble(melt(fractionreads,id=c("submissionId")))
+mf<- merge(F.wga, f.long, by = "submissionId", sort = TRUE)
+p3<- ggplot(mf,aes(pred.lym.cyto,value,color=variable))+facet_grid(.~variable) +xlab("Lymphocyte abundace (cells)")+ ylab("reads") + ggtitle("lymphcyte count vs read count") +scale_color_discrete( name = "read count",labels = c("raw", "usable")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+pdf(paste0(targetDir2,'Reads vs lymphocyte abundace .pdf'))
+grid.newpage()
+pushViewport( viewport( layout = grid.layout(3,1, widths = c(.5,.5))))
+vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
+print(p1, vp = vplayout(1,1))
+print(p2, vp = vplayout(2,1))
+print(p3, vp = vplayout(3,1))
+dev.off()
+
+#above graph but fro DNA vs read count 
+p1<- ggplot(F.wga,aes(pre.dna,raw.count,color=sampleFraction))+facet_grid(.~sampleFraction) +xlab("DNA yield (ng/ul)")+ ylab("Raw reads") + ggtitle("DNA yields vs raw count") +scale_color_discrete( name = "Sample Fraction",labels = c("ca", "cf")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p2<- ggplot(F.wga,aes(pre.dna,usable.count,color=sampleFraction))+facet_grid(.~sampleFraction) +xlab("DNA yield (ng/ul)")+ ylab("Usable reads") + ggtitle("DNA yields vs usable read count") +scale_color_discrete( name = "Sample Fraction",labels = c("ca", "cf")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+fractionDNA<-F.wga[,c("submissionId","raw.count","usable.count")]
+f.long=as_tibble(melt(fractionDNA,id=c("submissionId")))
+mf<- merge(F.wga, f.long, by = "submissionId", sort = TRUE)
+p3<- ggplot(mf,aes(pre.dna,value,color=sampleFraction))+facet_grid(.~variable)+xlab("Lymphocyte abundace (cells)")+ ylab("Usable reads") + ggtitle("lymphcyte count vs usable read count") +scale_color_discrete( name = "Sample Fraction",labels = c("ca", "cf")) + geom_point(size=2)+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+pdf(paste0(targetDir2,'Reads vs DNA .pdf'))
+grid.newpage()
+pushViewport( viewport( layout = grid.layout(3,1, widths = c(.5,.5))))
+vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
+print(p1, vp = vplayout(1,1))
+print(p2, vp = vplayout(2,1))
+print(p3, vp = vplayout(3,1))
+dev.off()
 
 #usable reads percent
 cor.test(F.wga$usable.percent,F.wga$pred.lym.cyto)
