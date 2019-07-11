@@ -1321,9 +1321,11 @@ anova(line)
 
 #clonotype count
 cor.test(F.wga$cln.count,F.wga$pre.dna)
-plot(F.wga$cln.count,F.wga$pre.dna)
-line<-lm(F.wga$pre.dna~F.wga$cln.count)
+pdf(paste0(targetDir,'DNA yields vs clonotype count (run 4).pdf'))
+plot(F.wga$pre.dna,F.wga$cln.count,main = ("DNA yields vs clonotype count"), xlab = ("DNA yields(ng/ul)"),ylab = ("Clonotype count"))
+line<-lm(F.wga$cln.count~F.wga$pre.dna)
 abline(line)
+dev.off()
 anova(line)
 
 cor.test(F.wga.ca$cln.count,F.wga.ca$pre.dna)
@@ -1331,9 +1333,11 @@ cor.test(F.wga.cf$cln.count,F.wga.cf$pre.dna)
 
 #alpha diversity
 cor.test(F.wga$alpha_diversity.count,F.wga$pre.dna)
-plot(F.wga$alpha_diversity.count,F.wga$pre.dna)
-line<-lm(F.wga$pre.dna~F.wga$alpha_diversity.count)
+pdf(paste0(targetDir,'DNA yields vs clonotype diversity (run 4).pdf'))
+plot(F.wga$pre.dna,F.wga$alpha_diversity.count,main = ("DNA yields vs clonotype diversity"), xlab = ("DNA yields(ng/ul)"),ylab = ("Shannon diversity"))
+line<-lm(F.wga$alpha_diversity.count~F.wga$pre.dna)
 abline(line)
+dev.off()
 anova(line)
 
 cor.test(F.wga.ca$alpha_diversity.count,F.wga.ca$pre.dna)
@@ -1349,10 +1353,12 @@ anova(line)
 
 #effective species 
 cor.test(F.wga$effective_species.count,F.wga$pre.dna)
-plot(F.wga$effective_species.count,F.wga$pre.dna)
-line<-lm(F.wga$pre.dna~F.wga$effective_species.count)
+pdf(paste0(targetDir,'DNA yields vs effective species count (run 4).pdf'))
+plot(F.wga$pre.dna,F.wga$effective_species.count,main = ("DNA yields vs effective species count"), xlab = ("DNA yields(ng/ul)"),ylab = ("Effective species count"))
+line<-lm(F.wga$effective_species.count~F.wga$pre.dna)
 abline(line)
 anova(line)
+dev.off()
 
 cor.test(F.wga.ca$effective_species.count,F.wga.ca$pre.dna)
 cor.test(F.wga.cf$effective_species.count,F.wga.cf$pre.dna)
@@ -1933,9 +1939,11 @@ anova(line)
 
 #clonotype count
 cor.test(F.wga$cln.count,F.wga$pred.lym.cyto)
-plot(F.wga$cln.count,F.wga$pred.lym.cyto)
-line<-lm(F.wga$pred.lym.cyto~F.wga$cln.count)
+pdf(paste0(targetDir2,'Lymphocyte count vs clonotype count (run4) .pdf'))
+plot(F.wga$pred.lym.cyto,F.wga$cln.count,main = ("Lymphocyte count vs clonotype count"), xlab = ("Lymphocyte count (cells)"), ylab= ("Clonotype count"))
+line<-lm(F.wga$cln.count~F.wga$pred.lym.cyto)
 abline(line)
+dev.off()
 anova(line)
 
 cor.test(F.wga.ca$cln.count,F.wga.ca$pred.lym.cyto)
@@ -1944,9 +1952,11 @@ cor.test(F.wga.cf$cln.count,F.wga.cf$pred.lym.cyto)
 
 #alpha diversity
 cor.test(F.wga$alpha_diversity.count,F.wga$pred.lym.cyto)
-plot(F.wga$alpha_diversity.count,F.wga$pred.lym.cyto)
-line<-lm(F.wga$pred.lym.cyto~F.wga$alpha_diversity.count)
+pdf(paste0(targetDir2,'Lymphocyte count vs diversity index (run4) .pdf'))
+plot(F.wga$pred.lym.cyto,F.wga$alpha_diversity.count, main = ("Lymphocyte count vs clonotype diversity"), xlab = ("Lymphocyte count (cells)"), ylab= ("Shannon diversity"))
+line<-lm(F.wga$alpha_diversity.count~F.wga$pred.lym.cyto)
 abline(line)
+dev.off()
 anova(line)
 
 cor.test(F.wga.ca$alpha_diversity.count,F.wga.ca$pred.lym.cyto)
@@ -1961,10 +1971,13 @@ anova(line)
 
 #effective species 
 cor.test(F.wga$effective_species.count,F.wga$pred.lym.cyto)
-plot(F.wga$effective_species.count,F.wga$pred.lym.cyto)
-line<-lm(F.wga$pred.lym.cyto~F.wga$effective_species.count)
+pdf(paste0(targetDir2,'Lymphocyte count vs effective species (run4) .pdf'))
+plot(F.wga$pred.lym.cyto,F.wga$effective_species.count,main = ("Lymphocyte count vs effective species count"), xlab = ("Lymphocyte count (cells)"), ylab= ("Effective species (species count)"))
+line<-lm(F.wga$effective_species.count~F.wga$pred.lym.cyto)
 abline(line)
+dev.off()
 anova(line)
+
 
 cor.test(F.wga.ca$effective_species.count,F.wga.ca$pred.lym.cyto)
 cor.test(F.wga.cf$effective_species.count,F.wga.cf$pred.lym.cyto)
