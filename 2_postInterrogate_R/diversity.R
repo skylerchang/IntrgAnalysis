@@ -271,18 +271,19 @@ dev.off()
 #===============================================================
 d<-diversitySummary
 
-d.split<-split(d,d$filename)
-str(d.split)
+d.split1<-splitFilename(d)
+d.split2<-split(d.split1,d.split1$sample)
+str(d.split2)
 
 #print to xlsx
 wb<-createWorkbook()
 addWorksheet(wb,"summary")
-writeData(wb,"summary",d)
-for (i in 1:length(d.split)){
-  addWorksheet(wb,d.split[[i]]$submission[1])
-  writeData(wb,d.split[[i]]$submission[1],d.split[i],colNames = TRUE)
+writeData(wb,"summary",d.split1)
+for (i in 1:length(d.split2)){
+  addWorksheet(wb,d.split2[[i]]$sample[1])
+  writeData(wb,d.split2[[i]]$sample[1],d.split2[i],colNames = TRUE)
 }
-saveWorkbook(wb,paste0(resultsPath,"diversitySummary.xlsx"),overwrite = T)
+saveWorkbook(wb,paste0(resultsPathDiversity,"diversitySummary.xlsx"),overwrite = T)
 
 #====== transpose igh/trb lines to columns -> one pcrId per line =============
 d2<-d %>%
@@ -290,8 +291,10 @@ d2<-d %>%
   unite(indexByLocus, key, locus) %>%
   spread(indexByLocus,value)
 
+d2<-splitFilename(d2)
+
 #save as rds file
-saveRDS(d2,"../Results/Diversity/diversity.rds")
+saveRDS(d2,paste0(resultsPathDiversity,"diversitySummary.rds"))
 
 #transform to long format
 d.long<-gather(d,index,value,-filename,-locus,-readCount,-clonotypeCount)
@@ -302,7 +305,7 @@ colorCount<-nlevels(d.long$ownerPatient)
 getPalette<-colorRampPalette(brewer.pal(9,'Set1'))
 
 #jitter all indexes
-pdf(paste0(resultsPath,"diversityPlot_allIndexes.pdf"))
+pdf(paste0(resultsPathDiversity,"diversityPlot_allIndexes.pdf"))
 ggplot(d.long,aes(locus,value))+
   geom_jitter(aes(shape=locus,color=ownerPatient),size=3)+
   facet_wrap(~index, scales="free")+
@@ -310,7 +313,7 @@ ggplot(d.long,aes(locus,value))+
 dev.off()
 
 #point - by size - all indexes 
-pdf(paste0(resultsPath,"readCountVsDiversity_facetLocusIndex.pdf"))
+pdf(paste0(resultsPathDiversity,"readCountVsDiversity_facetLocusIndex.pdf"))
 ggplot(d.long,aes(readCount,value))+
   geom_point(mapping=aes(shape=locus,color=ownerPatient),size=3)+
   facet_grid(index~locus,scales="free")+
@@ -320,9 +323,9 @@ dev.off()
 
 #================= merge replicates ================
 d2<-splitFilename(d)
-d2<-subset(d2,select=c(sample,locus,replicate,shannon,effectiveSpecies,simpson))
+d2<-subset(d2,select=c(submission,sample,locus,replicate,shannon,effectiveSpecies,simpson))
 
-d2<-d2 %>% gather(index,value,-sample,-locus,-replicate) %>%
+d2<-d2 %>% gather(index,value,-submission,-sample,-locus,-replicate) %>%
   unite(index2,index,replicate) %>%
   spread(index2,value)
 
@@ -330,13 +333,17 @@ d2$shannon.mean<-(d2$shannon_rep1+d2$shannon_rep2)/2
 d2$simpson.mean<-(d2$simpson_rep1+d2$simpson_rep2)/2
 d2$effectiveSpecies.mean<-(d2$effectiveSpecies_rep1+d2$effectiveSpecies_rep2)/2
 
-d2<-subset(d2,select=c(sample,locus,shannon.mean,simpson.mean,effectiveSpecies.mean))
+d2<-subset(d2,select=c(submission,sample,locus,shannon.mean,simpson.mean,effectiveSpecies.mean))
 
-d2<-d2 %>% gather(index,value,-sample,-locus) %>%
+d2<-d2 %>% gather(index,value,-submission,-sample,-locus) %>%
   unite(index3,index,locus) %>%
   spread(index3,value)
 
+#save as xlsx
 wb<-createWorkbook()
 addWorksheet(wb,'summary')
 writeData(wb,'summary',d2)
-saveWorkbook(wb,'../Results/Diversity/diversity_withMeans.xlsx',overwrite = T)
+saveWorkbook(wb,paste0(resultsPathDiversity,'diversity_withMeans.xlsx'),overwrite = T)
+
+#save as rds
+write_rds(d2,paste0(resultsPathDiversity,'diversity_withMeans.rds'))
