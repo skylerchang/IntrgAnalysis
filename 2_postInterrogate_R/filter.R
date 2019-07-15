@@ -91,10 +91,11 @@ for (i in 1:length(files_short)){
   filteredData[[i]]<-temp
   #replace col 'sample' by col 'clUp2Id' -> for import in DB
   temp<-subset(temp,select=-(filename))
-  temp$clUp2Id<-clUp2Id
-  filteredDataForDB<-bind_rows(filteredDataForDB,temp)
-  
-  
+  if (nrow(temp)!=0){
+    temp$clUp2Id<-clUp2Id
+    filteredDataForDB<-bind_rows(filteredDataForDB,temp)
+  }
+
   count.igh.after<-nrow(igh)
   count.trb.after<-nrow(trb)
   count.igh.anchorFiltered<-count.igh.before-count.igh.after
