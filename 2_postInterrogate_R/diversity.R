@@ -13,8 +13,7 @@ setwd(here())
 getwd()
 
 #=========== adjust =============
-run<-30
-sampleNoCodesForFraction<-F        #T or F
+sampleNoCodesForFraction<-T        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ_filtered.rds'
 resultsPathDiversity<-'../Results/Diversity/'
@@ -45,12 +44,13 @@ splitFilename<-function(x){
   x$id<-laply(splitFilename, '[[', 1)
   x$ownerPatient<-laply(splitFilename, '[[', 2)
   x$idNumber<-laply(splitFilename, '[[', 3)
-  x$pcr<-sub("C[0-9]+P[0-9]+C[0-9]+$","",x$id)
-  x$sample<-sub("-D[0-9]+P[0-9]+$","",x$pcr)
+  x$pcr<-sub("C[0-9]+P[0-9]+C[0-9]+","",x$id)
+  x$pcr<-sub("C[0-9]+L[0-9]+P[0-9]+","",x$pcr)
+  x$sample<-sub("-*D[0-9]+P[0-9]+$","",x$pcr)
   x$submission<-sub("-[0-9a-zA-Z]+$","",x$sample)
   x$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[13579]$",x$pcr),"rep1","rep2")
   if(sampleNoCodesForFraction==T){
-    x$fraction<-ifelse(grepl("-1$",sample),"fraction1","fraction2")
+    x$fraction<-ifelse(grepl("-1$",x$sample),"PBMCs","Plasma")
   }else{
     x$fraction<-rep("fraction1",length(sample))
   }
@@ -97,15 +97,16 @@ for (i in 1:length(files_short)){
 #======================= diversity summary =====================
 #===============================================================
 d<-diversitySummary
-
+d$filename
 #====== split by sample - loci & replicates in rows =============
 d.split1<-splitFilename(d)
+d.split1$sample
 d.split2<-split(d.split1,d.split1$sample)
 #str(d.split2)
 
 #print to xlsx
 wb<-createWorkbook()
-addWorksheet(wb,"summary_splitBySample")
+addWorksheet(wb,"summary")
 writeData(wb,"summary",d.split1)
 for (i in 1:length(d.split2)){
   addWorksheet(wb,d.split2[[i]]$sample[1])
@@ -125,26 +126,27 @@ getPalette<-colorRampPalette(brewer.pal(9,'Set1'))
 #jitter all indexes
 pdf(paste0(resultsPathDiversity,"diversity_jitter_allIndexes.pdf"))
 ggplot(d.long,aes(locus,value))+
-  geom_jitter(aes(shape=locus,color=ownerPatient),size=3)+
+  geom_jitter(aes(shape=fraction,color=ownerPatient),size=3)+
   facet_grid(index~locus, scales="free")+
   scale_color_manual(values=getPalette(colorCount))+
   theme(legend.position="none")
 dev.off()
 
+d.long$fraction
 #by ownerPatient - facet index
 pdf(paste0(resultsPathDiversity,"diversity_byOwnerPatient_facetLocusIndexes.pdf"))
 ggplot(d.long,aes(ownerPatient,value))+
-  geom_point(aes(shape=locus,color=ownerPatient),size=3)+
+  geom_point(aes(shape=fraction,color=ownerPatient),size=3)+
   facet_grid(index~locus, scales="free")+
   scale_color_manual(values=getPalette(colorCount))+
-  theme(legend.position="none",axis.text.x=element_text(angle=90,hjust=1))
+  theme(legend.position="right",axis.text.x=element_text(angle=90,hjust=1))
 dev.off()
 
 #by ownerPatient - facet index - IGH
 d.long.igh<-d.long[d.long$locus=='IGH',]
 pdf(paste0(resultsPathDiversity,"diversity_byOwnerPatient_facetIndex_igh.pdf"))
 ggplot(d.long.igh,aes(ownerPatient,value))+
-  geom_point(aes(shape=locus,color=ownerPatient),size=3)+
+  geom_point(aes(shape=replicate,color=ownerPatient),size=3)+
   facet_grid(index~locus, scales="free")+
   scale_color_manual(values=getPalette(colorCount))+
   theme(legend.position="none",axis.text.x=element_text(angle=90,hjust=1))
@@ -203,7 +205,7 @@ saveRDS(d2,paste0(resultsPathDiversity,"diversity_locusAsColumn.rds"))
 
 #================= merge replicates ================
 d2<-splitFilename(d)
-d2<-subset(d2,select=c(submission,locus,replicate,shannon,effectiveSpecies,simpson))
+d2<-subset(d2,select=c(submission,locus,replicate,fraction,shannon,effectiveSpecies,simpson))
 #d2<-subset(d2,select=-c(filename,idNumber,id,pcr))
 colnames(d2)
 
@@ -215,9 +217,9 @@ d2$shannon.mean<-(d2$shannon_rep1+d2$shannon_rep2)/2
 d2$simpson.mean<-(d2$simpson_rep1+d2$simpson_rep2)/2
 d2$effectiveSpecies.mean<-(d2$effectiveSpecies_rep1+d2$effectiveSpecies_rep2)/2
 
-d2<-subset(d2,select=c(submission,locus,shannon.mean,simpson.mean,effectiveSpecies.mean))
+d2<-subset(d2,select=c(submission,locus,fraction,shannon.mean,simpson.mean,effectiveSpecies.mean))
 
-d2<-d2 %>% gather(index,value,-submission,-locus) %>%
+d2<-d2 %>% gather(index,value,-submission,-locus,-fraction) %>%
   unite(index3,index,locus) %>%
   spread(index3,value)
 

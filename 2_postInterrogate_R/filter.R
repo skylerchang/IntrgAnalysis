@@ -11,8 +11,7 @@ setwd(here())
 getwd()
 
 #=========== adjust =============
-run<-30
-sampleNoCodesForFraction<-F        #T or F
+run<-'26-24-21'
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPathReads<-'../Results/ReadCounts/'
@@ -31,11 +30,70 @@ length(datalist)
 files_short<-t[[2]]
 length(files_short)
 
-#filter out WGA samples
-includedLogical<-!grepl("WGA",files_short)
-files_short<-files_short[includedLogical]
-datalist<-datalist[includedLogical]
-
+#for run '26-24-21' 
+#problem: multiple ntc & D 16 controls result in >2 replicates
+#solution: convert ntc & D16 controls from different runs into different submissions
+exclude<-c(
+  #Run 21
+  "NTC-can-0D1P146C1P1C1_NTC-NTC-canine_S29",
+  "NTC-can-0D1P147C1P1C1_NTC-NTC-canine_S30",
+  #Run 24
+  "k9-nt_H2O-0D1P454C1L1P1_NTC_S25",
+  "k9-nt_H2O-0D1P455C1L1P1_NTC_S26",
+  "k9-nt_H2O-0D1P456C1L1P1_NTC-Template_S27",
+  "k9-nt_H2O-0D1P457C1L1P1_NTC-Template_S28",
+  #Run 26
+  "k9-nt_H2O-0D1P460C1L1P1_NTC_S57",
+  "k9-nt_H2O-0D1P461C1L1P1_NTC_S58",
+  "k9-nt_H2O-0D1P393C1L1P1_NTC-Template_S59",
+  "k9-nt_H2O-0D1P394C1L1P1_NTC-Template_S60",
+  #Run21:
+  "D16-07-1FD1P250C1P1C1_OWN33-PAT1_S23",
+  "D16-07-1FD1P251C1P1C1_OWN33-PAT1_S24",
+  #Run24:
+  "k9-pc_D16-07-6D1P89C1L1P1_D16_S29",
+  "k9-pc_D16-07-6D1P90C1L1P1_D16_S30",           
+  "k9-pc_D16-07-6D1P91C1L1P1_D16-Template_S31",
+  "k9-pc_D16-07-6D1P92C1L1P1_D16-Template_S32"    
+)
+if (run=='26-24-21'){
+  #filter out WGA samples (152=>104)
+  includedLogical<-!grepl("WGA",files_short)
+  files_short<-files_short[includedLogical]
+  datalist<-datalist[includedLogical]
+  length(files_short)
+  
+  #exclude redundant controls (104-16=88)
+  includedLogical<-!grepl(paste(exclude,collapse="|"),files_short)
+  files_short<-files_short[includedLogical]
+  datalist<-datalist[includedLogical]
+  
+  #rename controls with aberrant format
+  files_short<-files_short %>%
+    #Run 21
+    sub("NTC-can-0D1P171C1P1C1_NTC-NTC-canine_S21","21-H2O-0D1P171C1P1C1_21ntc-21ntc_S21",.) %>%
+    sub("NTC-can-0D1P172C1P1C1_NTC-NTC-canine_S22","21-H2O-0D1P172C1P1C1_21ntc-21ntc_S22",.) %>%
+    #Run 24
+    sub("k9-nt_H2O-0D1P391C1L1P1_NTC_S57","24-H2O-0D1P391C1L1P1_24ntc-24ntc_S57",.) %>%
+    sub("k9-nt_H2O-0D1P392C1L1P1_NTC_S58","24-H2O-0D1P392C1L1P1_24ntc-24ntc_S58",.) %>%
+    sub("k9-nt-st_H2O-0D1P393C1L1P1_NTC-Template_S59","24-H2O-st-0D1P393C1L1P1_24ntcST-24ntcST_S59",.) %>%
+    sub("k9-nt-st_H2O-0D1P394C1L1P1_NTC-Template_S60","24-H2O-st-0D1P394C1L1P1_24ntcST-24ntcST_S60",.) %>%
+    #Run 26
+    sub("k9-nt_H2O-0D1P459C1L1P1_NTC_S25","26-H2O-0D1P459C1L1P1_26ntc-26ntc_S25",.) %>%
+    sub("k9-nt_H2O-0D1P458C1L1P1_NTC_S26","26-H2O-0D1P458C1L1P1_26ntc-26ntc_S26",.) %>%
+    sub("k9-nt-st_H2O-0D1P456C1L1P1_NTC-Template_S27","26-H2O-st-0D1P456C1L1P1_26ntcST-26ntcST_S27",.) %>%
+    sub("k9-nt-st_H2O-0D1P457C1L1P1_NTC-Template_S28","26-H2O-st-0D1P457C1L1P1_26ntcST-26ntcST_S28",.) %>%
+    #Run21:
+    sub("D16-07-1FD1P158C1P1C1_OWN33-PAT1_S31","21-D16-07-1FD1P158C1P1C1_21pcc-21pcc_S31",.) %>%
+    sub("D16-07-1FD1P159C1P1C1_OWN33-PAT1_S32","21-D16-07-1FD1P159C1P1C1_21pcc-21pcc_S32",.) %>%
+    #Run24:
+    sub("k9-pc_D16-07-6D1P29C1L1P1_D16_S61","24-D16-07-6D1P29C1L1P1_24pcc-24pcc_S61",.) %>%            
+    sub("k9-pc_D16-07-6D1P30C1L1P1_D16_S62","24-D16-07-6D1P30C1L1P1_24pcc-24pcc_S62",.) %>%      
+    sub("k9-pc_D16-07-6D1P31C1L1P1_D16-Template_S63","24-D16-07-st-6D1P31C1L1P1_24pccST-24pccST_S63",.) %>%  
+    sub("k9-pc_D16-07-6D1P32C1L1P1_D16-Template_S64","24-D16-07-st-6D1P32C1L1P1_24pccST-24pccST_S64",.)
+  length(files_short)
+}
+str(files_short)
 #initialize things
 templateSummary<-tibble()
 readCountSummary<-tibble()
