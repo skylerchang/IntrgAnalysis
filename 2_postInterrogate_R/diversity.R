@@ -105,7 +105,7 @@ d.split2<-split(d.split1,d.split1$sample)
 
 #print to xlsx
 wb<-createWorkbook()
-addWorksheet(wb,"summary")
+addWorksheet(wb,"summary_splitBySample")
 writeData(wb,"summary",d.split1)
 for (i in 1:length(d.split2)){
   addWorksheet(wb,d.split2[[i]]$sample[1])
@@ -192,34 +192,39 @@ d2<-d %>%
 
 d2<-splitFilename(d2)
 
+#save as xlsx file
+wb<-createWorkbook()
+addWorksheet(wb,"all")
+writeData(wb,"all",d2)
+saveWorkbook(wb,paste0(resultsPathDiversity,"diversity_locusAsColumn.xlsx"),overwrite = T)
+
 #save as rds file
-saveRDS(d2,paste0(resultsPathDiversity,"diversitySummary.rds"))
+saveRDS(d2,paste0(resultsPathDiversity,"diversity_locusAsColumn.rds"))
 
 #================= merge replicates ================
 d2<-splitFilename(d)
-d2<-subset(d2,select=c(submission,sample,locus,replicate,shannon,effectiveSpecies,simpson))
+d2<-subset(d2,select=c(submission,locus,replicate,shannon,effectiveSpecies,simpson))
 #d2<-subset(d2,select=-c(filename,idNumber,id,pcr))
 colnames(d2)
 
 d2<-d2 %>% gather(index,value,shannon:simpson) %>%
   unite(index2,index,replicate) %>%
   spread(index2,value)
-subset(d2,select=c(fraction,replicate))
 
 d2$shannon.mean<-(d2$shannon_rep1+d2$shannon_rep2)/2
 d2$simpson.mean<-(d2$simpson_rep1+d2$simpson_rep2)/2
 d2$effectiveSpecies.mean<-(d2$effectiveSpecies_rep1+d2$effectiveSpecies_rep2)/2
 
-d2<-subset(d2,select=c(submission,sample,locus,shannon.mean,simpson.mean,effectiveSpecies.mean))
+d2<-subset(d2,select=c(submission,locus,shannon.mean,simpson.mean,effectiveSpecies.mean))
 
-d2<-d2 %>% gather(index,value,-submission,-sample,-locus) %>%
+d2<-d2 %>% gather(index,value,-submission,-locus) %>%
   unite(index3,index,locus) %>%
   spread(index3,value)
 
 #save as xlsx
 wb<-createWorkbook()
-addWorksheet(wb,'summary')
-writeData(wb,'summary',d2)
+addWorksheet(wb,'all')
+writeData(wb,'all',d2)
 saveWorkbook(wb,paste0(resultsPathDiversity,'diversity_withMeans.xlsx'),overwrite = T)
 
 #save as rds
