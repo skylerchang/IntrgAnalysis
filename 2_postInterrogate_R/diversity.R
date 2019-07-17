@@ -32,30 +32,6 @@ calculateDiversity<-function(x,y){
     clonotypeCount=nrow(x)
   )
 }
-
-splitFilename<-function(x){
-  #transform old control names to required format
-  x$filename<-x$filename %>%
-    sub("k9-pc-st_D16-07","D16-07-st",.) %>% 
-    sub("k9-pc_D16-07","D16-07",.) %>% 
-    sub("k9-nt-st_H2O","ntc",.) %>% 
-    sub("k9-nt_H2O","ntc-st",.)
-  splitFilename<-strsplit(x$filename,"_")
-  x$id<-laply(splitFilename, '[[', 1)
-  x$ownerPatient<-laply(splitFilename, '[[', 2)
-  x$idNumber<-laply(splitFilename, '[[', 3)
-  x$pcr<-sub("C[0-9]+P[0-9]+C[0-9]+","",x$id)
-  x$pcr<-sub("C[0-9]+L[0-9]+P[0-9]+","",x$pcr)
-  x$sample<-sub("-*D[0-9]+P[0-9]+$","",x$pcr)
-  x$submission<-sub("-[0-9a-zA-Z]+$","",x$sample)
-  x$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[13579]$",x$pcr),"rep1","rep2")
-  if(sampleNoCodesForFraction==T){
-    x$fraction<-ifelse(grepl("-1$",x$sample),"PBMCs","Plasma")
-  }else{
-    x$fraction<-rep("fraction1",length(sample))
-  }
-  x
-}
 #===============================
 
 dir.create(resultsPathDiversity,recursive=T)

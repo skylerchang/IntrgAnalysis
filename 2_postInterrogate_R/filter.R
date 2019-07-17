@@ -6,16 +6,18 @@ library(here)
 library(openxlsx)
 library(RColorBrewer)
 
-
 setwd(here())
 getwd()
 
+source("2_postInterrogate_R/functions.R")
+
 #=========== adjust =============
 run<-'26-24-21'
+sampleNoCodesForFraction<-T        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPathReads<-'../Results/ReadCounts/'
-resultsPathTemplate<-'../Results/Template/'
+resultsPathTemplate<-'../Results/Templates/'
 
 #===============================
 dir.create(resultsPathReads,recursive=T)
@@ -107,7 +109,7 @@ for (i in 1:length(files_short)){
   colnames(a)[5]<-'readCount'
   colnames(a)[7]<-'locus'
 
-  count.all<-nrow(a)
+  count.all<-sum(a$readCount)
   if(nrow(a)==0){next}
   a$filename<-files_short[i]
   
@@ -129,17 +131,20 @@ for (i in 1:length(files_short)){
   templateSummary<-bind_rows(templateSummary,temp)
   
   #count template reads 
-  count.templates<-nrow(a[a$template!='no',])
+  templates<-a[a$template!='no',]
+  count.templates<-sum(templates$readCount)
   
   #continue with dataset w/o templates
   a<-a[a$template=='no',]
+  sum(a$readCount)
   a<-subset(a,select=-(template))
   
   #split by locus
   igh<-a[a$locus=='IGH',]
   trb<-a[a$locus=='TRB',]
-  count.igh.before<-nrow(igh)
-  count.trb.before<-nrow(trb)
+  count.igh.before<-sum(igh$readCount)
+  count.trb.before<-sum(trb$readCount)
+  count.igh.before+count.trb.before
   
   #============ filter seqs by seqs & ^C.{3,30}[FW]$ =======
   igh<-igh[grepl("^C.{3,30}[W]$",igh$aaSeq),]
@@ -154,8 +159,9 @@ for (i in 1:length(files_short)){
     filteredDataForDB<-bind_rows(filteredDataForDB,temp)
   }
 
-  count.igh.after<-nrow(igh)
-  count.trb.after<-nrow(trb)
+  count.igh.after<-sum(igh$readCount)
+  count.trb.after<-sum(trb$readCount)
+  count.ighAndTrb<-count.igh.after+count.trb.after
   count.igh.anchorFiltered<-count.igh.before-count.igh.after
   count.trb.anchorFiltered<-count.trb.before-count.trb.after
   
@@ -168,11 +174,12 @@ for (i in 1:length(files_short)){
   #create tibble
   temp<-tibble(
     filename=files_short[i],
-    total=count.all,
-    templates=count.templates,
-    igh=count.igh.after,
+    readCount.total=count.all,
+    readCount.template=count.templates,
+    readCount.ighAndTrb=count.ighAndTrb,
+    readCount.igh=count.igh.after,
     falseAnchor.igh=count.igh.anchorFiltered,
-    trb=count.trb.after,
+    readCount.trb=count.trb.after,
     falseAnchor.trb=count.trb.anchorFiltered
     )
   readCountSummary<-bind_rows(readCountSummary,temp)
@@ -187,28 +194,52 @@ write_delim(filteredDataForDB,'../Data/Clntab_delim/clntab_vAndJ_filtered.txt')
 #===============================================================
 #===================== read count summary ======================
 #===============================================================
-#print xlsx
+readCountSummary2<-splitFilename(readCountSummary,sampleNoCodesForFraction)
+
+#save as xlsx
 wb<-createWorkbook()
 addWorksheet(wb,"summary")
-writeData(wb,"summary",readCountSummary)
-saveWorkbook(wb,"../Results/ReadCounts/readCountSummary.xlsx",overwrite=T)
+writeData(wb,"summary",readCountSummary2)
+saveWorkbook(wb,paste0(resultsPathReads,"readCountSummary.xlsx",overwrite=T))
 
-readCount.long<-gather(subset(readCountSummary,select=-(total)),variable,value,-filename)
-pdf('../Results/ReadCounts/readCountSummary.pdf')
-ggplot(readCount.long,aes(filename,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')
+#save as rds
+saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary.xlsx"))
+
+#transform to long format and split filename
+readCount.long<-gather(subset(readCountSummary,select=-c(readCount.total,readCount.ighAndTrb)),variable,value,-filename)
+readCount.long<-splitFilename(readCount.long,sampleNoCodesForFraction)
+
+pdf('../Results/ReadCounts/readCountSummary_bySubmission.pdf')
+ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(submission~fraction)+theme(strip.text.y=element_text(angle=360))
+dev.off()
+
+pdf('../Results/ReadCounts/readCountSummary_byOwnerPatient.pdf')
+ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(ownerPatient~fraction)+theme(strip.text.y=element_text(angle=360))
 dev.off()
 
 #===============================================================
 #========================== template summary ===================
 #===============================================================
 templateSummary
+#exclude 'no' template
+templateSummary2<-templateSummary[templateSummary$template!='no',]
+
+#transformt to wide format
+templateSummary2.wide<-spread(templateSummary2,template,readCount)
+
+#save as xlsx
+wb<-createWorkbook()
+addWorksheet(wb,'summary')
+writeData(wb,'summary',templateSummary2.wide)
+saveWorkbook(wb,paste0(resultsPathTemplate,'templateSummary.xlsx'),overwrite=T)
+
+#save as rds
+saveRDS(templateSummary2.wide,paste0(resultsPathTemplate,'templateSummary.rds'))
+
 #plot stratified by file
 pdf(paste0(resultsPathTemplate,'templatesBytemplate.pdf'))
 ggplot(templateSummary,aes(template,readCount,fill=filename))+geom_col()+coord_flip()+theme(legend.position="none")
 dev.off()
-
-#exclude 'no' template
-templateSummary2<-templateSummary[templateSummary$template!='no' & templateSummary$template!='t2',]
 
 #plot stratified by template - bar plot
 pdf(paste0(resultsPathTemplate,'templatesBySample_barplot.pdf'))
@@ -218,4 +249,3 @@ dev.off()
 pdf(paste0(resultsPathTemplate,'templatesBySample_lineplot.pdf'))
 ggplot(templateSummary2,aes(filename,readCount,group=template))+geom_point()+geom_line(aes(color=template))+coord_flip()
 dev.off()
-
