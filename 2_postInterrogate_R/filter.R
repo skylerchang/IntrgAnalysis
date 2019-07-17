@@ -200,10 +200,10 @@ readCountSummary2<-splitFilename(readCountSummary,sampleNoCodesForFraction)
 wb<-createWorkbook()
 addWorksheet(wb,"summary")
 writeData(wb,"summary",readCountSummary2)
-saveWorkbook(wb,paste0(resultsPathReads,"readCountSummary.xlsx",overwrite=T))
+saveWorkbook(wb,paste0(resultsPathReads,"readCountSummary.xlsx"),overwrite=T)
 
 #save as rds
-saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary.xlsx"))
+saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary.rds"))
 
 #transform to long format and split filename
 readCount.long<-gather(subset(readCountSummary,select=-c(readCount.total,readCount.ighAndTrb)),variable,value,-filename)
