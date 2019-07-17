@@ -2196,9 +2196,183 @@ t.test (T.wga.ca$effective_species.count,T.wga.cf$effective_species.count)
 
 
 
+#==========================trying to calculate/ decided on cut off ranges ============
+# want to categories samples into 3 groups 
+# 1 -> no (not worth sequencing-> most likely wont get sequence results)
+# 2 -> maybe/ok ( inbetween -> might get results )
+# 3 -> good (high likelyhood you will get good sequencing results)
+
+# merging data with the CSF data 
+#fix column name to be merge 
+rdsPath<-'../Data/CSF data/CSF_analysis_data.rds'
+CSF<-read_rds(rdsPath)
+F.wga$cyto.submission<-F.wga$submission
+#merge 
+m<- merge(F.wga, CSF, by = "cyto.submission", sort = TRUE)
+# make subsets 
+run20SubmissionIds<-c('16-091599','17-034664','17-076750','18-005702','18-015190','18-034446')
+run24SubmissionIds<-c('16-094131','17-032882','18-032736','18-039385','18-053935','18-069171')
+run26SubmissionIds<-c('17-074248','17-096162','18-007036','18-010899','18-062164','18-070285')
+run28SubmissionIds<-c('16-088089','17-074019','17-090421','17-090558','17-102543','18-008768','18-018178','18-018323','18-023598','18-027095','18-034327','18-037752','18-038920','18-041708','18-052303','18-054389','18-055910','18-056110','18-063032','18-063702','18-064108','18-064393','18-064997','18-066211','18-066965','18-069890','18-075207','18-076530','18-079477','18-080802','18-081238','18-087714','18-090948','18-092382','18-095326','18-097141','19-002645','19-003121','19-003459','19-004580','19-018077','19-018470','19-019830')
+allseqrunSubmissionIds <-c(run20SubmissionIds,run24SubmissionIds,run26SubmissionIds,run28SubmissionIds)
+allseqrunSubmissionIds <-c('16-091599','17-034664','17-076750','18-005702','18-015190','18-034446','16-094131','17-032882','18-032736','18-039385','18-053935','18-069171','17-074248','17-096162','18-007036','18-010899','18-062164','18-070285','16-088089','17-074019','17-090421','17-090558','17-102543','18-008768','18-018178','18-018323','18-023598','18-027095','18-034327','18-037752','18-038920','18-041708','18-052303','18-054389','18-055910','18-056110','18-063032','18-063702','18-064108','18-064393','18-064997','18-066211','18-066965','18-069890','18-075207','18-076530','18-079477','18-080802','18-081238','18-087714','18-090948','18-092382','18-095326','18-097141','19-002645','19-003121','19-003459','19-004580','19-018077','19-018470','19-019830')
+allseparatedruns <-c('16-091599','17-034664','17-076750','18-005702','18-015190','18-034446','16-094131','17-032882','18-032736','18-039385','18-053935','18-069171','17-074248','17-096162','18-007036','18-010899','18-062164','18-070285')
+
+#subset d for submissionIds that included in sequencing runs
+m.20<-m[m$cyto.submission %in% run20SubmissionIds,]
+m.24<-m[m$cyto.submission %in% run24SubmissionIds,]
+m.26<-m[m$cyto.submission %in% run26SubmissionIds,]
+m.28<-m[m$cyto.submission %in% run28SubmissionIds,]
+
+m.allruns<-m[m$cyto.submission %in% allseqrunSubmissionIds ,]
+m.allsepruns<-m[m$cyto.submission %in% allseparatedruns  ,]
+
+# correlation for hemocytometer count
+cor.test(m.allsepruns$usable.count,m.allsepruns$hemo.lym_cells)
+cor.test(m$usable.count,m$hemo.lym_cells)
+# correlation for hemocytometer lym/ul
+cor.test(m.allsepruns$usable.count,m.allsepruns$hemo.lym_ul)
+cor.test(m$usable.count,m$hemo.lym_cells)
+cor.test(m$raw.count,m$hemo.lym_cells)
+#ch 2
+# based on the clonol curves (aa lengths, % and size for the filtered data)
+noSEQ<-c('18-039385','18-005702','18-015190','18-034446')
+maybeSEQ<-c('16-091599','16-094131','17-034664','18-007036','18-070285','18-062164','18-032736')
+yesSEQ<-c('17-074248','17-076750','17-096162','18-010899','18-069171','18-053935','17-032882')
+
+#ch3 
+# based on clonol curves
+noSEQ<-c('18-039385','18-005702','18-015190','18-034446','18-008768','18-018323','18-023598','18-027095','18-034327','18-037752','18-038920','18-041708','18-052303','18-054389','18-056110','18-063032','18-063702','18-064108','18-064393','18-064997','18-066211','18-066965','18-075207','18-076530','18-081238')
+maybeSEQ<-c('19-002645','18-097141','18-092382','18-090948','18-087714','18-079477','18-069890','18-055910','18-018178','17-090558','17-090421','16-088089','16-091599','16-094131','17-034664','18-007036','18-070285','18-062164','18-032736')
+yesSEQ<-c('19-019830','19-018470','19-018077','19-004580','19-003459','19-003121','18-095326','18-080802','17-102543','17-074019','17-074248','17-076750','17-096162','18-010899','18-069171','18-053935','17-032882')
+
+d.noSEQ<-m[m$submission %in% noSEQ,]
+d.maybeSEQ<-m[m$submission %in% maybeSEQ,]
+d.yesSEQ<-m[m$submission %in% yesSEQ,]
+
+#calculate ranges 
+summary(d.noSEQ$usable.count)
+summary(d.maybeSEQ$usable.count)
+summary(d.yesSEQ$usable.count)
+
+summary(d.noSEQ$cln.count)
+summary(d.maybeSEQ$cln.count)
+summary(d.yesSEQ$cln.count)
+
+summary(d.noSEQ$alpha_diversity.count)
+summary(d.maybeSEQ$alpha_diversity.count)
+summary(d.yesSEQ$alpha_diversity.count)
+
+#for graphs -> making a sequence column 
+m$sequence<-NA
+m$sequence[m$submission %in% noSEQ]<-'no'
+m$sequence[m$submission %in% maybeSEQ]<-'maybe'
+m$sequence[m$submission %in% yesSEQ]<-'yes'
+
+# graph 
+# ch 2 
+allseparatedruns <-c('16-091599','17-034664','17-076750','18-005702','18-015190','18-034446','16-094131','17-032882','18-032736','18-039385','18-053935','18-069171','17-074248','17-096162','18-007036','18-010899','18-062164','18-070285')
+d.allsepruns<-m[m$submission %in% allseparatedruns  ,]
+
+#cytospin lym count 
+
+ggplot(d.allsepruns,aes(lym.cytocount,usable.count,shape = sequence,color=submission))+geom_point(size=5) 
+
+pdf(paste0(targetDir,'read count vs cytospin lym count (seq predictor).pdf'))
+ggplot(d.allsepruns,aes(lym.cytocount,usable.count,shape = sequence,color=sequence))+geom_point(size=5)+ geom_vline(xintercept = 50) + geom_vline(xintercept = 100)
+dev.off()
+d.allsepruns$bin<-cut(as.numeric(d.allsepruns$lym.cytocount),c(0,50,100,200))
+table(d.allsepruns$bin)
+d.yesSEQ<-d.allsepruns[d.allsepruns$submission %in% yesSEQ,]
+table(d.yesSEQ$bin)
+
+#predicted cytospin lymphocyte count 
+pdf(paste0(targetDir,'read count vs predicted lym count (seq predictor).pdf'))
+ggplot(d.allsepruns,aes(pred.lym.cyto,usable.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5)+geom_vline(xintercept = 1000)+geom_vline(xintercept = 100)
+dev.off()
+d.allsepruns$bin<-cut(as.numeric(d.allsepruns$pred.lym.cyto),c(0,100,1000,10000))
+table(d.allsepruns$bin)
+d.yesSEQ<-d.allsepruns[d.allsepruns$submission %in% yesSEQ,]
+table(d.yesSEQ$bin)
+
+#estimated hemocytometer lymphocyte count 
+pdf(paste0(targetDir,'read count vs estimated hemocytometer lym count (seq predictor).pdf'))
+ggplot(d.allsepruns,aes(lym.hemo.ul,usable.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5)+geom_vline(xintercept = 100)+geom_vline(xintercept = 10)
+dev.off()
+d.allsepruns$bin<-cut(as.numeric(d.allsepruns$hemolym.cells.ul),c(0,10,100,1000))
+table(d.allsepruns$bin)
+d.yesSEQ<-d.allsepruns[d.allsepruns$submission %in% yesSEQ,]
+table(d.yesSEQ$bin)
+
+#diversity graph
+ggplot(d.allsepruns,aes(pred.lym.cyto,alpha_diversity.count,shape = sequence,color=sequence))+geom_point(size=5) 
+ggplot(d.allsepruns,aes(pred.lym.cyto,alpha_diversity.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5) 
+
+ggplot(d.allsepruns,aes(usable.count,alpha_diversity.count,shape = sequence,color=sequence))+geom_point(size=5) 
+
+pdf(paste0(targetDir,'alpha diversity vs usable read count (seq predictor).pdf'))
+ggplot(d.allsepruns,aes(usable.count,alpha_diversity.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5) 
+dev.off()
+
+ggplot(d.allsepruns,aes(usable.count,alpha_diversity.count,shape = sequence,color=submission))+scale_x_log10()+geom_point(size=5) 
+
+ggplot(d.allsepruns,aes(usable.count,alpha_diversity.count))+scale_x_log10()+geom_point(size=5)+stat_smooth() 
+
+
+ggplot(d.allsepruns,aes(usable.count,alpha_diversity.count,shape = sequence,color=pred.lym.cyto))+scale_x_log10()+geom_point(size=5) 
+
+
+# clonotype count 
+ggplot(d.allsepruns,aes(pred.lym.cyto,cln.count,shape = sequence,color=submission))+geom_point(size=5)
+dev.off()
+ggplot(d.allsepruns,aes(pred.lym.cyto,cln.count,shape = sequence,color=submission))+scale_x_log10()+geom_point(size=5)
+dev.off()
+#DNA 
+ggplot(d.allsepruns,aes(pre.dna,usable.count,shape = sequence,color=submission))+geom_point(size=5)
+dev.off()
+ggplot(d.allsepruns,aes(pre.dna,lym.cytocount,shape = sequence,color=submission))+geom_point(size=5)
+dev.off()
 
 
 
+#ch 3 
+#cytospin lym count 
+  #predicted cytospin count 
+pdf(paste0(targetDir,'read count vs predicted lym count (ch3 seq predictor).pdf'))
+ggplot(m,aes(pred.lym.cyto,usable.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5)+geom_vline(xintercept = 10000)+geom_vline(xintercept = 1000)+geom_vline(xintercept = 100) 
+dev.off()
+m$bin<-cut(as.numeric(m$pred.lym.cyto),c(0,100,1000,10000))
+table(m$bin)
+d.yesSEQ<-m[m$submission %in% yesSEQ,]
+table(d.yesSEQ$bin)
 
+  #estinated hemocytometer 
+pdf(paste0(targetDir,'read count vs estimated hemocytometer lym count (ch3 seq predictor).pdf'))
+ggplot(m,aes(hemo.lym_ul,usable.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5)+geom_vline(xintercept = 100) +geom_vline(xintercept = 10)
+dev.off()
+m$bin<-cut(as.numeric(m$hemo.lym_ul),c(0,10,100,1000))
+table(m$bin)
+d.yesSEQ<-m[m$submission %in% yesSEQ,]
+table(d.yesSEQ$bin)
 
+# clonotype count 
+ggplot(F.wga,aes(pred.lym.cyto,cln.count,shape = sequence,color=sequence))+geom_point(size=5)
+dev.off()
+ggplot(F.wga,aes(pred.lym.cyto,cln.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5)
+dev.off()
+# diversity index
+ggplot(m,aes(pred.lym.cyto,alpha_diversity.count,shape = sequence,color=sequence))+geom_point(size=5) 
+ggplot(m,aes(pred.lym.cyto,alpha_diversity.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5) 
 
+ggplot(m,aes(usable.count,alpha_diversity.count,shape = sequence,color=sequence))+geom_point(size=5) 
+
+pdf(paste0(targetDir,'alpha diversity vs usable read count (ch3 seq predictor).pdf'))
+ggplot(m,aes(usable.count,alpha_diversity.count,shape = sequence,color=sequence))+scale_x_log10()+geom_point(size=5) 
+dev.off()
+
+ggplot(m,aes(usable.count,alpha_diversity.count,shape = sequence,color=pred.lym.cyto))+scale_x_log10()+geom_point(size=5) 
+
+dev.off()
+#dna 
+ggplot(F.wga,aes(pre.dna,usable.count,shape = sequence,color=sequence))+geom_point(size=5)
+dev.off()
