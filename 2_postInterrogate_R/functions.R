@@ -1,12 +1,6 @@
 #functions that are used by multiple scripts
 
 splitFilename<-function(x,y){
-  #transform old control names to required format
-  x$filename<-x$filename %>%
-    sub("k9-pc-st_D16-07","D16-07-st",.) %>% 
-    sub("k9-pc_D16-07","D16-07",.) %>% 
-    sub("k9-nt-st_H2O","ntc",.) %>% 
-    sub("k9-nt_H2O","ntc-st",.)
   splitFilename<-strsplit(x$filename,"_")
   x$id<-laply(splitFilename, '[[', 1)
   x$ownerPatient<-laply(splitFilename, '[[', 2)
