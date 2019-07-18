@@ -12,7 +12,7 @@ getwd()
 source("2_postInterrogate_R/functions.R")
 
 #=========== adjust =============
-run<-'26-24-21'
+run<-22
 sampleNoCodesForFraction<-T        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'

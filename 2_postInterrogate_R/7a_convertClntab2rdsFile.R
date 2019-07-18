@@ -47,6 +47,7 @@ if ((length(files_short) %% 2)!=0){stop("Number of files should be even (replica
 
 #initialize things
 datalist_vAndJ<-list()
+datalist_vAndJnoju<-list()
 datalist_vOnly<-list()
 datalist_jOnly<-list()
 datalist_neitherVnorJ<-list()
@@ -59,7 +60,7 @@ for (i in 1:length(files)){
   #for files w/o reads -> insert empty tibble into datalists
   if(nrow(t)==0){
     df <- as_tibble(data.frame(matrix(ncol = 7, nrow = 0)))
-    x <- c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")
+    x <- c("vGene","jGene","aaSeq","aaLength","readCount","completeNtSeq","locus")
     colnames(df) <- x
     datalist_vAndJ[[i]]<-df
     datalist_vOnly[[i]]<-df
@@ -69,7 +70,7 @@ for (i in 1:length(files)){
   }
   
   d<-subset(t, select=c("sequence.5-GENE","sequence.3-GENE","sequence.JUNCTION.aa seq","sequence.JUNCTION.aa seq.len","sequence.size","sequence.nt seq"))
-  colnames(d)<-c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq")
+  colnames(d)<-c("vGene","jGene","aaSeq","aaLength","readCount","completeNtSeq")
   
   d$vChain<-NA
   d$vChain[grepl("IGH",d$vGene)]<-'IGH'
@@ -93,25 +94,28 @@ for (i in 1:length(files)){
   
   d$vAndJchain<-paste(d$vChain,d$jChain,sep='-')
   
-  d$vAndJchainSimplified<-NA
-  d$vAndJchainSimplified[grepl('IGH',d$vAndJchain)]<-'IGH'
-  d$vAndJchainSimplified[d$vAndJchain=='NA-NA' | d$vAndJchain=='TRD-TRA']<-'Other'
-  d$vAndJchainSimplified[grepl('TRA',d$vAndJchain)]<-'TRA'
-  d$vAndJchainSimplified[grepl('TRB',d$vAndJchain)]<-'TRB'
-  d$vAndJchainSimplified[grepl('TRD',d$vAndJchain)]<-'TRD'
-  d$vAndJchainSimplified[grepl('TRG',d$vAndJchain)]<-'TRG'
+  d$locus<-NA
+  d$locus[grepl('IGH',d$vAndJchain)]<-'IGH'
+  d$locus[d$vAndJchain=='NA-NA' | d$vAndJchain=='TRD-TRA']<-'Other'
+  d$locus[grepl('TRA',d$vAndJchain)]<-'TRA'
+  d$locus[grepl('TRB',d$vAndJchain)]<-'TRB'
+  d$locus[grepl('TRD',d$vAndJchain)]<-'TRD'
+  d$locus[grepl('TRG',d$vAndJchain)]<-'TRG'
 
   d$junction<-factor(d$junction,levels=c('vAndJ','vOnly','jOnly','neitherVnorJ'))
   
   datalist_vAndJ[[i]]<-d[d$junction=='vAndJ',]
+  datalist_vAndJ[[i]]<-datalist_vAndJ[[i]][rowSums(is.na(datalist_vAndJ[[i]]))==0,]
+  datalist_vAndJnoju[[i]]<-datalist_vAndJ[[i]][rowSums(is.na(datalist_vAndJ[[i]]))>=0,]
   datalist_vOnly[[i]]<-d[d$junction=='vOnly',]
   datalist_jOnly[[i]]<-d[d$junction=='jOnly',]
   datalist_neitherVnorJ[[i]]<-d[d$junction=='neitherVnorJ',]
   
-  temp<-as_tibble(aggregate(d$size,by=list(junction=d$junction,locus=d$vAndJchainSimplified),FUN=sum))
+  temp<-as_tibble(aggregate(d$readCount,by=list(junction=d$junction,locus=d$locus),FUN=sum))
   temp$sample<-files_short[i]
   d.aggregated<-bind_rows(d.aggregated,temp)
 }
+
 
 #================ plot junction types ===================
 #shorten sample name; currently: "16-088089-3D1P3C1P1C1_Mcdermott-Gibbie_S1" 
