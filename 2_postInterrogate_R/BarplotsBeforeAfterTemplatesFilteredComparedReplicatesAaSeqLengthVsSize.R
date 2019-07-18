@@ -46,9 +46,9 @@ for (m in seq(from=1,to=length(datalist),by=2)){
   my.sample.2<- files_short[m+1]
   files_shortA<- gsub(".*_","",my.sample.1)
   files_shortB<- gsub(".*_","",my.sample.2)
-  #full_names1<- gsub("\\d*-\\d*-\\w*-\\w*_","",my.sample.1)
-  full_names1<- gsub("\\d*-\\d*-\\w*_","",my.sample.1)
-  full_names2<- gsub("_.*","",full_names1)
+  full_names1<- gsub("\\w*([-|_]).*\\d([-|_])","",my.sample.1)
+  #full_names1<- gsub("\\w*([-|_]).*_N","N",my.sample.1)
+  full_names2<- gsub("_S\\d*$","",full_names1)
   compare_list<-list(datalist[[m]],datalist[[(m+1)]])
   
     tabletempw<-list()

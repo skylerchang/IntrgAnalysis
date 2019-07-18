@@ -50,9 +50,9 @@ my.sample.2<- files_short[m+1]
 name_list<-list(my.sample.1,my.sample.2)
 files_shortA<- gsub(".*_","",my.sample.1)
 files_shortB<- gsub(".*_","",my.sample.2)
-full_names1<- gsub("\\d*-\\d*-\\w*_","",my.sample.1)  
-#full_names1<- gsub("\\d*-\\d*-\\w*-\\w*_","",my.sample.1)
-full_names2<- gsub("_.*","",full_names1)
+full_names1<- gsub("\\w*([-|_]).*\\d([-|_])","",my.sample.1)
+#full_names1<- gsub("\\w*([-|_]).*_N","N",my.sample.1)
+full_names2<- gsub("_S\\d*$","",full_names1)
 compare_list<-list(datalist[[m]],datalist[[(m+1)]])
 ####### test different locus ########
   for (i in 1:length(loci)) {
@@ -93,6 +93,7 @@ compare_list<-list(datalist[[m]],datalist[[(m+1)]])
           tt2$color<-"grey"
           tt2$color[1:nrow(tt2)]<-col[1:nrow(tt2)]
         } else {
+          plot(0, xaxt = 'n', yaxt = 'n', bty = 'n', pch = '', ylab = '', xlab = '')
           break
         }  
           test<-tt2[tt2$aaLength==j,c("aaSeq","size","color")]
