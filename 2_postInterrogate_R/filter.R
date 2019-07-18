@@ -105,9 +105,7 @@ filteredDataForDB<-tibble()
 for (i in 1:length(files_short)){  
   print(files_short[i])
   clUp2Id<-files_short[i] %>% strsplit(.,"_") %>% unlist() %>% .[1]
-  a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
-  colnames(a)[5]<-'readCount'
-  colnames(a)[7]<-'locus'
+  a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","readCount","completeNtSeq","locus")]
 
   count.all<-sum(a$readCount)
   if(nrow(a)==0){next}
@@ -195,6 +193,7 @@ write_delim(filteredDataForDB,'../Data/Clntab_delim/clntab_vAndJ_filtered.txt')
 #===================== read count summary ======================
 #===============================================================
 readCountSummary2<-splitFilename(readCountSummary,sampleNoCodesForFraction)
+readCountSummary$filename
 
 #save as xlsx
 wb<-createWorkbook()
