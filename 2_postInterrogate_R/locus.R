@@ -13,7 +13,7 @@ getwd()
 
 #=========== adjust =============
 loci<-c("IGH","TRB")
-run<-30
+run<-28
 sampleNoCodesForFraction<-F        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ_filtered.rds'
@@ -37,8 +37,15 @@ locusSummary<-tibble()
 for (i in 1:length(files_short)){  
   print(files_short[i])
   a<-datalist[[i]]
+  if(is.null(a)){
+    print("no data - NULL")
+    next
+  }
   count.all<-nrow(a)
-  if(nrow(a)==0){next}
+  if(count.all==0){
+    print("no data")
+    next
+  }
   a$filename<-files_short[i]
   
   #============ create locus summary =======
@@ -62,35 +69,8 @@ for (i in 1:length(files_short)){
 #===============================================================
 l<-locusSummary
 
-#function splits file name into components creating a new col for each; starting format:
-#<id>_<ownerPatient>_<idNumber>
-#strsplit by '_' -> 3 parts: 1) id, 2) ownerPatient, 3) idNumber
-#1) id is then broken down further into: pcr, sample, submission, replicate, fraction
-splitFilename<-function(x){
-  #transform old control names to required format
-  x$filename<-x$filename %>%
-    sub("k9-pc-st_D16-07","D16-07-st",.) %>% 
-    sub("k9-pc_D16-07","D16-07",.) %>% 
-    sub("k9-nt-st_H2O","ntc",.) %>% 
-    sub("k9-nt_H2O","ntc-st",.)
-  splitFilename<-strsplit(x$filename,"_")
-  x$id<-laply(splitFilename, '[[', 1)
-  x$ownerPatient<-laply(splitFilename, '[[', 2)
-  x$idNumber<-laply(splitFilename, '[[', 3)
-  x$pcr<-sub("C[0-9]+P[0-9]+C[0-9]+$","",x$id)
-  x$sample<-sub("-D[0-9]+P[0-9]+$","",x$pcr)
-  x$submission<-sub("-[0-9a-zA-Z]+$","",x$sample)
-  x$replicate<-ifelse(grepl("D[0-9]+P[0-9]*[13579]$",x$pcr),"rep1","rep2")
-  if(sampleNoCodesForFraction==T){
-    x$fraction<-ifelse(grepl("-1$",sample),"fraction1","fraction2")
-  }else{
-    x$fraction<-rep("fraction1",length(sample))
-  }
-  x
-}
-
 #create additional columns
-l<-splitFilename(l)
+l<-splitFilename(l,sampleNoCodesForFraction,run)
 
 #=============== save as xlsx & rds =================
 #save as rds
@@ -106,7 +86,7 @@ saveWorkbook(wb,paste0(resultsPathLocus,"locusSummary.xlsx"),overwrite = T)
 #subset count data, reshape to long format, split file name
 l.count.long<-subset(l,select=c(filename,igh.count,trb.count)) %>%
   gather(locus,value,-filename) %>%
-  splitFilename()
+  splitFilename(.,sampleNoCodesForFraction,run)
 #create 4 replicates by incorporating the locus information -> plot loci in different colors
 l.count.long$replicate2<-paste(l.count.long$locus,l.count.long$replicate,sep='-')
 
@@ -115,7 +95,7 @@ ggplot(l.count.long,aes(locus,value,fill=replicate2))+geom_col(position=position
 dev.off()
 
 #================= plot locus ratio data =================
-l.splitFilename<-splitFilename(l)
+l.splitFilename<-splitFilename(l,sampleNoCodesForFraction,run)
 
 #total reads vs locus ratio
 pdf(paste0(resultsPathLocus,"readsVsLocusRatio_all.pdf"))
