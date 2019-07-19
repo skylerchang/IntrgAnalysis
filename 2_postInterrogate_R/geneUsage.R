@@ -28,9 +28,18 @@ v<-tibble()
 j<-tibble()
 
 for (i in 1:length(datalist)){
+  print(files_short[[i]])
   t<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","readCount","locus")]
+  if (is.null(datalist[[i]])){
+    print("no data")
+    next
+    }
   for (k in 1:length(loci)){
     tt<-t[t$locus==loci[k],]
+    if (nrow(tt)==0){
+      print(paste0("No data for ",loci[k]))
+      next
+    }
     tt<-tt[rowSums(is.na(tt))==0,]
     
     #================ vGene subgroup usage =================================
