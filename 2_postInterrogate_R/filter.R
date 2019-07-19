@@ -12,8 +12,8 @@ getwd()
 source("2_postInterrogate_R/functions.R")
 
 #=========== adjust =============
-run<-30
-sampleNoCodesForFraction<-F        #T or F
+run<-28
+sampleNoCodesForFraction<-F       #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPathReads<-'../Results/ReadCounts/'
@@ -192,8 +192,8 @@ write_delim(filteredDataForDB,'../Data/Clntab_delim/clntab_vAndJ_filtered.txt')
 #===============================================================
 #===================== read count summary ======================
 #===============================================================
-readCountSummary2<-splitFilename(readCountSummary,sampleNoCodesForFraction)
-readCountSummary$filename
+readCountSummary2<-splitFilename(readCountSummary,sampleNoCodesForFraction,run)
+readCountSummary2$fraction
 
 #save as xlsx
 wb<-createWorkbook()
@@ -206,10 +206,10 @@ saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary.rds"))
 
 #transform to long format and split filename
 readCount.long<-gather(subset(readCountSummary,select=-c(readCount.total,readCount.ighAndTrb)),variable,value,-filename)
-readCount.long<-splitFilename(readCount.long,sampleNoCodesForFraction)
+readCount.long<-splitFilename(readCount.long,sampleNoCodesForFraction,run)
 
 #plot by submission for 'sampleNoCodesForFraction<-T'
-if (sampleNoCodesForFraction<-T){
+if (sampleNoCodesForFraction==T){
   pdf('../Results/ReadCounts/readCountSummary_bySubmission.pdf')
   ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(submission~fraction)+theme(strip.text.y=element_text(angle=360))
   dev.off()
