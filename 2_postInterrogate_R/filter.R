@@ -12,8 +12,8 @@ getwd()
 source("2_postInterrogate_R/functions.R")
 
 #=========== adjust =============
-run<-22
-sampleNoCodesForFraction<-T        #T or F
+run<-30
+sampleNoCodesForFraction<-F        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPathReads<-'../Results/ReadCounts/'
@@ -208,13 +208,22 @@ saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary.rds"))
 readCount.long<-gather(subset(readCountSummary,select=-c(readCount.total,readCount.ighAndTrb)),variable,value,-filename)
 readCount.long<-splitFilename(readCount.long,sampleNoCodesForFraction)
 
-pdf('../Results/ReadCounts/readCountSummary_bySubmission.pdf')
-ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(submission~fraction)+theme(strip.text.y=element_text(angle=360))
-dev.off()
+#plot by submission for 'sampleNoCodesForFraction<-T'
+if (sampleNoCodesForFraction<-T){
+  pdf('../Results/ReadCounts/readCountSummary_bySubmission.pdf')
+  ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(submission~fraction)+theme(strip.text.y=element_text(angle=360))
+  dev.off()
+  
+  pdf('../Results/ReadCounts/readCountSummary_byOwnerPatient.pdf')
+  ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(ownerPatient~fraction)+theme(strip.text.y=element_text(angle=360))
+  dev.off()
+}else{
+  #plot by sample for 'sampleNoCodesForFraction<-T'
+  pdf('../Results/ReadCounts/readCountSummary_bySample.pdf')
+  ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(sample~fraction)+theme(strip.text.y=element_text(angle=360))
+  dev.off()
+}
 
-pdf('../Results/ReadCounts/readCountSummary_byOwnerPatient.pdf')
-ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(ownerPatient~fraction)+theme(strip.text.y=element_text(angle=360))
-dev.off()
 
 #===============================================================
 #========================== template summary ===================
