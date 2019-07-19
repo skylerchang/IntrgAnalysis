@@ -199,10 +199,10 @@ readCountSummary2$fraction
 wb<-createWorkbook()
 addWorksheet(wb,"summary")
 writeData(wb,"summary",readCountSummary2)
-saveWorkbook(wb,paste0(resultsPathReads,"readCountSummary.xlsx"),overwrite=T)
+saveWorkbook(wb,paste0(resultsPathReads,"readCountSummary_repsAsRows.xlsx"),overwrite=T)
 
 #save as rds
-saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary.rds"))
+saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary_repsAsRows.rds"))
 
 #transform to long format and split filename
 readCount.long<-gather(subset(readCountSummary,select=-c(readCount.total,readCount.ighAndTrb)),variable,value,-filename)
@@ -224,6 +224,17 @@ if (sampleNoCodesForFraction==T){
   dev.off()
 }
 
+#======= transpose reps to cols ===========
+readCountSummary3<-readCountSummary2 %>%
+  select(-c(filename,idNumber,id,pcr)) %>%
+  gather(key,value,readCount.total:falseAnchor.trb) %>%
+  unite(key_rep,key,replicate) %>%
+  spread(key_rep,value)
+
+wb<-createWorkbook()
+addWorksheet(wb,'summary')
+writeData(wb,'summary',readCountSummary3)
+saveWorkbook(wb,paste0(resultsPathReads,"readCountSummary_repsAsCols.xlsx"),overwrite = T)
 
 #===============================================================
 #========================== template summary ===================
