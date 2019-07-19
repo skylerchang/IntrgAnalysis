@@ -88,6 +88,7 @@ v[rowSums(is.na(v))>0,]
 
 #calculate median percentage for subgroups; used to order levels for plotting based on frequency
 medianlist<-list()
+wb<-createWorkbook()
 for (i in 1:length(loci)){
   #subset by locus
   vv<-v[v$locus==loci[i],]
@@ -104,7 +105,6 @@ for (i in 1:length(loci)){
   #calculate summary stats
   vv.long<-as_tibble(ddply(vv,~vSubgroup,summarize,median=median(x.perc),mean=mean(x.perc),sd=sd(x.perc),min=min(x.perc),max=max(x.perc)))
   #write to xlsx file
-  wb<-createWorkbook()
   worksheet<-paste0("V-",loci[i],"-Summary")
   addWorksheet(wb,worksheet)
   writeData(wb,worksheet,vv.long)
@@ -113,7 +113,7 @@ for (i in 1:length(loci)){
   #store in list
   medianlist[[i]]<-vv.long$vSubgroup[1:10]
 }
-saveWorkbook(wb,"geneUsageSummary_vGene.xlsx",overwrite = T)
+saveWorkbook(wb,paste0(outpath,"geneUsageSummary_vGene.xlsx"),overwrite = T)
 medianlistVector<-unlist(medianlist)
 
 v$locus<-as.factor(v$locus)
@@ -173,7 +173,7 @@ for (i in 1:length(loci)){
   #store in list
   medianlist[[i]]<-jj.long$jGene[1:10]
 }
-saveWorkbook(wb,"geneUsageSummary_jGene.xlsx",overwrite = T)
+saveWorkbook(wb,paste0(outpath,"geneUsageSummary_jGene.xlsx"),overwrite = T)
 
 medianlistVector<-unlist(medianlist)
 
