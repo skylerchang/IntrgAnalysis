@@ -1,18 +1,20 @@
 #script calculates diversity for split 'Clntab_RDS' files: 'Clntab_RDS_noTemplate' & 'Clntab_RDS_templateOnly'
 #v14: process data from multiple sequencing runs
 
-library(tidyverse)
-library(vegan)
 library(plyr)
+library(tidyverse)
 library(here)
-library(reshape2)
+#library(reshape2)
 library(RColorBrewer)
-library(ggpubr)
+#library(ggpubr)
 library(openxlsx)
-library(ggExtra)
+#library(ggExtra)
+library(MASS)
 
 setwd(here())
 getwd()
+
+source("2_postInterrogate_R/functions.R")
 
 #=========== adjust =============
 
@@ -20,24 +22,28 @@ sampleNoCodesForFraction<-T        #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 rdsPaths<-c(
-  '../../Run13_k9MRD-Reilly-AllTimePoints/Data/Clntab_RDS/clntab_vAndJ.rds',
-  '../../Run17_Bella_Marishka/Data/Clntab_RDS/clntab_vAndJ.rds',
-  '../../Run22_MRD_Daisy_Sona_UntilRelapse/Data/Clntab_RDS/clntab_vAndJ.rds',
-  '../../Run27_MRD_Eddie_Jake_UntilRelapse/Data/Clntab_RDS/clntab_vAndJ.rds',
-  '../../Run29_MRD_Bentley_Cheech_Gypsy_UntilRelapse/Data/Clntab_RDS/clntab_vAndJ.rds'
+  '../../Run13_k9MRD-Reilly-AllTimePoints/Data/Clntab_RDS/clntab_vAndJ_filtered.rds',
+  '../../Run17_Bella_Marishka/Data/Clntab_RDS/clntab_vAndJ_filtered.rds',
+  '../../Run22_MRD_Daisy_Sona_UntilRelapse/Data/Clntab_RDS/clntab_vAndJ_filtered.rds',
+  '../../Run27_MRD_Eddie_Jake_UntilRelapse/Data/Clntab_RDS/clntab_vAndJ_filtered.rds',
+  '../../Run29_MRD_Bentley_Cheech_Gypsy_UntilRelapse/Data/Clntab_RDS/clntab_vAndJ_filtered.rds'
   )
 runs<-c(13,17,22,27,29)
 
-loci<-c("IGH")
+outPathTile<-'../Results/TrackClones/Tileplots/'
+outPathBar<-'../Results/TrackClones/Barplots/'
+outPathDensity<-'../Results/TrackClones/DensityPlots/'
 #===================================
+dir.create(outPathTile,recursive=T)
+dir.create(outPathBar,recursive=T)
+dir.create(outPathDensity,recursive=T)
+
 indexSummary<-tibble()
 templateSummary<-tibble()
 diversity<-tibble()
 
 for (k in 1:length(rdsPaths)){
   print(rdsPaths[k])
-  
-  ifelse(k==1,thisIsReilly<-T,thisIsReilly<-F)
   
   t<-read_rds(rdsPaths[k])
   
@@ -49,52 +55,9 @@ for (k in 1:length(rdsPaths)){
   files_short
   
   for (i in 1:length(datalist)){
-    a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","size","completeNtSeq","vAndJchainSimplified")]
+    a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","readCount","completeNtSeq","locus")]
     if(is.null(a)){next}
     if(nrow(a)==0){next}
-    #============ standardize sample name =======
-    #assume the following default format:
-    # [1] "16-088089-3D1P3C1P1C1_Mcdermott-Gibbie"      
-    # [2] "16-088089-3D1P4C1P1C1_Mcdermott-Gibbie"   
-    #deviations:
-    #[92] "k9-pc_D16-07-2FD4P59C1P1C1_OWN33-PAT1_S92"      
-    #[93] "k9-pc-st_D16-07-2FD1P32C1P1C1_OWN33-PAT1_S93"  
-    #<sampleId>_<sampleName>
-    file<-sub("_S[0-9]+$","",files_short[i])
-    file<-sub("ntc","NTC",file)
-    #if this is reilly
-    if (thisIsReilly==T){
-      file<-sub("[0-9]+_","",file)
-      file<-paste0(file,"_McCormick-Reilly")
-    }
-    #tranform samples to fit default format -> only one '_' which needs to be between sampleId & sampleName
-    #run13: "35_NTC-D1P122_S35","42_NTC-D1P123_S42","49_D16-D1P133_S49","56_D16-D1P134_S56"
-    #run17: "D16-07-1FD1P267C1P1C1_OWN33-PAT1_S71","D16-07-1FD1P268C1P1C1_OWN33-PAT1_S72"
-    #       "NTC-can-0D1P182C1P1C1_NTC-NTC-canine_S69","NTC-can-0D1P183C1P1C1_NTC-NTC-canine_S70"
-    #run22: "D16-07-1FD1P337C1P1C1","D16-07-1FD1P338C1P1C1","D16-07-ST-1FD1P335C1P1C1","D16-07-ST-1FD1P336C1P1C1"
-    file<-sub("NTC","ntc-ntc",file)
-    file<-sub("D16","pc-pc",file)
-    file<-sub("k9-pc-st_D16-07","pcST-pcST",file)
-    file<-sub("k9-pc_D16-07","pc-pc",file)
-    file<-sub("k9-nt-st_H2O","ntc-ntc",file)
-    file<-sub("k9-nt_H2O","ntcST-ntcST",file)
-    sampleId<-sub("_.*$","",file)
-    sampleName<-sub("^.*_","",file)
-    
-    if (thisIsReilly==T){
-      sampleId<-paste0(sampleId,"C1P1C1")
-      file<-paste(sampleId,sampleName,sep="_")
-    }
-    #============ extract replicate & sample =======
-    replicate<-ifelse(grepl("D[0-9]+P[0-9]*[02468]C",sampleId),"rep1","rep2")
-    if(sampleNoCodesForFraction==T){
-      fraction<-ifelse(grepl("-1D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$",sampleId),"PBMCs","Plasma")
-    }else{
-      fraction<-"fraction1"
-    }
-    sampleIdShort<-sub("D[0-9]+P[0-9]+C[0-9]+P[0-9]+C[0-9]+$","",sampleId)
-    submission<-sub("-[0-9a-zA-Z]+$","",sampleIdShort)
-    patient<-sub("-.*","",submission)
     
     #============ check for index sequences =======
     a$index<-'no'
@@ -110,65 +73,27 @@ for (k in 1:length(rdsPaths)){
     a$index[grepl("CVRGANSWFPDFDYW",a$aaSeq)]<-'reilly'
     a$index[grepl("CAKELYYDSYSVDYW",a$aaSeq)]<-'sona'
     
-    #============ check for templates =======
-    a$template<-'no'
-    #Akash‘s templates
-    a$template[grepl("TGTGCATCACGACACAGTGGTCTGG",a$completeNtSeq)]<-'t1'
-    a$template[grepl("TGTGCATCACGACCAGATCCACAGATCCATTGGTTACTGG",a$completeNtSeq)]<-'t2'
-    #Tamara‘s templates
-    a$template[grepl("TGTTCGCCTTATCGCCTTATGG",a$completeNtSeq)]<-'IGHV1-30_IGHJ4'
-    a$template[grepl("TGTCTAGTACGCCTCTCTGCCTCTCTGCTAGTACGTGG",a$completeNtSeq)]<-'IGHV1-30_IGHJ6'
-    a$template[grepl("TGTGCTTCTGCCTTTCTGCCTGCTCAGGATTCTGCCTGCTCAGGAGCTCAGGATTCTCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ4'
-    a$template[grepl("TGTGAGGAGTCCGTAGAGAGAGGAGTCCAGCGTAGCCATGCCTAAGGAGTCCCAGCCTCGGTAGAGAGAGCGCTGG",a$completeNtSeq)]<-'IGHV3-1_IGHJ6'
-    a$template[grepl("TGTAAGGAGTAACTGCATAACTGCATACTAAGCCTAAGGAGTATGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ4'
-    a$template[grepl("TGTGTGCCTCTTTCCTCTACTAGATCGCCTCTCTATTATCCTCTAGAGTAGAGTAAGGAGTAGATCGCTATCCTCTGTAAGGAGTCCTCTACCTGG",a$completeNtSeq)]<-'IGHV4-1_IGHJ6'
-    
-    #split in separate tibbles
-    a.withoutTemplate<-a[a$template=='no',]
-    a.templateOnly<-a[a$template!='no',]
-    
     #========== summarize index sequences ==============
-    temp<-ddply(a.withoutTemplate[,c("size","index")],"index",na.rm=T, numcolwise(sum))
+    temp<-ddply(a[,c("readCount","index")],"index",na.rm=T, numcolwise(sum))
     if (nrow(temp)==0){next}
-    temp$totalReads<-sum(temp$size)
-    temp$percentage<-temp$size/temp$totalReads*100
-    temp$submission<-submission
-    temp$replicate<-replicate
-    temp$fraction<-fraction
+    temp$totalReads<-sum(temp$readCount)
+    temp$percentage<-temp$readCount/temp$totalReads*100
     temp$run<-runs[k]
-    temp$patient<-patient
+    temp$filename<-files_short[i]
     indexSummary<-bind_rows(indexSummary,temp)
-    
-    #============ summarize templates for sample and store in tibble =======
-    temp<-ddply(a.templateOnly,"template",numcolwise(sum))
-    if(nrow(temp)==0){next}
-    temp<-as_tibble(temp[,c("template","size")])
-    temp$sample<-files_short[i]
-    temp$totalReads<-sum(temp$size)
-    temp$percentage<-temp$size/temp$totalReads*100
-    temp$submission<-submission
-    temp$replicate<-replicate
-    temp$fraction<-fraction
-    temp$run<-runs[k]
-    temp$patient<-patient
-    templateSummary<-bind_rows(templateSummary,temp)
   }
 }
 c<-indexSummary
 
 #remove controls for now -> revisit
 remove<-c("ntc","k9","pc")
-c<-c[!grepl(paste0(remove,collapse='|'),c$submission),]
+c<-c[!grepl(paste0(remove,collapse='|'),c$filename),]
+
 #remove non-index clones
 c<-c[c$index!='no',]
 
-#create col 'submissionNo'
-c$submissionNo<-sub(".*-","",c$submission)
-
-#========= templates - quick peak ==================
-ggplot(templateSummary,aes(template,size,fill=patient))+geom_col()+coord_flip()+theme(legend.position="none")
-ggplot(templateSummary,aes(fraction,size,fill=template))+geom_col()+scale_fill_brewer(palette="Dark2")+coord_flip()+theme(legend.position="top")+facet_wrap(~patient)
-
+#split filename
+c<-splitFilename(c,sampleNoCodesForFraction)
 
 #=============================================================
 #========= index clone analysis - tile plots =================
@@ -176,9 +101,9 @@ ggplot(templateSummary,aes(fraction,size,fill=template))+geom_col()+scale_fill_b
 
 #++++++++++++ functions +++++++++++++++++
 #plot tiles - facet: patient~fraction
-#x: data, y: patient index; z: size or percentage (implement)
+#x: data, y: patient index; z: readCount or percentage (implement)
 plotTile<-function(x,y){
-  p<-ggplot(x,aes(submissionNo,replicate,fill=size))+
+  p<-ggplot(x,aes(submission,replicate,fill=readCount))+
     geom_tile(colour="darkgrey",size=0.25)+
     facet_grid(patient~fraction)+
     scale_fill_gradient(high='red',low='white')+
@@ -196,20 +121,20 @@ plotTile<-function(x,y){
 
 #========= generate empty tibble ===================
 #create empty matrix with the following variables to create the default plotting 'area'
-#size,percentage,replicate,fraction,run,patient,submissionNo
+#readCount,percentage,replicate,fraction,run,patient,submission
 patient<-c("bella","bentle","cheech","daisy","eddie","gypsy","jake","marish","sona","reilly")
 timepoint<-c(7,3,6,12,8,11,13,9,6,10)   #the number of submissions per patient
 run<-c(17,29,29,22,27,29,27,17,22,13)   #the run number in which it was sequenced
 empty<-tibble()
 for (i in 1:length(timepoint)){
   temp<-tibble(
-    size=rep(0,(4*timepoint[i])),
+    readCount=rep(0,(4*timepoint[i])),
     percentage=rep(0,(4*timepoint[i])),
     replicate=rep(c("rep1","rep2"),(2*timepoint[i])),
     fraction=rep(rep(c("PBMCs","Plasma"),each=2),timepoint[i]),
     run=rep(run[i],4*timepoint[i]),
     patient=rep(patient[i],4*timepoint[i]),
-    submissionNo=formatC(rep(1:timepoint[i],each=4),width=2,flag="0")
+    submission=formatC(rep(1:timepoint[i],each=4),width=2,flag="0")
   )
   empty<-bind_rows(empty,temp)
 }
@@ -223,11 +148,11 @@ clones<-c("bella","bentle","cheech","daisy","eddie1","eddie2","gypsy","jake","ma
 for (k in 1:length(clones)){
   #subset by index clone
   cc<-c[c$index==clones[k],]
-  cc<-subset(cc,select=c(size,percentage,replicate,fraction,run,patient,submissionNo))
+  cc<-subset(cc,select=c(readCount,percentage,replicate,fraction,run,ownerPatient,submission))
 
   #combine empty and x and sum up
   data<-as_tibble(bind_rows(empty,cc))
-  data<-as_tibble(ddply(data,c("replicate","fraction","run","patient","submissionNo"),numcolwise(sum)))
+  data<-as_tibble(ddply(data,c("replicate","fraction","run","patient","submission"),numcolwise(sum)))
   
   #split by patient
   data<-split(data,data$patient)
@@ -242,7 +167,7 @@ for (k in 1:length(clones)){
   temp[temp$patient=='bella',]
   
   library(ggpubr)
-  pdf(paste0("../Results/Clones/TilePlots/tilePlot_clone-",clones[k],".pdf"))
+  pdf(paste0(outPathTile,"tilePlot_clone-",clones[k],".pdf"))
   print(ggarrange(plotlist=pl,ncol=1))
   dev.off()
 }
@@ -254,7 +179,7 @@ for (k in 1:length(clones)){
 
 #+++++++++++++++++++++ function +++++++++++++++++++++
 plotCount<-function(x,y,z){
-  ggplot(x,aes(submission,size,fill=replicate))+
+  ggplot(x,aes(submission,readCount,fill=replicate))+
     geom_col(position=position_dodge(preserve = "single"))+
     facet_grid(index~fraction)+
     scale_fill_brewer(palette="Paired")+
@@ -262,7 +187,7 @@ plotCount<-function(x,y,z){
     xlab("Time till relapse [weeks]")+ylab("Read count neoplastic clone")
 }
 plotCount_freeScale<-function(x,y,z){
-  ggplot(x,aes(submission,size,fill=replicate))+
+  ggplot(x,aes(submission,readCount,fill=replicate))+
     geom_col(position=position_dodge(preserve = "single"))+
     facet_grid(index~fraction,scale='free')+
     scale_fill_brewer(palette="Paired")+
@@ -314,27 +239,27 @@ labels<-list(
 )
 
 i<-indexSummary
+i<-splitFilename(i,sampleNoCodesForFraction)
 
 for (j in 1:length(submissions)){
   ii<-i[grepl(submissions[j],i$submission) & i$index!='no',]
   
-  pdf(paste0("../Results/Clones/",submissions[j],"_count.pdf"))
+  pdf(paste0(outPathBar,submissions[j],"_count.pdf"))
   print(plotCount(ii,limits[[j]],labels[[j]]))
   dev.off()
   
-  pdf(paste0("../Results/Clones/",submissions[j],"_countFreeScale.pdf"))
+  pdf(paste0(outPathBar,submissions[j],"_countFreeScale.pdf"))
   print(plotCount_freeScale(ii,limits[[j]],labels[[j]]))
   dev.off()
   
-  pdf(paste0("../Results/Clones/",submissions[j],"_percent.pdf"))
+  pdf(paste0(outPathBar,submissions[j],"_percent.pdf"))
   print(plotPercentage(ii,limits[[j]],labels[[j]]))
   dev.off()
   
-  pdf(paste0("../Results/Clones/",submissions[j],"_percentFreeScale.pdf"))
+  pdf(paste0(outPathBar,submissions[j],"_percentFreeScale.pdf"))
   print(plotPercentage_freeScale(ii,limits[[j]],labels[[j]]))
   dev.off()
 }
-
 
 #print to xlsx
 submissions<-unique(submissions)
@@ -379,16 +304,129 @@ ggplot(i.reilly,aes(submission,percentage,fill=replicate))+
   xlab("Time till relapse [weeks]")+ylab("Reads of neoplastic clone [%]")
 dev.off()
 
-
+#=========================================================================================
 #================ sample cross-contamination - read count vs. percentage =================
+#=========================================================================================
 i<-indexSummary
-#filter for lines where $index != $submission => cross-contamination
-ii<-i[substring(i$index,1,4)!=substring(i$submission,1,4),]
-ii<-ii[ii$index!='no',]
+i<-splitFilename(i,sampleNoCodesForFraction)
+#remove lines that are not index sequences
+i<-i[i$index!='no',]
+
+i$indexId<-substring(i$index,1,4)
+i$dogId<-substring(i$submission,1,4)
+
+i$indexType<-ifelse(i$indexId==i$dogId,'mrd','contamination')
+
+#======== determine which seqs occur in both replicates =====
+#create additional col with fused index, submission and fraction
+i<-i %>% unite(index_submission_fraction,index,submission,fraction,remove=F)
+i$index_submission_fraction<-as.factor(i$index_submission_fraction)
+#determine frequency
+n_occur<-data.frame(table(i$index_submission_fraction))
+#make vector with all that occur >1 time
+inBothReplicates<-n_occur$Var1[n_occur$Freq>1]
+#create new column in i
+i$inBothReplicates<-F
+i$inBothReplicates[i$index_submission_fraction %in% inBothReplicates]<-T
+
+#======== plot =======
+point<-function(x){
+  ggplot(x,aes(readCount,percentage,fill=inBothReplicates))+geom_point(pch=21)
+}
+pointLog<-function(x){
+  ggplot(x,aes(log10(readCount),log10(percentage),fill=inBothReplicates))+geom_point(pch=21)
+}
+plotDensity<-function(x,y){
+  density<-kde2d(log10(x$readCount),log10(x$percentage),n=50)
+  filled.contour(density,color.palette=colorRampPalette(y))
+}
+#define palettes
+palette.mrd<-c('darkgrey','lightgrey','white','blue','darkblue')
+palette.contamination<-c('darkgrey','lightgrey','white','lightyellow','orange','red','darkred')
+
+#plot all
+point(i)
+pointLog(i)
+plotDensity(i.mrd,palette.mrd)
+
+
+#subset by mrd
+i.mrd<-i[i$indexType=='mrd',]
+ggplot(i.mrd,aes(inBothReplicates,percentage))+geom_boxplot()
+point(i.mrd)
+pointLog(i.mrd)
+plotDensity(i.mrd,palette.mrd)
+#subset by mrd + in both
+i.mrd.inBoth<-i.mrd[i.mrd$inBothReplicates==T,]
+point(i.mrd.inBoth)
+pointLog(i.mrd.inBoth)
+plotDensity(i.mrd.inBoth,palette.mrd)
+#subset by mrd + in one
+i.mrd.inOne<-i.mrd[i.mrd$inBothReplicates==F,]
+point(i.mrd.inOne)
+pointLog(i.mrd.inOne)
+plotDensity(i.mrd.inOne,palette.mrd)
+
+#subset by contamination
+i.contamination<-i[i$indexType=='contamination',]
+point(i.contamination)
+pointLog(i.contamination)
+plotDensity(i.contamination,palette.contamination)
+#subset by contamination + in both
+i.contamination.inBoth<-i.contamination[i.contamination$inBothReplicates==T,]
+point(i.contamination.inBoth)
+pointLog(i.contamination.inBoth)
+plotDensity(i.contamination.inBoth,palette.contamination)
+#subset by contamination + in one
+i.contamination.inOne<-i.contamination[i.contamination$inBothReplicates==F,]
+point(i.contamination.inOne)
+pointLog(i.contamination.inOne)
+plotDensity(i.contamination.inOne,palette.contamination)
+
+
+#subset by replicate
+i.both<-i[i$inBothReplicates==T,] %>% 
+  group_by(index_submission_fraction) %>%
+  mutate(percentage.mean=mean(percentage),percentage.sd=sd(percentage),readCount.mean=mean(readCount),n=n())
+
+ggplot(i.both,aes(percentage.mean,percentage.sd))+geom_point()
+
+#readCount vs. percentage - no facet
+ggplot(i.both,aes(log10(readCount),log10(percentage),fill=indexType))+geom_point(pch=21)+geom_density_2d(aes(color=indexType))
+
+#readCount vs. percentage
+pdf(paste0(outPathDensity,"density_facetConVsMrd.pdf"))
+ggplot(i.both,aes(log10(readCount),log10(percentage),fill=indexType))+facet_wrap(~indexType)+geom_density_2d(aes(color=indexType),bins=40)+geom_point(pch=21)
+dev.off()
+
+#readCount vs. percentage - SD as size
+ggplot(i.both,aes(log10(readCount),log10(percentage),fill=indexType,size=percentage.sd))+geom_point(pch=21)+facet_wrap(~indexType)+geom_density_2d(aes(color=indexType))
+
+#readCount vs. percentage - with line connecting replicates
+ggplot(i.both,aes(log10(readCount),log10(percentage),fill=indexType))+geom_point(pch=21)+facet_wrap(~indexType)+geom_density_2d(aes(color=indexType))+geom_line(group=i.both$index_submission_fraction)
+
+#focus on outliers in contaminated
+problemCases<-i.both[log10(i.both$readCount)>log10(100),] #& i.both$indexType=='contamination'
+pcVector<-problemCases$index_submission_fraction
+problemCasesBoth<-i.both[i.both$index_submission_fraction %in% pcVector,]
+
+ggplot(problemCasesBoth,aes(log10(readCount),log10(percentage),fill=indexType))+geom_point(pch=21)+facet_wrap(~indexType)+geom_density_2d(aes(color=indexType))+geom_line(group=problemCasesBoth$index_submission_fraction)+geom_text(aes(label=problemCasesBoth$index_submission_fraction),hjust=0, vjust=0)
+
+problemCasesBothCont<-ungroup(problemCasesBothCont)
+ggplot(problemCasesBothCont,aes(log10(readCount),log10(percentage),fill=indexType))+
+  geom_point(pch=21)+
+  facet_wrap(~indexType)+
+  #geom_line(group=problemCasesBothCont$index_submission_fraction)+
+  geom_text(aes(label=problemCasesBothCont$index_submission_fraction),hjust=0, vjust=0,size=5)
+
+problemCasesBothCont$index_submission_fraction<-as.factor(problemCasesBothCont$index_submission_fraction)
+str(problemCasesBothCont)
+problemCasesBothCont<-problemCasesBoth[problemCasesBoth$indexType=='contamination',]
+
 
 #================== hexagonal binning ====================
 hexbin<-function(x){
-  ggplot(x,aes(size,percentage))+geom_hex()+
+  ggplot(x,aes(readCount,percentage))+geom_hex()+
   labs(title="Index clone cross-contamination",x="Number of reads [n]",y="Percentage of reads [%]")
 }
 
@@ -396,21 +434,21 @@ pdf("../Results/SampleCrossContamination/contamination_hexbin.pdf")
 hexbin(ii)
 dev.off()
 
-pdf("../Results/SampleCrossContamination/contamination_hexbin_sizeUnder1000.pdf")
-hexbin(ii[ii$size<1000,])
+pdf("../Results/SampleCrossContamination/contamination_hexbin_readCountUnder1000.pdf")
+hexbin(ii[ii$readCount<1000,])
 dev.off()
 
 #plot as points with labels
 ii$label<-paste0(ii$index," in ",ii$submission," ",ii$fraction," ",ii$replicate)
 
 pdf("../Results/SampleCrossContamination/contamination_pointwithLabel.pdf")
-ggplot(ii,aes(size,percentage))+geom_point()+
-  labs(title="Index clone cross-contamination",x="Read coverage",y="Percentage of reads [%]")+geom_text(aes(label=ii$label),hjust=0,vjust=0,size=2)+xlim(0,9000)
+ggplot(ii,aes(readCount,percentage))+geom_point()+
+  labs(title="Index clone cross-contamination",x="Read coverage",y="Percentage of reads [%]")+geom_text(aes(label=ii$label),hjust=0,vjust=0,readCount=2)+xlim(0,9000)
 dev.off()
 
-pdf("../Results/SampleCrossContamination/contamination_pointwithLabel_sizeUnder1000.pdf")
-ggplot(ii[ii$size<1000,],aes(size,percentage))+geom_point()+
-  labs(title="Index clone cross-contamination",x="Read coverage",y="Percentage of reads [%]")+geom_text(aes(label=ii[ii$size<1000,]$label),hjust=0,vjust=0,size=2)+xlim(0,600)
+pdf("../Results/SampleCrossContamination/contamination_pointwithLabel_readCountUnder1000.pdf")
+ggplot(ii[ii$readCount<1000,],aes(readCount,percentage))+geom_point()+
+  labs(title="Index clone cross-contamination",x="Read coverage",y="Percentage of reads [%]")+geom_text(aes(label=ii[ii$readCount<1000,]$label),hjust=0,vjust=0,readCount=2)+xlim(0,600)
 dev.off()
 
 #marginal plots don't work with hexagonal binning because they only consider the number of bins and not the number of dots within a bin
@@ -420,25 +458,25 @@ dev.off()
 #================== point plot ====================
 ii$run<-as.factor(ii$run)
 point<-function(x){
-  ggplot(x,aes(size,percentage))+geom_point(pch=21,aes(fill=run))+
+  ggplot(x,aes(readCount,percentage))+geom_point(pch=21,aes(fill=run))+
     labs(title="Index clone cross-contamination",x="Number of reads [n]",y="Percentage of reads [%]")
 }
 
 p2<-point(ii)
 
 pdf("../Results/SampleCrossContamination/contamination_point_wMarginalViolin.pdf")
-ggMarginal(p2+theme(legend.position="left"),type="violin",size=10)
+ggMarginal(p2+theme(legend.position="left"),type="violin",readCount=10)
 dev.off()
 pdf("../Results/SampleCrossContamination/contamination_point_wMarginalBoxplot.pdf")
-ggMarginal(p2+theme(legend.position="left"),type="boxplot",size=10)
+ggMarginal(p2+theme(legend.position="left"),type="boxplot",readCount=10)
 dev.off()
 
 
 #summary statistics
-summary(ii$size)
+summary(ii$readCount)
 summary(ii$percentage)
 
-temp<-subset(ii,select=c(size,percentage))
+temp<-subset(ii,select=c(readCount,percentage))
 temp<-gather(temp)
 pdf("../Results/SampleCrossContamination/contamination_boxplots_readAndPercentage.pdf")
 ggplot(temp,aes(key,value))+geom_boxplot()+facet_wrap(~key,scales="free")
@@ -451,11 +489,11 @@ ii<-ii[ii$index!='no',]
 
 colorCount<-length(unique(ii$patient))
 getPalette<-colorRampPalette(brewer.pal(9,"Set1"))
-pdf("../Results/SampleCrossContamination/contamination_point_coverageAsSize.pdf")
-ggplot(ii,aes(index,percentage,fill=patient))+geom_jitter(pch=21,aes(size=ii$size))+scale_size(range = c(0,10))+scale_fill_manual(values=getPalette(colorCount))
+pdf("../Results/SampleCrossContamination/contamination_point_coverageAsreadCount.pdf")
+ggplot(ii,aes(index,percentage,fill=patient))+geom_jitter(pch=21,aes(readCount=ii$readCount))+scale_readCount(range = c(0,10))+scale_fill_manual(values=getPalette(colorCount))
 dev.off()
 
-pdf("../Results/SampleCrossContamination/contamination_point_coverageAsSize_facetIndex.pdf")
-ggplot(ii,aes(patient,percentage,fill=patient))+geom_jitter(pch=21,width=0.2,aes(size=ii$size))+scale_size(range = c(0,10))+facet_wrap(~index)+theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),legend.position="top")+scale_fill_manual(values=getPalette(colorCount))
+pdf("../Results/SampleCrossContamination/contamination_point_coverageAsreadCount_facetIndex.pdf")
+ggplot(ii,aes(patient,percentage,fill=patient))+geom_jitter(pch=21,width=0.2,aes(readCount=ii$readCount))+scale_readCount(range = c(0,10))+facet_wrap(~index)+theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),legend.position="top")+scale_fill_manual(values=getPalette(colorCount))
 dev.off()
 
