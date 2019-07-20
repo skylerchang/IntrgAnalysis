@@ -106,9 +106,15 @@ for (i in 1:length(files_short)){
   print(files_short[i])
   clUp2Id<-files_short[i] %>% strsplit(.,"_") %>% unlist() %>% .[1]
   a<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","readCount","completeNtSeq","locus")]
-
+  if(is.null(a)){
+    print("no data - NULL")
+    next
+  }
+  if(nrow(a)==0){
+    print("no data")
+    next
+  }
   count.all<-sum(a$readCount)
-  if(nrow(a)==0){next}
   a$filename<-files_short[i]
   
   #============ split dataset into +/- templates =======
@@ -268,3 +274,4 @@ dev.off()
 pdf(paste0(resultsPathTemplate,'templatesBySample_lineplot.pdf'))
 ggplot(templateSummary2,aes(filename,readCount,group=template))+geom_point()+geom_line(aes(color=template))+coord_flip()
 dev.off()
+
