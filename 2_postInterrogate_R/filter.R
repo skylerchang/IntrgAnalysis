@@ -15,7 +15,7 @@ source("2_postInterrogate_R/functions.R")
 run<-28
 sampleNoCodesForFraction<-F       #T or F
 
-rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ_filtered.rds'
+rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
 resultsPathReads<-'../Results/ReadCounts/'
 resultsPathTemplate<-'../Results/Templates/'
 
