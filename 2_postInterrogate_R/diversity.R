@@ -12,8 +12,11 @@ library(ggforce)
 setwd(here())
 getwd()
 
+source("2_postInterrogate_R/functions.R")
+
 #=========== adjust =============
-sampleNoCodesForFraction<-T        #T or F
+sampleNoCodesForFraction<-F        #T or F
+run<-28
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ_filtered.rds'
 resultsPathDiversity<-'../Results/Diversity/'
@@ -73,27 +76,11 @@ for (i in 1:length(files_short)){
 #======================= diversity summary =====================
 #===============================================================
 d<-diversitySummary
-d$filename
-#====== split by sample - loci & replicates in rows =============
-d.split1<-splitFilename(d)
-d.split1$sample
-d.split2<-split(d.split1,d.split1$sample)
-#str(d.split2)
-
-#print to xlsx
-wb<-createWorkbook()
-addWorksheet(wb,"summary")
-writeData(wb,"summary",d.split1)
-for (i in 1:length(d.split2)){
-  addWorksheet(wb,d.split2[[i]]$sample[1])
-  writeData(wb,d.split2[[i]]$sample[1],d.split2[i],colNames = TRUE)
-}
-saveWorkbook(wb,paste0(resultsPathDiversity,"diversitySummary.xlsx"),overwrite = T)
 
 #==================== plot - by ownerPatient ===================
 #transform d to long format
 d.long<-gather(d,index,value,-filename,-locus,-readCount,-clonotypeCount)
-d.long<-splitFilename(d.long)
+d.long<-splitFilename(d.long,sampleNoCodesForFraction,run)
 
 d.long$ownerPatient<-as.factor(d.long$ownerPatient)
 colorCount<-nlevels(d.long$ownerPatient)
@@ -168,7 +155,7 @@ d2<-d %>%
   unite(indexByLocus, key, locus) %>%
   spread(indexByLocus,value)
 
-d2<-splitFilename(d2)
+d2<-splitFilename(d2,sampleNoCodesForFraction,run)
 
 #save as xlsx file
 wb<-createWorkbook()
@@ -179,24 +166,28 @@ saveWorkbook(wb,paste0(resultsPathDiversity,"diversity_locusAsColumn.xlsx"),over
 #save as rds file
 saveRDS(d2,paste0(resultsPathDiversity,"diversity_locusAsColumn.rds"))
 
-#================= merge replicates ================
-d2<-splitFilename(d)
-d2<-subset(d2,select=c(submission,locus,replicate,fraction,shannon,effectiveSpecies,simpson))
-#d2<-subset(d2,select=-c(filename,idNumber,id,pcr))
+#============= transpose reps to column - locus by line -> merge replicates ================
+d2<-splitFilename(d,sampleNoCodesForFraction,run)
+d2<-subset(d2,select=c(submission,locus,replicate,fraction,readCount,clonotypeCount,shannon,effectiveSpecies,simpson))
 colnames(d2)
 
-d2<-d2 %>% gather(index,value,shannon:simpson) %>%
+#omit controls for now (quick & dirty fix) -> go back and give unique submission name
+d2<-d2[!grepl("k9",d2$submission),]
+
+d2<-d2 %>% gather(index,value,readCount:simpson) %>%
   unite(index2,index,replicate) %>%
   spread(index2,value)
 
+d2$readCount.mean<-(d2$readCount_rep1+d2$readCount_rep2)/2
+d2$clonotypeCount.mean<-(d2$clonotypeCount_rep1+d2$clonotypeCount_rep2)/2
 d2$shannon.mean<-(d2$shannon_rep1+d2$shannon_rep2)/2
 d2$simpson.mean<-(d2$simpson_rep1+d2$simpson_rep2)/2
 d2$effectiveSpecies.mean<-(d2$effectiveSpecies_rep1+d2$effectiveSpecies_rep2)/2
 
-d2<-subset(d2,select=c(submission,locus,fraction,shannon.mean,simpson.mean,effectiveSpecies.mean))
+d2<-subset(d2,select=-c(readCount_rep1,readCount_rep2,clonotypeCount_rep1,clonotypeCount_rep2,shannon_rep1,shannon_rep2,simpson_rep1,simpson_rep2,effectiveSpecies_rep1,effectiveSpecies_rep2))
 
-d2<-d2 %>% gather(index,value,-submission,-locus,-fraction) %>%
-  unite(index3,index,locus) %>%
+d2<-d2 %>% gather(key,value,-submission,-locus,-fraction) %>%
+  unite(index3,key,locus) %>%
   spread(index3,value)
 
 #save as xlsx
