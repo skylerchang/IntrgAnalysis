@@ -1,5 +1,6 @@
-#functions that are used by the following scripts: filter.R, locus.R
+#functions that are used by the following scripts: diversity.R, filter.R, locus.R
 
+#x: data, y: sampleNoCodesForFraction (T/F), z: run
 splitFilename<-function(x,y,z){
   #define fractions dependent on sequencing run
   fraction.blood<-c(13,17,22,27,29)
