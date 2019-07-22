@@ -4,7 +4,7 @@
 splitFilename<-function(x,y,z){
   #define fractions dependent on sequencing run
   fraction.blood<-c(13,17,22,27,29)
-  fraction.csf1<-c(21,24,26)
+  fraction.csf1<-c(21,24,26,'26-24-21')
   fraction.csf2<-c(28)
   fraction.ln<-c(30)
   if(z %in% fraction.blood){fraction1<-'Blood';fraction2<-'Plasma'}
