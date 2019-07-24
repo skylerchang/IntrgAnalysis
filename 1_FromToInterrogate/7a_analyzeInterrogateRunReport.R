@@ -2376,3 +2376,24 @@ dev.off()
 #dna 
 ggplot(F.wga,aes(pre.dna,usable.count,shape = sequence,color=sequence))+geom_point(size=5)
 dev.off()
+
+#clnical diagnosis vs the seq metrics 
+pdf(paste0(targetDir,'clinical diagnosis vs raw.read.pdf'))
+ggplot(m,aes(raw.count,clin.diagnosis.simple2,color=clin.diagnosis.simple2))+geom_point(size=5)
+dev.off()
+
+pdf(paste0(targetDir,'clinical diagnosis vs usable.read.pdf'))
+ggplot(m,aes(usable.count,clin.diagnosis.simple2,color=clin.diagnosis.simple2))+geom_point(size=5)
+dev.off()
+
+pdf(paste0(targetDir,'clinical diagnosis vs clonotype count.pdf'))
+ggplot(m,aes(cln.count,clin.diagnosis.simple2,color=clin.diagnosis.simple2))+geom_point(size=5)
+dev.off()
+
+pdf(paste0(targetDir,'clinical diagnosis vs alpha diversity.pdf'))
+ggplot(m,aes(alpha_diversity.count,clin.diagnosis.simple2,color=clin.diagnosis.simple2))+geom_point(size=5)
+dev.off()
+
+pdf(paste0(targetDir,'clinical diagnosis vs effective species count.pdf'))
+ggplot(m,aes(effective_species.count,clin.diagnosis.simple2,color=clin.diagnosis.simple2))+geom_point(size=5)
+dev.off()
