@@ -324,6 +324,9 @@ F.wga <-t[!t$wga,]
 #remove run 1 for wga analysis (only do if analysisng WGA)
 F.wga<- F.wga[-c(1:4,13:16,21:24,29:32,41:44,49:52),]
 
+#if looking at run 4 -> only the 12 samples not separtaed prior to DNA extracttion
+F.wga12<-F.wga[c(58,59,64:85),]
+
 #csf fraction for wga
 T.wga.ca<- subset(T.wga,sampleFraction==1)
 T.wga.cf <-subset(T.wga,sampleFraction==2)
@@ -2396,4 +2399,42 @@ dev.off()
 
 pdf(paste0(targetDir,'clinical diagnosis vs effective species count.pdf'))
 ggplot(m,aes(effective_species.count,clin.diagnosis.simple2,color=clin.diagnosis.simple2))+geom_point(size=5)
+dev.off()
+
+
+#correlation graphs for all runs 
+#dna 
+p1<- ggplot(F.wga,aes(log(pre.dna),raw.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank()) 
+p2<- ggplot(F.wga,aes(log(pre.dna),usable.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank()) 
+p3<- ggplot(F.wga,aes(log(pre.dna),cln.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank())  
+p4<- ggplot(F.wga,aes(log(pre.dna),alpha_diversity.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank())  
+p5<- ggplot(F.wga,aes(log(pre.dna),effective_species.count))+geom_point(size=2)+ geom_smooth(method=lm)
+
+pdf(paste0(targetDir,"DNA correlations all seq runs.pdf"))
+grid.newpage()
+pushViewport( viewport( layout = grid.layout(5,1, widths = c(.2,.2,.2,.2,.2))))
+vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
+print(p1, vp = vplayout(1,1))
+print(p2, vp = vplayout(2,1))
+print(p3, vp = vplayout(3,1))
+print(p4, vp = vplayout(4,1))
+print(p5, vp = vplayout(5,1))
+dev.off()
+
+#predicted lymphocytes 
+p1<- ggplot(F.wga,aes(pred.lym.cyto,raw.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank()) 
+p2<- ggplot(F.wga,aes(pred.lym.cyto,usable.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank()) 
+p3<- ggplot(F.wga,aes(pred.lym.cyto,cln.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank())  
+p4<- ggplot(F.wga,aes(pred.lym.cyto,alpha_diversity.count))+geom_point(size=2)+ geom_smooth(method=lm)+ theme(axis.title.x=element_blank())  
+p5<- ggplot(F.wga,aes(pred.lym.cyto,effective_species.count))+geom_point(size=2)+ geom_smooth(method=lm)
+
+pdf(paste0(targetDir,"predicted lymphs correlations all seq runs.pdf"))
+grid.newpage()
+pushViewport( viewport( layout = grid.layout(5,1, widths = c(.2,.2,.2,.2,.2))))
+vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
+print(p1, vp = vplayout(1,1))
+print(p2, vp = vplayout(2,1))
+print(p3, vp = vplayout(3,1))
+print(p4, vp = vplayout(4,1))
+print(p5, vp = vplayout(5,1))
 dev.off()
