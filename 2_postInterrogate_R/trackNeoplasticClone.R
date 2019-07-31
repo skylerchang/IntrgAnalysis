@@ -1,7 +1,7 @@
 #script calculates diversity for split 'Clntab_RDS' files: 'Clntab_RDS_noTemplate' & 'Clntab_RDS_templateOnly'
 #v14: process data from multiple sequencing runs
 
-library(plyr)
+#library(plyr)
 library(tidyverse)
 library(here)
 #library(reshape2)
@@ -9,7 +9,8 @@ library(RColorBrewer)
 #library(ggpubr)
 library(openxlsx)
 #library(ggExtra)
-library(MASS)
+#library(MASS)
+library(ggpubr)
 
 setwd(here())
 getwd()
@@ -74,7 +75,7 @@ for (k in 1:length(rdsPaths)){
     a$index[grepl("CAKELYYDSYSVDYW",a$aaSeq)]<-'sona'
     
     #========== summarize index sequences ==============
-    temp<-ddply(a[,c("readCount","index")],"index",na.rm=T, numcolwise(sum))
+    temp<-plyr::ddply(a[,c("readCount","index")],"index",na.rm=T,plyr::numcolwise(sum))
     if (nrow(temp)==0){next}
     temp$totalReads<-sum(temp$readCount)
     temp$percentage<-temp$readCount/temp$totalReads*100
@@ -84,16 +85,59 @@ for (k in 1:length(rdsPaths)){
   }
 }
 c<-indexSummary
+minReadCoverage<-100
 
 #remove controls for now -> revisit
-remove<-c("ntc","k9","pc")
+remove<-c("ntc","k9","pc","canine","OWN33")
 c<-c[!grepl(paste0(remove,collapse='|'),c$filename),]
 
-#remove non-index clones
-c<-c[c$index!='no',]
+#remove non-index clones, split filename, create cols 'subFraRep' & 'fraRep' & 'submissionNo'
+c<-c %>% 
+  filter(index!='no') %>%
+  splitFilename(.,sampleNoCodesForFraction) %>%
+  unite(subFraRep,submission,fraction,replicate,remove=F) %>%
+  unite(fraRep,fraction,replicate,remove=F) %>%
+  mutate(submissionNo=sub(".*-","",submission)) %>%
+  select(-c(filename,id,ownerPatient,idNumber,pcr,sample))
 
-#split filename
-c<-splitFilename(c,sampleNoCodesForFraction)
+#identify replicates with <minReadCoverage reads -> pull 'subFraRep'
+censored<-c %>%
+  filter(totalReads<minReadCoverage) %>%
+  pull(subFraRep) %>%
+  unique()
+
+#remove lines with insufficient read count
+c<-c %>% filter(!subFraRep %in% censored)
+
+#========= generate empty tibble ===================
+#create empty matrix with the following variables to create the default plotting 'area'
+#readCount,percentage,replicate,fraction,run,patient,submission
+patient<-c("Bella","Bentley","Cheech","Daisy","Eddie","Gypsy","Jake","Marishka","Sona","Reilly")
+s<-c("bella","bentle","cheech","daisy","eddie","gypsy","jake","marish","sona","reilly")
+timepoint<-c(7,3,6,12,8,11,13,9,6,10)   #the number of submissions per patient
+run<-c(17,29,29,22,27,29,27,17,22,13)   #the run number in which it was sequenced
+empty<-tibble()
+for (i in 1:length(patient)){
+  temp<-tibble(
+    readCount=rep(0,(4*timepoint[i])),
+    percentage=rep(0,(4*timepoint[i])),
+    replicate=rep(c("rep1","rep2"),(2*timepoint[i])),
+    fraction=rep(rep(c("PBMCs","Plasma"),each=2),timepoint[i]),
+    run=rep(run[i],4*timepoint[i]),
+    patient=rep(patient[i],4*timepoint[i]),
+    submissionNo=formatC(rep(0:(timepoint[i]-1),each=4),width=2,flag="0"),
+    submission=paste(s[i],submissionNo,sep='-'),
+    fraRep=paste(fraction,replicate,sep='_'),
+    subfraRep=paste(submission,fraction,replicate,sep='_')
+  )
+  empty<-bind_rows(empty,temp)
+}
+
+#create col 'subFraRep' & change readCount to NA for all rows with <100 totalReads
+empty<-empty %>%
+  unite(subFraRep,submission,fraction,replicate,remove=F)
+empty$readCount[empty$subFraRep %in% censored]<-NA
+empty$percentage[empty$subFraRep %in% censored]<-NA
 
 #=============================================================
 #========= index clone analysis - tile plots =================
@@ -103,76 +147,122 @@ c<-splitFilename(c,sampleNoCodesForFraction)
 #plot tiles - facet: patient~fraction
 #x: data, y: patient index; z: readCount or percentage (implement)
 plotTile<-function(x,y){
-  p<-ggplot(x,aes(submission,replicate,fill=readCount))+
+  p<-ggplot(x,aes(submissionNo,replicate,fill=readCount))+
     geom_tile(colour="darkgrey",size=0.25)+
     facet_grid(patient~fraction)+
     scale_fill_gradient(high='red',low='white')+
-    scale_x_discrete(limits=(c(paste0(0,seq(1,9)),10,11,12)))+
+    scale_x_discrete(limits=formatC(seq(0,12),width=2,flag="0"))+
     coord_equal()+
-    guides(fill = guide_colourbar(title=NULL,barheight=2))
+    guides(fill=guide_colourbar(title=NULL,barheight=2))+
+    theme(axis.title.x=element_blank(),strip.text.x = element_blank())
+  #color code facet strip by run
   if (y==1){
-    p+theme(axis.title.x=element_blank(),strip.text.x = element_blank(),strip.background = element_rect(fill="red"))
+    p+theme(strip.background = element_rect(fill="red"))
   }else{
-    p+theme(axis.title.x=element_blank(),strip.text.x = element_blank(),strip.background = element_rect(fill="lightgreen"))
+    p+theme(strip.background = element_rect(fill="lightgreen"))
   }
+}
+
+plotTileComposite<-function(x,y,z){
+  p<-ggplot(x,aes(submissionNo,replicate,fill=readCount))+
+    geom_tile(colour="darkgrey",size=0.15)+
+    facet_grid(patient~fraction)+
+    scale_fill_gradient(high='red',low='white')+
+    scale_x_discrete(limits=formatC(seq(0,12),width=2,flag="0"))+
+    coord_equal()+
+    guides(fill=F)+
+    theme(axis.title=element_blank(),
+          axis.text=element_text(size=3),
+          axis.text.x=element_text(size=3,angle=90),
+          strip.text.x=element_text(size=5),
+          strip.text.y=element_text(size=5,angle=360))+
+    ggtitle(z)
+  #color code facet strip by run
+#  if (y==1){
+#    p+theme(strip.background = element_rect(fill="red"))
+#  }else{
+#    p+theme(strip.background = element_rect(fill="lightgreen"))
+#  }
+}
+plotTile2CompositeCount<-function(x,z){
+  #x<-data
+  unique(x$fraRep)
+  p<-ggplot(x,aes(submissionNo,fraRep,fill=readCount))+
+    geom_tile(colour="darkgrey",size=0.15)+
+    facet_wrap(~patient,ncol=3)+
+    scale_fill_gradient(high='red',low='white')+
+    scale_x_discrete(limits=formatC(seq(0,12),width=2,flag="0"))+
+    coord_equal()+
+    guides(fill=F)+
+    theme(axis.title=element_blank(),
+          axis.text=element_text(size=3),
+          axis.text.x=element_text(size=3,angle=90),
+          strip.text.x=element_text(size=5),
+          strip.text.y=element_text(size=5,angle=360))+
+    ggtitle(z)
+}
+plotTile2CompositePercentage<-function(x,z){
+  #x<-data
+  unique(x$fraRep)
+  p<-ggplot(x,aes(submissionNo,fraRep,fill=percentage))+
+    geom_tile(colour="darkgrey",size=0.15)+
+    facet_wrap(~patient,ncol=3)+
+    scale_fill_gradient(high='red',low='white')+
+    scale_x_discrete(limits=formatC(seq(0,12),width=2,flag="0"))+
+    coord_equal()+
+    guides(fill=F)+
+    theme(axis.title=element_blank(),
+          axis.text=element_text(size=3),
+          axis.text.x=element_text(size=3,angle=90),
+          strip.text.x=element_text(size=5),
+          strip.text.y=element_text(size=5,angle=360))+
+    ggtitle(z)
 }
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#========= generate empty tibble ===================
-#create empty matrix with the following variables to create the default plotting 'area'
-#readCount,percentage,replicate,fraction,run,patient,submission
-patient<-c("bella","bentle","cheech","daisy","eddie","gypsy","jake","marish","sona","reilly")
-timepoint<-c(7,3,6,12,8,11,13,9,6,10)   #the number of submissions per patient
-run<-c(17,29,29,22,27,29,27,17,22,13)   #the run number in which it was sequenced
-empty<-tibble()
-for (i in 1:length(timepoint)){
-  temp<-tibble(
-    readCount=rep(0,(4*timepoint[i])),
-    percentage=rep(0,(4*timepoint[i])),
-    replicate=rep(c("rep1","rep2"),(2*timepoint[i])),
-    fraction=rep(rep(c("PBMCs","Plasma"),each=2),timepoint[i]),
-    run=rep(run[i],4*timepoint[i]),
-    patient=rep(patient[i],4*timepoint[i]),
-    submission=formatC(rep(1:timepoint[i],each=4),width=2,flag="0")
-  )
-  empty<-bind_rows(empty,temp)
-}
-
-#plot to check layout
-plotTile(empty,1)
-empty[rowSums(is.na(empty))>0,]
+#plot to check layout of empty tibble
+p<-plotTile2Composite(empty,1)
+print(p)
 #========= generate index tibble ===================
-clones<-c("bella","bentle","cheech","daisy","eddie1","eddie2","gypsy","jake","marishka","sona","reilly")
+clones<-c("bella","bentley","cheech","daisy","eddie1","eddie2","gypsy","jake","marishka","sona","reilly")
 
+pl_common_count<-list()
+pl_common_percentage<-list()
 for (k in 1:length(clones)){
-  #subset by index clone
-  cc<-c[c$index==clones[k],]
-  cc<-subset(cc,select=c(readCount,percentage,replicate,fraction,run,ownerPatient,submission))
+  #subset by index clone, create 'submissionNo'
+  cc<-c %>%
+    filter(index==clones[k]) %>%
+    select(readCount,percentage,replicate,fraction,run,patient,submission,fraRep) %>%
+    mutate(submissionNo=sub(".*-","",submission))
 
   #combine empty and x and sum up
-  data<-as_tibble(bind_rows(empty,cc))
-  data<-as_tibble(ddply(data,c("replicate","fraction","run","patient","submission"),numcolwise(sum)))
+  data<-bind_rows(empty,cc)
+  unique(data$fraRep)
+  data.subset<-as_tibble(plyr::ddply(data,c("patient","submissionNo","fraRep"),plyr::numcolwise(sum)))
+  unique(data.subset$fraRep)
+
+  #plot for with common scale
+  pl_common_count[[k]]<-plotTile2CompositeCount(data.subset,clones[k])
+  pl_common_percentage[[k]]<-plotTile2CompositePercentage(data.subset,clones[k])
+}
+
+for (i in 1:length(pl_common)){
+  pdf(paste0(outPathTile,"tile_minReads-",minReadCoverage,"_",clones[i],"_count.pdf"))
+  print(pl_common_count[[i]])
+  dev.off()
   
-  #split by patient
-  data<-split(data,data$patient)
-  names(data)
-  
-  pl<-list()
-  #values 'data': "bella"  "bentle" "cheech" "daisy"  "eddie"  "gypsy"  "jake"   "marish" "reilly" "sona" 
-  for (l in 1:length(data)){
-    pl[[l]]<-plotTile(data[[l]],l)
-  }
-  temp<-data[[l]]
-  temp[temp$patient=='bella',]
-  
-  library(ggpubr)
-  pdf(paste0(outPathTile,"tilePlot_clone-",clones[k],".pdf"))
-  print(ggarrange(plotlist=pl,ncol=1))
+  pdf(paste0(outPathTile,"tile_minReads-",minReadCoverage,"_",clones[i],"_perc.pdf"))
+  print(pl_common_percentage[[i]])
   dev.off()
 }
 
+pdf(paste0(outPathTile,"tilePlot_clone_all.pdf"))
+#print(pl_common[[1]])
+print(ggarrange(plotlist=pl_common,nrow=2,ncol=6))
+dev.off()
 
+pl_common[[1]]
 #================================================
 #========= generate bar plots ==================
 #================================================
