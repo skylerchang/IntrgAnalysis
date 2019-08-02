@@ -144,21 +144,24 @@ for (i in 1:length(files_short)){
   
   #continue with dataset w/o templates
   a<-a[a$template=='no',]
-  sum(a$readCount)
+  count.noTemplates<-sum(a$readCount)
   a<-subset(a,select=-(template))
   
   #split by locus
   igh<-a[a$locus=='IGH',]
   trb<-a[a$locus=='TRB',]
+  trg<-a[a$locus=='TRG',]
   count.igh.before<-sum(igh$readCount)
   count.trb.before<-sum(trb$readCount)
-  count.igh.before+count.trb.before
+  count.trg.before<-sum(trg$readCount)
+  count.all.before.sum<-count.igh.before+count.trb.before+count.trg.before
   
   #============ filter seqs by seqs & ^C.{3,30}[FW]$ =======
   igh<-igh[grepl("^C.{3,30}[W]$",igh$aaSeq),]
   trb<-trb[grepl("^C.{3,30}[F]$",trb$aaSeq),]
+  trg<-trg[grepl("^C.{3,30}[FAC]$",trg$aaSeq),]
   
-  temp<-bind_rows(igh,trb)
+  temp<-bind_rows(igh,trb,trg)
   filteredData[[i]]<-temp
   #replace col 'sample' by col 'clUp2Id' -> for import in DB
   temp<-subset(temp,select=-(filename))
@@ -169,26 +172,34 @@ for (i in 1:length(files_short)){
 
   count.igh.after<-sum(igh$readCount)
   count.trb.after<-sum(trb$readCount)
-  count.ighAndTrb<-count.igh.after+count.trb.after
+  count.trg.after<-sum(trg$readCount)
+  count.all.after.sum<-count.igh.after+count.trb.after+count.trg.after
   count.igh.anchorFiltered<-count.igh.before-count.igh.after
   count.trb.anchorFiltered<-count.trb.before-count.trb.after
+  count.trg.anchorFiltered<-count.trg.before-count.trg.after
   
   #============= create read count summary =============
   #checksum
   count.all-(count.templates+
                count.igh.anchorFiltered+count.igh.after+
-               count.trb.anchorFiltered+count.trb.after
+               count.trb.anchorFiltered+count.trb.after+
+               count.trg.anchorFiltered+count.trg.after
              )
   #create tibble
   temp<-tibble(
     filename=files_short[i],
     readCount.total=count.all,
+    
     readCount.template=count.templates,
-    readCount.ighAndTrb=count.ighAndTrb,
+    readCount.noTemplate=count.noTemplates,
+    readCount.all.before.sum=count.all.before.sum,
+    
     readCount.igh=count.igh.after,
     falseAnchor.igh=count.igh.anchorFiltered,
     readCount.trb=count.trb.after,
-    falseAnchor.trb=count.trb.anchorFiltered
+    falseAnchor.trb=count.trb.anchorFiltered,
+    readCount.trg=count.trg.after,
+    falseAnchor.trg=count.trg.anchorFiltered
     )
   readCountSummary<-bind_rows(readCountSummary,temp)
 }
@@ -215,8 +226,10 @@ saveWorkbook(wb,paste0(resultsPathReads,"readCountSummary_repsAsRows.xlsx"),over
 saveRDS(readCountSummary2,paste0(resultsPathReads,"readCountSummary_repsAsRows.rds"))
 
 #transform to long format and split filename
-readCount.long<-gather(subset(readCountSummary,select=-c(readCount.total,readCount.ighAndTrb)),variable,value,-filename)
-readCount.long<-splitFilename(readCount.long,sampleNoCodesForFraction,run)
+readCount.long<-readCountSummary %>%
+  select(-c(readCount.total,readCount.noTemplate,readCount.all.before.sum)) %>%
+  gather(variable,value,-filename) %>%
+  splitFilename(.,sampleNoCodesForFraction,run)
 
 #plot by submission for 'sampleNoCodesForFraction<-T'
 if (sampleNoCodesForFraction==T){
@@ -237,7 +250,7 @@ if (sampleNoCodesForFraction==T){
 #======= transpose reps to cols ===========
 readCountSummary3<-readCountSummary2 %>%
   select(-c(filename,idNumber,id,pcr)) %>%
-  gather(key,value,readCount.total:falseAnchor.trb) %>%
+  gather(key,value,readCount.total:falseAnchor.trg) %>%
   unite(key_rep,key,replicate) %>%
   spread(key_rep,value)
 
