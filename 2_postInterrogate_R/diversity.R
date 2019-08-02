@@ -16,7 +16,8 @@ source("2_postInterrogate_R/functions.R")
 
 #=========== adjust =============
 sampleNoCodesForFraction<-F        #T or F
-run<-28
+run<-25
+loci<-c('IGH','TRB','TRG')
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ_filtered.rds'
 resultsPathDiversity<-'../Results/Diversity/'
@@ -58,18 +59,15 @@ for (i in 1:length(files_short)){
   if(nrow(a)==0){next}
   a$filename<-files_short[i]
   
-  #split by locus
-  igh<-a[a$locus=='IGH',]
-  trb<-a[a$locus=='TRB',]
-  
-  #calculate diversity indexes and store in 'diversity'
-  temp<-calculateDiversity(igh,files_short[i])
-  temp$locus<-'IGH'
-  diversitySummary<-bind_rows(diversitySummary,temp)
-  
-  temp<-calculateDiversity(trb,files_short[i])
-  temp$locus<-'TRB'
-  diversitySummary<-bind_rows(diversitySummary,temp)
+  for (l in 1:length(loci)){
+    #subset by locus
+    data<-a[a$locus==loci[l],]
+    
+    #calculate diversity indexes and store in 'diversity'
+    temp<-calculateDiversity(data,files_short[i])
+    temp$locus<-loci[l]
+    diversitySummary<-bind_rows(diversitySummary,temp)
+  }
 }
 
 #===============================================================
@@ -79,8 +77,9 @@ d<-diversitySummary
 
 #==================== plot - by ownerPatient ===================
 #transform d to long format
-d.long<-gather(d,index,value,-filename,-locus,-readCount,-clonotypeCount)
-d.long<-splitFilename(d.long,sampleNoCodesForFraction,run)
+d.long<-d %>%
+  gather(index,value,-filename,-locus,-readCount,-clonotypeCount) %>%
+  splitFilename(.,sampleNoCodesForFraction,run)
 
 d.long$ownerPatient<-as.factor(d.long$ownerPatient)
 colorCount<-nlevels(d.long$ownerPatient)
@@ -93,6 +92,15 @@ ggplot(d.long,aes(locus,value))+
   facet_grid(index~locus, scales="free")+
   scale_color_manual(values=getPalette(colorCount))+
   theme(legend.position="none")
+dev.off()
+
+#bar all indexes - palette 'Paired' can do 6 pairs max -> revisit and adjust for runs > 12 samples
+pdf(paste0(resultsPathDiversity,"diversity_jitter_allIndexes.pdf"))
+ggplot(d.long,aes(submission,value,fill=pcr))+
+  geom_col(position=position_dodge())+
+  facet_grid(index~locus, scales="free")+
+  scale_fill_brewer(palette="Paired")+
+  theme(legend.position="none",axis.text.x=element_text(angle=90))
 dev.off()
 
 d.long$fraction
