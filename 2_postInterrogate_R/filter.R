@@ -12,7 +12,10 @@ getwd()
 source("2_postInterrogate_R/functions.R")
 
 #=========== adjust =============
-run<-28
+msgBox <- tkmessageBox(title = "Alert",
+                       message = "Don't forget to adjust 'run' and 'sampleNoCodesForFraction'", icon = "info", type = "ok")
+
+run<-25
 sampleNoCodesForFraction<-F       #T or F
 
 rdsPath<-'../Data/Clntab_RDS/clntab_vAndJ.rds'
