@@ -215,6 +215,7 @@ write_delim(filteredDataForDB,'../Data/Clntab_delim/clntab_vAndJ_filtered.txt')
 #===============================================================
 readCountSummary2<-splitFilename(readCountSummary,sampleNoCodesForFraction,run)
 readCountSummary2$fraction
+colnames(readCountSummary2)
 
 #save as xlsx
 wb<-createWorkbook()
@@ -232,18 +233,29 @@ readCount.long<-readCountSummary %>%
   splitFilename(.,sampleNoCodesForFraction,run)
 
 #plot by submission for 'sampleNoCodesForFraction<-T'
+readCount.long$variable<-factor(readCount.long$variable,levels=c(
+  "readCount.igh","falseAnchor.igh",
+  "readCount.trb","falseAnchor.trb",
+  "readCount.trg","falseAnchor.trg",
+  "readCount.template"
+))
 if (sampleNoCodesForFraction==T){
   pdf('../Results/ReadCounts/readCountSummary_bySubmission.pdf')
-  ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(submission~fraction)+theme(strip.text.y=element_text(angle=360))
+  print(ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(submission~fraction)+theme(strip.text.y=element_text(angle=360)))
   dev.off()
   
   pdf('../Results/ReadCounts/readCountSummary_byOwnerPatient.pdf')
-  ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(ownerPatient~fraction)+theme(strip.text.y=element_text(angle=360))
+  print(ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(ownerPatient~fraction)+theme(strip.text.y=element_text(angle=360)))
   dev.off()
 }else{
-  #plot by sample for 'sampleNoCodesForFraction<-T'
+  #plot by sample for 'sampleNoCodesForFraction<-F'
   pdf('../Results/ReadCounts/readCountSummary_bySample.pdf')
-  ggplot(readCount.long,aes(replicate,value,fill=variable))+geom_col()+coord_flip()+scale_fill_brewer(palette='Dark2')+facet_grid(sample~fraction)+theme(strip.text.y=element_text(angle=360))
+  print(ggplot(readCount.long,aes(replicate,value,fill=variable))+
+    geom_col(position=position_stack(reverse=T))+
+    coord_flip()+
+    scale_fill_brewer(palette='Paired')+
+    facet_grid(sample~fraction)+
+    theme(strip.text.y=element_text(angle=360)))
   dev.off()
 }
 
@@ -253,6 +265,7 @@ readCountSummary3<-readCountSummary2 %>%
   gather(key,value,readCount.total:falseAnchor.trg) %>%
   unite(key_rep,key,replicate) %>%
   spread(key_rep,value)
+readCountSummary[63:64,]
 
 wb<-createWorkbook()
 addWorksheet(wb,'summary')
