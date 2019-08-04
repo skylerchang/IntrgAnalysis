@@ -8,10 +8,15 @@ library(RColorBrewer)
 
 setwd(here())
 
+source("2_postInterrogate_R/functions.R")
+
 #========== adjust the following variables ================
+sampleNoCodesForFraction<-F        #T or F
+run<-25
+loci<-c('IGH','TRB','TRG')
+
 t<-read_rds('../Data/clntab_RDS/clntab_vAndJ_filtered.rds')
 outpath<-'../Results/GeneUsage/'
-loci<-c("IGH","TRB")
 
 #==========================================================
 dir.create(outpath)
@@ -21,185 +26,86 @@ datalist<-t[[1]]
 #sample names are stored separately in a vector
 files_short<-t[[2]]
 
-#plotlist_histogramFacet<-list()
-#plotlist_density<-list()
+data<-list()
+factorLevels<-list()
 
-v<-tibble()
-j<-tibble()
+#initialize data list that holds summary stats for groups
+groups<-c('vSubgroup','vGene','jSubgroup','jGene')
+for (j in 1:length(groups)){
+  data[[j]]<-tibble()
+}
 
 for (i in 1:length(datalist)){
   print(files_short[[i]])
-  t<-datalist[[i]][,c("vGene","jGene","aaSeq","aaLength","readCount","locus")]
+  
+  #parse filtered clntab data 
+  t<-datalist[[i]][,c("vGene","jGene","readCount","locus")]
   if (is.null(datalist[[i]])){
     print("no data")
     next
-    }
-  for (k in 1:length(loci)){
-    tt<-t[t$locus==loci[k],]
-    if (nrow(tt)==0){
-      print(paste0("No data for ",loci[k]))
-      next
-    }
-    tt<-tt[rowSums(is.na(tt))==0,]
-    
-    #================ vGene subgroup usage =================================
-    tt.v<-tt
-    #determine subgroup
-    tt.v$vSubgroup<-NA
-    temp<-gsub("-[0-9]+","",tt.v$vGene)
-    temp<-strsplit(temp,split="=")
-    temp<-lapply(temp,unique)
-    tt.v$vSubgroup<-sapply(temp,paste,collapse="=")
-    tt.v<-tt.v[!grepl("=",tt.v$vSubgroup),]
+  }
+  
+  #determine subgroup
+  findSubgroups<-function(x){
+    x %>% 
+      gsub("-[0-9]+","",.) %>%
+      strsplit(split="=") %>%
+      lapply(unique) %>%
+      sapply(paste,collapse="=")
+  }
+  t$vSubgroup<-findSubgroups(t$vGene)
+  t$jSubgroup<-findSubgroups(t$jGene)
 
-    #aggregate & sort rows with identical V subgroup
-    ttt.v<-as_tibble(aggregate(tt.v$readCount,by=list(vSubgroup=tt.v$vSubgroup),FUN=sum))
-    ttt.v<-ttt.v[order(-ttt.v$x),]
-    ttt.v<-subset(ttt.v,!is.na(vSubgroup))
-    ttt.v$vSubgroup<-factor(ttt.v$vSubgroup,levels=ttt.v$vSubgroup)
-    ttt.v$x.perc=ttt.v$x/sum(ttt.v$x,na.rm=T)*100
-    ttt.v$rank<-1:nrow(ttt.v)
-    
-    #Add to main table
-    ttt.v$locus<-loci[k]
-    ttt.v$animal<-files_short[i]
-    v<-bind_rows(v,ttt.v)
-    
-    #================ jGene usage =================================
-    #aggregate & sort rows with identical j gene
-    tt.j<-as_tibble(aggregate(tt$readCount,by=list(jGene=tt$jGene),FUN=sum))
-    tt.j<-tt.j[order(-tt.j$x),]
-    tt.j<-subset(tt.j,!is.na(jGene))
-    tt.j$jGene<-factor(tt.j$jGene,levels=tt.j$jGene)
-    tt.j$x.perc=tt.j$x/sum(tt.j$x,na.rm=T)*100
-    tt.j$rank<-1:nrow(tt.j)
-    
-    #Add to main table
-    tt.j$locus<-loci[k]
-    tt.j$animal<-files_short[i]
-    j<-bind_rows(j,tt.j)
-    
+  #group & summarize - function
+  group<-function(x,gene){
+    x %>%
+      rename(group=!!gene) %>%
+      group_by(locus) %>%
+      mutate(readCountPerLocus=sum(readCount)) %>%
+      mutate(percentage=readCount/readCountPerLocus*100) %>%
+      group_by(locus,group) %>%
+      summarise(percentage=sum(percentage),readCount=sum(readCount)) %>%
+      mutate(filename=files_short[i])
+  }
+  #group, summarise & add to table that holds data from all files
+  for (j in 1:length(groups)){
+    t.grouped<-group(t,groups[j])
+    data[[j]]<-bind_rows(data[[j]],t.grouped)
   }
 }
 
-#================ vGene subgroup usage =================================
-v<-v[v$vSubgroup!="NA",]
-v[rowSums(is.na(v))>0,]
-
-#calculate median percentage for subgroups; used to order levels for plotting based on frequency
-medianlist<-list()
-wb<-createWorkbook()
-for (i in 1:length(loci)){
-  #subset by locus
-  vv<-v[v$locus==loci[i],]
+#plot
+print("plotting...")
+for (i in 1:length(groups)){
+  print(groups[i])
+  d<-data[[i]]
+  #determine overall rank based on frequency -> determines factor level for plotting
+  factorLevels[[i]]<-d %>%
+    group_by(locus,group) %>% 
+    summarise(readCount=sum(readCount)) %>%
+    arrange(locus,desc(readCount)) %>%
+    pull(group)
+  #modify factor level for 'group'  
+  d$group<-factor(d$group,levels=factorLevels[[i]]) 
   
-  #======== by sample ==========
-  #convert 'long' -> 'wide' to get summary table by sample
-#  vv.wide<-dcast(vv,vSubgroup~animal,value.var = "x.perc")
-#  wb<-createWorkbook()
-#  worksheet<-paste0("V-",loci[i],"-BySample")
-#  addWorksheet(wb,worksheet)
-#  writeData(wb,worksheet,vv.wide)
+  #split filename
+  d<-splitFilename(d,sampleNoCodesForFraction,run)
+  #split data by locus to enable plots with individual scales
+  s<-split(d,d$locus)
   
-  #======== summary ==========
-  #calculate summary stats
-  vv.long<-as_tibble(ddply(vv,~vSubgroup,summarize,median=median(x.perc),mean=mean(x.perc),sd=sd(x.perc),min=min(x.perc),max=max(x.perc)))
-  #write to xlsx file
-  worksheet<-paste0("V-",loci[i],"-Summary")
-  addWorksheet(wb,worksheet)
-  writeData(wb,worksheet,vv.long)
-  #sort descendingly by median
-  vv.long<-vv.long[order(-vv.long$median),]
-  #store in list
-  medianlist[[i]]<-vv.long$vSubgroup[1:10]
+  #facet by submission
+  types<-c('percentage','readCount')
+  for (k in 1:length(types)){
+    p<-list()
+    for (l in 1:length(s)){
+      p[[l]]<-ggplot(s[[l]],aes_string(types[k],"group",fill="submission"))+
+        geom_point(pch=21)+
+        facet_grid(submission~locus)+
+        theme(legend.position="none")
+    }
+    pdf(paste0(outpath,"geneUsage_",groups[i],"_",types[k],".pdf"))
+    grid.arrange(p[[1]],p[[2]],p[[3]],nrow=1)
+    dev.off()
+  }
 }
-saveWorkbook(wb,paste0(outpath,"geneUsageSummary_vGene.xlsx"),overwrite = T)
-medianlistVector<-unlist(medianlist)
-
-v$locus<-as.factor(v$locus)
-
-#subset v to include the 10 most commonly used genes only (by median)
-s<-v[v$vSubgroup %in% medianlistVector,]
-s<-s[!s$vSubgroup=="NA",]
-
-#split dataset to allow for individual legends per facet
-ss<-split(s,f=s$locus)
-str(ss)
-#adjust level order in decreasing order of median
-for (i in 1:length(loci)){
-  ss[[i]]$vSubgroup<-factor(ss[[i]]$vSubgroup,levels=medianlist[[i]])
-}
-str(ss)
-
-#boxplot
-p1<-ggplot(ss$IGH,aes(vSubgroup,x.perc,fill=vSubgroup))+geom_boxplot(outlier.shape=NA)+geom_point(pch = 21,position = position_jitterdodge(jitter.width=2))+facet_wrap(~locus)+scale_fill_brewer(palette="Set3")+scale_x_discrete(name="Subgroup",limits = rev(levels(ss$TRA$vSubgroup)))+scale_y_continuous(labels = function(x) paste0(x, "%"))+labs(color='Subgroup')+coord_flip()+theme(legend.position = "none")+theme(axis.title.x = element_blank())
-
-p2<-ggplot(ss$TRB,aes(vSubgroup,x.perc,fill=vSubgroup))+geom_boxplot(outlier.shape=NA)+geom_point(pch = 21,position = position_jitterdodge(jitter.width=2))+facet_wrap(~locus)+scale_fill_brewer(palette="Set3")+scale_x_discrete(name="Subgroup",limits = rev(levels(ss$TRB$vSubgroup)))+scale_y_continuous(labels = function(x) paste0(x, "%"))+labs(color='Subgroup')+coord_flip()+theme(legend.position = "none")+theme(axis.title.x = element_blank())
-  
-
-#p2<-p1 %+% ss$TRB
-#p3<-p1 %+% ss$TRD
-#p4<-p1 %+% ss$TRG
-pdf(paste0(outpath,"usage_vGene_subgroup.pdf"))
-grid.arrange(p1,p2,ncol=2)
-dev.off()
-
-#================ jGene usage =================================
-str(j)
-
-wb<-createWorkbook()
-#calculate median percentage for subgroups; used to order levels for plotting based on frequency
-medianlist<-list()
-for (i in 1:length(loci)){
-  #subset by locus
-  jj<-j[j$locus==loci[i],]
-  
-  #======== by sample ==========
-  #convert 'long' -> 'wide' to get summary table by sample
-#  jj.wide<-dcast(jj,jGene~animal,value.var = "x.perc")
-#  worksheet<-paste0("J-",loci[i],"-BySample")
-#  addWorksheet(wb,worksheet)
-#  writeData(wb,worksheet,jj.wide)
-  
-  #======== summary ==========
-  #calculate summary stats
-  jj.long<-as_tibble(ddply(jj,~jGene,summarize,median=median(x.perc),mean=mean(x.perc),sd=sd(x.perc),min=min(x.perc),max=max(x.perc)))
-  #write to xlsx file
-  worksheet<-paste0("J-",loci[i],"-Summary")
-  addWorksheet(wb,worksheet)
-  writeData(wb,worksheet,jj.long)
-  #sort descendingly by median
-  jj.long<-jj.long[order(-jj.long$median),]
-  #store in list
-  medianlist[[i]]<-jj.long$jGene[1:10]
-}
-saveWorkbook(wb,paste0(outpath,"geneUsageSummary_jGene.xlsx"),overwrite = T)
-
-medianlistVector<-unlist(medianlist)
-
-j$locus<-as.factor(j$locus)
-
-#subset v to include the 10 most commonly used genes only (by median)
-s<-j[j$jGene %in% medianlistVector,]
-s<-s[!s$jGene=="NA",]
-
-
-#split dataset to allow for individual legends per facet
-ss<-split(s,f=s$locus)
-#adjust level order in decreasing order of median
-for (i in 1:length(loci)){
-  ss[[i]]$jGene<-factor(ss[[i]]$jGene,levels=medianlist[[i]])
-}
-str(ss)
-
-#boxplot
-p1<-ggplot(ss$IGH,aes(jGene,x.perc,fill=jGene))+geom_boxplot(outlier.shape=NA)+geom_point(pch = 21,position = position_jitterdodge(jitter.width=2))+facet_wrap(~locus)+scale_fill_brewer(palette="Set3")+scale_x_discrete(name="Gene",limits = rev(levels(ss$TRA$jGene)))+scale_y_continuous(labels = function(x) paste0(x, "%"))+coord_flip()+theme(legend.position = "none")+theme(axis.title.x = element_blank())
-
-p2<-ggplot(ss$TRB,aes(jGene,x.perc,fill=jGene))+geom_boxplot(outlier.shape=NA)+geom_point(pch = 21,position = position_jitterdodge(jitter.width=2))+facet_wrap(~locus)+scale_fill_brewer(palette="Set3")+scale_x_discrete(name="Gene",limits = rev(levels(ss$TRB$jGene)))+scale_y_continuous(labels = function(x) paste0(x, "%"))+coord_flip()+theme(legend.position = "none")+theme(axis.title.x = element_blank())
-
-pdf(paste0(outpath,"usage_jGene_subgroup.pdf"))
-grid.arrange(p1,p2,ncol=2)
-dev.off()
-
-
 
